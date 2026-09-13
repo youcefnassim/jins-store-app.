@@ -1,0 +1,100 @@
+"use client";
+
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Search } from "lucide-react";
+
+export function Hero() {
+  return (
+    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -z-10" />
+      
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col items-start gap-6"
+          >
+            <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-4 py-1.5 rounded-full text-sm font-medium">
+              MLBB TOP UP
+            </Badge>
+            
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+              Recharge Your <br />
+              <span className="text-gradient">MLBB Diamonds</span>
+            </h1>
+            
+            <p className="text-lg text-muted-foreground max-w-[480px]">
+              Fast, simple and secure Mobile Legends top-ups. Experience the easiest way to power up your game in Algeria.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl">
+                <Link href="/recharge">
+                  Recharge Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl border-white/10 hover:bg-white/5">
+                <Link href="/track">
+                  <Search className="mr-2 w-5 h-5" />
+                  Track My Order
+                </Link>
+              </Button>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="relative lg:ml-auto w-full max-w-[500px] aspect-square mx-auto lg:mx-0"
+          >
+            {/* Abstract Gaming Art Placeholder */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl border border-white/10 backdrop-blur-sm overflow-hidden flex items-center justify-center">
+              
+              <motion.div 
+                animate={{ y: [0, -15, 0] }} 
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="w-48 h-48 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl rotate-45 shadow-[0_0_50px_rgba(56,189,248,0.5)] flex items-center justify-center relative"
+              >
+                {/* Diamond core */}
+                <div className="w-32 h-32 bg-gradient-to-br from-white/80 to-white/20 rounded-xl" />
+              </motion.div>
+
+              {/* Floating particles */}
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ 
+                    y: [0, -40, 0],
+                    x: [0, i % 2 === 0 ? 20 : -20, 0],
+                    opacity: [0.5, 1, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 3 + i, 
+                    repeat: Infinity, 
+                    ease: "easeInOut",
+                    delay: i * 0.5 
+                  }}
+                  className="absolute w-6 h-6 bg-blue-400/50 rounded-sm rotate-45 blur-[2px]"
+                  style={{
+                    left: `${20 + i * 15}%`,
+                    top: `${20 + i * 15}%`,
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+
+        </div>
+      </div>
+    </section>
+  );
+}

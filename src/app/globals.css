@@ -1,1 +1,94 @@
 @import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-inter);
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+:root {
+  /* Dark Navy Theme */
+  --background: #0a0e17;
+  --foreground: #ffffff;
+  
+  --card: #111827;
+  --card-foreground: #ffffff;
+  
+  --popover: #111827;
+  --popover-foreground: #ffffff;
+  
+  --primary: #8b5cf6; /* Violet */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #1f2937;
+  --secondary-foreground: #ffffff;
+  
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  
+  --accent: #6d28d9;
+  --accent-foreground: #ffffff;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  
+  --border: #374151;
+  --input: #1f2937;
+  --ring: #8b5cf6;
+  
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/30;
+  }
+}
+
+/* Custom utility for glassmorphism */
+@layer utilities {
+  .glass {
+    @apply bg-black/40 backdrop-blur-md border border-white/10;
+  }
+  .glass-card {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)] hover:border-primary/50 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:bg-black/60 transition-all duration-500;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600;
+  }
+}
