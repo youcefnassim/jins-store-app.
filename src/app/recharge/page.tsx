@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { RechargeStepper } from "@/components/recharge/RechargeStepper";
 import { Metadata } from "next";
 
@@ -19,7 +20,9 @@ export default function RechargePage() {
           </p>
         </div>
         
-        <RechargeStepper />
+        <Suspense fallback={<div className="flex justify-center p-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+          <RechargeStepper />
+        </Suspense>
       </div>
     </div>
   );

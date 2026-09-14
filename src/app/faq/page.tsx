@@ -38,7 +38,7 @@ export default function FAQPage() {
                   </span>
                   {category}
                 </h2>
-                <Accordion type="single" collapsible className="w-full glass-card border-white/10 rounded-xl overflow-hidden px-4">
+                <Accordion className="w-full glass-card border-white/10 rounded-xl overflow-hidden px-4">
                   {categoryFaqs.map((faq, index) => (
                     <AccordionItem key={index} value={`item-${index}`} className="border-white/10 last:border-0">
                       <AccordionTrigger className="text-left text-white hover:text-primary transition-colors text-base font-medium py-5">

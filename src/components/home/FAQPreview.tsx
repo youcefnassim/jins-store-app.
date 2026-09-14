@@ -29,7 +29,7 @@ export function FAQPreview() {
           </div>
 
           <div className="lg:w-2/3 w-full">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion className="w-full">
               {previewFaqs.map((faq, index) => (
                 <AccordionItem key={index} value={`item-${index}`} className="border-white/10">
                   <AccordionTrigger className="text-left text-white hover:text-primary transition-colors text-base font-medium">

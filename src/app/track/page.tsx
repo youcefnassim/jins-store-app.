@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, Order } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, Package as PackageIcon, AlertCircle } from "lucide-react";
+import { Search, Loader2, Package as PackageIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 
-export default function TrackOrderPage() {
+function TrackOrderContent() {
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -212,5 +213,13 @@ export default function TrackOrderPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function TrackOrderPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+      <TrackOrderContent />
+    </Suspense>
   );
 }
