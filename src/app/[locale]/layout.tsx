@@ -63,19 +63,10 @@ export default async function RootLayout({
           <AuthProvider>
             <NextIntlClientProvider messages={messages}>
               <CustomCursor />
-        {/* Background Video */}
-        <div className="fixed inset-0 -z-20 w-full h-full overflow-hidden bg-slate-100 dark:bg-black">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-40"
-          >
-            <source src="/mlb.mp4" type="video/mp4" />
-          </video>
-          {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/50 dark:from-indigo-900/30 via-background/80 to-background/95" />
+        {/* Background */}
+        <div className="fixed inset-0 -z-20 w-full h-full bg-slate-100 dark:bg-[#050810]">
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/30 dark:from-indigo-900/20 via-background/60 to-background" />
         </div>
         <ParticlesBackground />
         
