@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { RechargeStepper } from "@/components/recharge/RechargeStepper";
 import { Metadata } from "next";
+import { useTranslations } from "next-intl";
 
 export const metadata: Metadata = {
   title: "Recharge Diamonds",
@@ -8,15 +9,16 @@ export const metadata: Metadata = {
 };
 
 export default function RechargePage() {
+  const t = useTranslations("Recharge");
   return (
     <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-10 text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">
-            Recharge Mobile Legends
+        <div className="mb-10 text-center md:text-left rtl:md:text-right">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-2">
+            {t("title")}
           </h1>
           <p className="text-muted-foreground text-lg">
-            Complete the steps below to top up your account.
+            {t("description")}
           </p>
         </div>
         

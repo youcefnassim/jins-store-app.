@@ -9,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { MessageCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function FAQPage() {
+  const t = useTranslations("FAQ");
+  const tPreview = useTranslations("FAQPreview.questions");
   // Group FAQs by category
   const categories = Array.from(new Set(faqs.map(f => f.category)));
 
@@ -18,11 +21,11 @@ export default function FAQPage() {
     <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4">
-            Frequently Asked Questions
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
+            {t("title")}
           </h1>
           <p className="text-muted-foreground text-lg">
-            Find answers to common questions about our recharge service.
+            {t("description")}
           </p>
         </div>
 
@@ -32,20 +35,20 @@ export default function FAQPage() {
             
             return (
               <div key={category}>
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                   <span className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-sm">
                     {category[0]}
                   </span>
                   {category}
                 </h2>
-                <Accordion className="w-full glass-card border-white/10 rounded-xl overflow-hidden px-4">
+                <Accordion className="w-full glass-card border-black/10 dark:border-white/10 rounded-xl overflow-hidden px-4">
                   {categoryFaqs.map((faq, index) => (
-                    <AccordionItem key={index} value={`item-${index}`} className="border-white/10 last:border-0">
-                      <AccordionTrigger className="text-left text-white hover:text-primary transition-colors text-base font-medium py-5">
-                        {faq.question}
+                    <AccordionItem key={index} value={`item-${index}`} className="border-black/10 dark:border-white/10 last:border-0">
+                      <AccordionTrigger className="text-left rtl:text-right text-slate-900 dark:text-white hover:text-primary transition-colors text-base font-medium py-5">
+                        {tPreview(`${faqs.findIndex(f => f.question === faq.question)}.q`) || faq.question}
                       </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground leading-relaxed pb-5">
-                        {faq.answer}
+                      <AccordionContent className="text-slate-600 dark:text-muted-foreground leading-relaxed pb-5 text-left rtl:text-right">
+                        {tPreview(`${faqs.findIndex(f => f.question === faq.question)}.a`) || faq.answer}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
@@ -56,14 +59,14 @@ export default function FAQPage() {
         </div>
 
         <div className="mt-16 glass-card rounded-2xl p-8 text-center border-primary/20 bg-primary/5">
-          <h3 className="text-2xl font-bold text-white mb-2">Still have questions?</h3>
-          <p className="text-muted-foreground mb-6">
-            We are here to help. Contact our support team on WhatsApp.
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">{t("still_have_questions")}</h3>
+          <p className="text-slate-600 dark:text-muted-foreground mb-6">
+            {t("contact_support")}
           </p>
           <Button asChild className="bg-[#25D366] hover:bg-[#25D366]/90 text-white border-none h-12 px-8">
             <Link href={`https://wa.me/${siteConfig.supportWhatsApp.replace('+', '')}`} target="_blank">
-              <MessageCircle className="mr-2 w-5 h-5" />
-              Chat on WhatsApp
+              <MessageCircle className="mr-2 rtl:ml-2 rtl:mr-0 w-5 h-5" />
+              {t("button")}
             </Link>
           </Button>
         </div>

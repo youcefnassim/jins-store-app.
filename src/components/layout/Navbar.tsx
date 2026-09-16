@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { useTranslations } from "next-intl";
+import { useAuth } from "@/lib/supabase/AuthContext";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
@@ -18,6 +19,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -121,9 +123,9 @@ export function Navbar() {
             <ThemeToggle />
 
             <Link 
-              href="/auth/login" 
+              href={user ? "/dashboard" : "/auth/login"} 
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground transition-colors border border-black/10 dark:border-white/10"
-              title={t("signin")}
+              title={user ? t("dashboard") : t("signin")}
             >
               <User size={18} />
             </Link>
@@ -206,8 +208,8 @@ export function Navbar() {
 
               <div className="p-6 border-t border-white/5 space-y-3">
                 <Button asChild variant="outline" className="w-full bg-white/5 border-white/10 hover:bg-white/10 text-white rounded-full h-12 text-md">
-                  <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                    {t("signin")}
+                  <Link href={user ? "/dashboard" : "/auth/login"} onClick={() => setMobileMenuOpen(false)}>
+                    {user ? t("dashboard") : t("signin")}
                   </Link>
                 </Button>
                 <Button asChild className="w-full bg-gradient-to-r from-primary to-purple-600 rounded-full h-12 text-md shadow-[0_0_20px_rgba(168,85,247,0.3)]">

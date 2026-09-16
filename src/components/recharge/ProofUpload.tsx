@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface ProofUploadProps {
   onBack: () => void;
-  onSubmit: (proofUrl: string, transactionRef: string) => void;
+  onSubmit: (file: File, transactionRef: string) => void;
   isSubmitting: boolean;
 }
 
@@ -68,8 +68,7 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
     e.preventDefault();
     if (!file) return;
     
-    // Pass dummy URL and ref for frontend demo
-    onSubmit(preview || "dummy-url", transactionRef);
+    onSubmit(file, transactionRef);
   };
 
   return (

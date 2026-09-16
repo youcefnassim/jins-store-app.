@@ -13,6 +13,8 @@ import { api } from "@/lib/api";
 import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/supabase/AuthContext";
+import { createOrder } from "@/lib/supabase/orders";
 
 export type OrderData = {
   playerId: string;
@@ -44,6 +46,8 @@ export function RechargeStepper() {
     phone: "",
   });
 
+  const { user } = useAuth();
+
   // Pre-select package from URL if available
   useEffect(() => {
     const packageId = searchParams.get("package");
@@ -67,28 +71,41 @@ export function RechargeStepper() {
     if (currentStep > 1) setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubmit = async (proofUrl: string, transactionRef: string) => {
+  const handleSubmit = async (file: File, transactionRef: string) => {
     if (!orderData.package || !orderData.paymentMethod) {
       toast.error("Missing information. Please check all steps.");
+      return;
+    }
+    
+    if (!user) {
+      toast.error("You must be logged in to recharge. Please log in first.");
+      router.push("/auth/login");
       return;
     }
     
     setIsSubmitting(true);
     
     try {
-      const order = await api.createOrder({
-        gameId: "mobile-legends",
-        playerId: orderData.playerId,
-        zoneId: orderData.zoneId,
-        phone: orderData.phone,
+      // Points awarded: Let's give 10% of the price back as points
+      const priceStr = orderData.package.price.replace(/[^0-9]/g, '');
+      const price = parseInt(priceStr) || 0;
+      const pointsToAward = Math.floor(price * 0.1);
+
+      const result = await createOrder({
+        userId: user.uid,
+        game: "Mobile Legends",
         packageId: orderData.package.id,
-        paymentMethodId: orderData.paymentMethod.id,
-        amount: orderData.package.price,
+        packageName: orderData.package.amount + " Diamonds",
+        playerId: orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId,
+        price: orderData.package.price,
+        pointsToAward: pointsToAward,
+        receiptFile: file,
       });
       
       toast.success("Order submitted successfully!");
-      router.push(`/order/success?id=${order.id}`);
+      router.push(`/order/success?id=${result.orderId}`);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to submit order. Please try again.");
       setIsSubmitting(false);
     }

@@ -2,13 +2,16 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { getTranslations } from "next-intl/server";
 
-export default function OrderSuccessPage({
+export default async function OrderSuccessPage({
   searchParams,
 }: {
-  searchParams: { id?: string };
+  searchParams: Promise<{ id?: string }>;
 }) {
-  const orderId = searchParams.id || "MLBB-XXXXXX-XXXX";
+  const t = await getTranslations("OrderSuccess");
+  const params = await searchParams;
+  const orderId = params.id || "MLBB-XXXXXX-XXXX";
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-20 flex flex-col items-center justify-center min-h-[70vh]">
@@ -20,32 +23,33 @@ export default function OrderSuccessPage({
           <CheckCircle2 className="w-10 h-10 text-primary" />
         </div>
         
-        <h1 className="text-3xl font-bold text-white mb-2">Order Received!</h1>
+        
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{t("title")}</h1>
         <p className="text-muted-foreground mb-8">
-          Your order has been successfully submitted and is pending payment verification.
+          {t("description")}
         </p>
         
-        <div className="bg-black/40 rounded-xl p-4 mb-8 border border-white/5">
-          <p className="text-sm text-muted-foreground mb-1">Order Number</p>
-          <p className="text-xl font-bold text-white tracking-widest">{orderId}</p>
+        <div className="bg-black/5 dark:bg-black/40 rounded-xl p-4 mb-8 border border-black/10 dark:border-white/5">
+          <p className="text-sm text-muted-foreground mb-1">{t("order_number")}</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white tracking-widest">{orderId}</p>
         </div>
         
         <div className="space-y-3">
-          <Button asChild className="w-full bg-primary hover:bg-primary/90 h-12">
+          <Button asChild className="w-full bg-slate-900 text-white dark:bg-primary dark:text-primary-foreground hover:bg-slate-800 dark:hover:bg-primary/90 h-12">
             <Link href={`/track?id=${orderId}`}>
-              Track My Order
-              <ArrowRight className="ml-2 w-4 h-4" />
+              {t("track_order")}
+              <ArrowRight className="ml-2 rtl:mr-2 rtl:ml-0 w-4 h-4 rtl:rotate-180" />
             </Link>
           </Button>
           
-          <Button asChild variant="outline" className="w-full h-12 border-white/10 hover:bg-white/5">
-            <Link href="/">Back to Home</Link>
+          <Button asChild variant="outline" className="w-full h-12 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5">
+            <Link href="/">{t("back_home")}</Link>
           </Button>
 
-          <Button asChild variant="ghost" className="w-full h-12 text-muted-foreground hover:text-white mt-2">
+          <Button asChild variant="ghost" className="w-full h-12 text-muted-foreground hover:text-slate-900 dark:hover:text-white mt-2">
             <Link href={`https://wa.me/${siteConfig.supportWhatsApp.replace('+', '')}`} target="_blank">
-              <MessageCircle className="mr-2 w-4 h-4" />
-              Contact Support
+              <MessageCircle className="mr-2 rtl:ml-2 rtl:mr-0 w-4 h-4" />
+              {t("contact_support")}
             </Link>
           </Button>
         </div>

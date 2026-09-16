@@ -15,6 +15,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
+import { AuthProvider } from "@/lib/supabase/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,8 +60,9 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NextIntlClientProvider messages={messages}>
-            <CustomCursor />
+          <AuthProvider>
+            <NextIntlClientProvider messages={messages}>
+              <CustomCursor />
         {/* Background Video */}
         <div className="fixed inset-0 -z-20 w-full h-full overflow-hidden bg-slate-100 dark:bg-black">
           <video
@@ -89,6 +91,7 @@ export default async function RootLayout({
           <FloatingChat />
           <ScrollToTop />
           </NextIntlClientProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
