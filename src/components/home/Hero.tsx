@@ -5,8 +5,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function Hero() {
+  const t = useTranslations("Hero");
+
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden">
       {/* Background decorations */}
@@ -22,29 +25,29 @@ export function Hero() {
             className="flex flex-col items-start gap-6"
           >
             <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-4 py-1.5 rounded-full text-sm font-medium">
-              MLBB TOP UP
+              {t("badge")}
             </Badge>
             
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-              Recharge Your <br />
-              <span className="text-gradient">MLBB Diamonds</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+              {t("title1")} <br />
+              <span className="text-gradient">{t("title2")}</span>
             </h1>
             
-            <p className="text-lg text-muted-foreground max-w-[480px]">
-              Fast, simple and secure Mobile Legends top-ups. Experience the easiest way to power up your game in Algeria.
+            <p className="text-lg text-slate-600 dark:text-muted-foreground max-w-[480px]">
+              {t("description")}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl">
                 <Link href="/recharge">
-                  Recharge Now
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  {t("cta_recharge")}
+                  <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl border-white/10 hover:bg-white/5">
                 <Link href="/track">
-                  <Search className="mr-2 w-5 h-5" />
-                  Track My Order
+                  <Search className="mr-2 w-5 h-5 rtl:ml-2 rtl:mr-0" />
+                  {t("cta_track")}
                 </Link>
               </Button>
             </div>

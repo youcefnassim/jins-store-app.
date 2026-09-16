@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -61,7 +63,7 @@ export function Navbar() {
               <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-full border border-white/10 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all duration-300">
                 <img src="/logo.png" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold text-xl tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
+              <span className="font-bold text-xl tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70">
                 {siteConfig.name}
               </span>
             </Link>
@@ -83,7 +85,7 @@ export function Navbar() {
                   onMouseEnter={() => setHoveredLink(link.href)}
                   className={cn(
                     "relative px-4 py-2 text-sm font-medium transition-colors z-10",
-                    isActive || isHovered ? "text-white" : "text-muted-foreground"
+                    isActive || isHovered ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-muted-foreground"
                   )}
                 >
                   {link.name}
@@ -101,7 +103,7 @@ export function Navbar() {
                   {isHovered && !isActive && (
                     <motion.div
                       layoutId="hover-nav-pill"
-                      className="absolute inset-0 bg-white/5 rounded-full -z-10"
+                      className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-full -z-10"
                       transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
                   )}
@@ -113,9 +115,12 @@ export function Navbar() {
           {/* CTA & Mobile Toggle - Right Aligned */}
           <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
             
+            <LanguageSwitcher />
+            <ThemeToggle />
+
             <Link 
               href="/auth/login" 
-              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors border border-white/10"
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground transition-colors border border-black/10 dark:border-white/10"
               title="Sign In / Dashboard"
             >
               <User size={18} />
@@ -144,7 +149,7 @@ export function Navbar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
+              className="fixed inset-0 bg-white/80 dark:bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
             />
             
             {/* Slidebar Content */}
@@ -153,7 +158,7 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-[#0f1420] border-l border-white/10 z-[70] shadow-2xl flex flex-col lg:hidden"
+              className="fixed top-0 right-0 bottom-0 w-[80%] max-w-sm bg-white dark:bg-[#0f1420] border-l border-slate-200 dark:border-white/10 z-[70] shadow-2xl flex flex-col lg:hidden"
             >
               <div className="flex items-center justify-between p-6 border-b border-white/5">
                 <div className="flex items-center gap-3">
@@ -182,8 +187,8 @@ export function Navbar() {
                         className={cn(
                           "flex items-center justify-between px-4 py-4 rounded-xl transition-all duration-300",
                           isActive 
-                            ? "bg-gradient-to-r from-primary/20 to-transparent border-l-2 border-primary text-white" 
-                            : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                            ? "bg-gradient-to-r from-primary/10 dark:from-primary/20 to-transparent border-l-2 border-primary text-primary dark:text-white" 
+                            : "text-slate-600 dark:text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
                         )}
                       >
                         <div className="flex items-center gap-4">
