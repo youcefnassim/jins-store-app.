@@ -5,6 +5,8 @@ import { User } from "@supabase/supabase-js";
 import { supabase } from "./client";
 
 interface Profile {
+  name?: string;
+  email?: string;
   role: string;
   points: number;
 }

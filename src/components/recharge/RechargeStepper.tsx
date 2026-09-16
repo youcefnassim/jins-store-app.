@@ -87,17 +87,17 @@ export function RechargeStepper() {
     
     try {
       // Points awarded: Let's give 10% of the price back as points
-      const priceStr = orderData.package.price.replace(/[^0-9]/g, '');
+      const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
       const price = parseInt(priceStr) || 0;
       const pointsToAward = Math.floor(price * 0.1);
 
       const result = await createOrder({
-        userId: user.uid,
+        userId: user.id,
         game: "Mobile Legends",
         packageId: orderData.package.id,
-        packageName: orderData.package.amount + " Diamonds",
+        packageName: String(orderData.package.amount) + " Diamonds",
         playerId: orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId,
-        price: orderData.package.price,
+        price: String(orderData.package.price),
         pointsToAward: pointsToAward,
         receiptFile: file,
       });
