@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { useTranslations } from "next-intl";
 
 export function Navbar() {
+  const t = useTranslations("Navbar");
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
@@ -38,12 +40,12 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   const navLinks = [
-    { name: "Home", href: "/", icon: Search },
-    { name: "Games", href: "/games", icon: Gamepad2 },
-    { name: "Recharge", href: "/recharge", icon: Smartphone },
-    { name: "Track Order", href: "/track", icon: Search },
-    { name: "FAQ", href: "/faq", icon: HelpCircle },
-    { name: "Contact", href: "/contact", icon: Phone },
+    { name: t("home"), href: "/", icon: Search },
+    { name: t("games"), href: "/games", icon: Gamepad2 },
+    { name: t("recharge"), href: "/recharge", icon: Smartphone },
+    { name: t("track"), href: "/track", icon: Search },
+    { name: t("faq"), href: "/faq", icon: HelpCircle },
+    { name: t("contact"), href: "/contact", icon: Phone },
   ];
 
   return (
@@ -121,13 +123,13 @@ export function Navbar() {
             <Link 
               href="/auth/login" 
               className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground transition-colors border border-black/10 dark:border-white/10"
-              title="Sign In / Dashboard"
+              title={t("signin")}
             >
               <User size={18} />
             </Link>
 
             <Button asChild className="hidden sm:inline-flex bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white border-0 shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all duration-300 rounded-full px-6">
-              <Link href="/recharge">Recharge Now</Link>
+              <Link href="/recharge">{t("recharge_now")}</Link>
             </Button>
             
             <button
@@ -165,7 +167,7 @@ export function Navbar() {
                   <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-full border border-white/10">
                     <img src="/logo.png" alt="Jin's Store Logo" className="w-full h-full object-cover" />
                   </div>
-                  <span className="font-bold text-lg">Menu</span>
+                  <span className="font-bold text-lg">{t("menu")}</span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
@@ -205,12 +207,12 @@ export function Navbar() {
               <div className="p-6 border-t border-white/5 space-y-3">
                 <Button asChild variant="outline" className="w-full bg-white/5 border-white/10 hover:bg-white/10 text-white rounded-full h-12 text-md">
                   <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                    Sign In / Dashboard
+                    {t("signin")}
                   </Link>
                 </Button>
                 <Button asChild className="w-full bg-gradient-to-r from-primary to-purple-600 rounded-full h-12 text-md shadow-[0_0_20px_rgba(168,85,247,0.3)]">
                   <Link href="/recharge" onClick={() => setMobileMenuOpen(false)}>
-                    Recharge Now
+                    {t("recharge_now")}
                   </Link>
                 </Button>
               </div>

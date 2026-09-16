@@ -6,5 +6,146 @@
     "description": "Recharges Mobile Legends rapides, simples et sécurisées. Découvrez la façon la plus simple de booster votre jeu en Algérie.",
     "cta_recharge": "Recharger Maintenant",
     "cta_track": "Suivre ma commande"
+  },
+  "Navbar": {
+    "home": "Accueil",
+    "games": "Jeux",
+    "recharge": "Recharger",
+    "track": "Suivre la commande",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "menu": "Menu",
+    "signin": "Connexion / Espace",
+    "recharge_now": "Recharger"
+  },
+  "Footer": {
+    "services": "Services",
+    "all_games": "Tous les jeux",
+    "mlbb": "Mobile Legends",
+    "quick_recharge": "Recharge rapide",
+    "support": "Support",
+    "track_order": "Suivre la commande",
+    "faq": "FAQ",
+    "contact": "Contactez-nous",
+    "legal": "Mentions légales",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "rights": "Tous droits réservés."
+  },
+  "PaymentMethods": {
+    "title": "Paiement Simple & Pratique",
+    "description": "Choisissez parmi plusieurs méthodes de paiement locales et internationales. Sécurisé et facile.",
+    "methods": {
+      "baridimob": {
+        "name": "BaridiMob",
+        "description": "Payez facilement avec l'application BaridiMob"
+      },
+      "ccp": {
+        "name": "Virement CCP",
+        "description": "Payez via Algérie Poste CCP"
+      },
+      "binance": {
+        "name": "Binance Pay",
+        "description": "Payez en crypto (USDT)"
+      },
+      "flexy": {
+        "name": "Flexy",
+        "description": "Payez avec du crédit mobile (Mobilis, Djezzy, Ooredoo)"
+      }
+    }
+  },
+  "PopularPackages": {
+    "title": "Packs de Diamants Populaires",
+    "description": "Obtenez le meilleur rapport qualité-prix sur les Diamants MLBB. Livré rapidement après vérification.",
+    "view_all": "Voir tous les packs",
+    "popular": "Populaire",
+    "diamonds": "Diamants",
+    "recharge_now": "Recharger"
+  },
+  "HowItWorks": {
+    "title": "Comment ça marche",
+    "description": "Recharger votre compte Mobile Legends est simple. Suivez ces étapes.",
+    "steps": {
+      "1": {
+        "title": "Entrez l'ID MLBB",
+        "description": "Fournissez votre Player ID et Zone ID."
+      },
+      "2": {
+        "title": "Choisissez le pack",
+        "description": "Sélectionnez les diamants dont vous avez besoin."
+      },
+      "3": {
+        "title": "Sélectionnez le paiement",
+        "description": "Choisissez BaridiMob, CCP ou Binance."
+      },
+      "4": {
+        "title": "Envoyez la preuve",
+        "description": "Téléchargez une capture d'écran du paiement."
+      },
+      "5": {
+        "title": "Recevez les diamants",
+        "description": "Nous vérifions et rechargeons votre compte."
+      }
+    }
+  },
+  "WhyChooseUs": {
+    "title": "Pourquoi nous choisir",
+    "description": "Nous fournissons le service de recharge le plus fiable pour les joueurs algériens.",
+    "reasons": {
+      "1": {
+        "title": "Traitement rapide",
+        "description": "Traitement rapide après vérification du paiement. Nous visons à terminer les commandes rapidement."
+      },
+      "2": {
+        "title": "Commandes sécurisées",
+        "description": "Plateforme 100% sûre et sécurisée. Les détails de votre compte sont toujours protégés."
+      },
+      "3": {
+        "title": "Paiements multiples",
+        "description": "Payez facilement via BaridiMob, CCP, Binance ou Flexy."
+      },
+      "4": {
+        "title": "Support dédié",
+        "description": "Vous avez un problème ? Notre équipe de support est prête à vous aider via WhatsApp."
+      }
+    }
+  },
+  "TrackOrderCTA": {
+    "title": "Vous avez déjà passé commande ?",
+    "description": "Suivez le statut de votre recharge en temps réel avec votre numéro de commande.",
+    "placeholder": "ex. MLBB-20260913-00124",
+    "button": "Suivre la commande"
+  },
+  "FAQPreview": {
+    "title": "Questions Fréquentes",
+    "description": "Vous avez des questions ? Nous avons des réponses. N'hésitez pas à nous contacter.",
+    "view_all": "Voir toutes les FAQ",
+    "questions": {
+      "0": {
+        "q": "Combien de temps prend la recharge ?",
+        "a": "Après avoir soumis votre preuve de paiement, notre équipe la vérifie manuellement. La plupart des commandes sont traitées dans les 15-30 minutes."
+      },
+      "1": {
+        "q": "Où puis-je trouver mon ID Utilisateur MLBB ?",
+        "a": "Ouvrez Mobile Legends, appuyez sur votre photo de profil. Votre ID Utilisateur est le numéro affiché sous vos paramètres."
+      },
+      "2": {
+        "q": "Où puis-je trouver mon ID de Zone ?",
+        "a": "L'ID de Zone est le numéro à 4 chiffres entre parenthèses à côté de votre ID Utilisateur."
+      },
+      "3": {
+        "q": "Que se passe-t-il si mon paiement est rejeté ?",
+        "a": "Si nous ne pouvons pas vérifier votre paiement, votre commande sera rejetée. Notre équipe vous contactera pour résoudre le problème."
+      },
+      "4": {
+        "q": "Comment fonctionne la recharge ?",
+        "a": "Vous sélectionnez votre pack, entrez vos détails et payez. Une fois la preuve téléchargée et vérifiée, nous envoyons les diamants."
+      }
+    }
+  },
+  "ContactCTA": {
+    "title": "Besoin d'aide pour votre commande ?",
+    "description": "Notre équipe de support est disponible sur WhatsApp pour vous aider avec votre recharge.",
+    "button": "Contacter le support"
   }
 }

@@ -1,32 +1,34 @@
 import { UserCircle, Diamond, CreditCard, Send, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 
 export function HowItWorks() {
+  const t = useTranslations("HowItWorks");
   const steps = [
     {
       icon: UserCircle,
-      title: "Enter MLBB ID",
-      description: "Provide your Player ID and Zone ID.",
+      title: t("steps.1.title"),
+      description: t("steps.1.description"),
     },
     {
       icon: Diamond,
-      title: "Choose Package",
-      description: "Select the Diamonds you need.",
+      title: t("steps.2.title"),
+      description: t("steps.2.description"),
     },
     {
       icon: CreditCard,
-      title: "Select Payment",
-      description: "Choose BaridiMob, CCP, or Binance.",
+      title: t("steps.3.title"),
+      description: t("steps.3.description"),
     },
     {
       icon: Send,
-      title: "Send Proof",
-      description: "Upload a screenshot of the payment.",
+      title: t("steps.4.title"),
+      description: t("steps.4.description"),
     },
     {
       icon: CheckCircle2,
-      title: "Receive Diamonds",
-      description: "We verify and recharge your account.",
+      title: t("steps.5.title"),
+      description: t("steps.5.description"),
     }
   ];
 
@@ -34,11 +36,11 @@ export function HowItWorks() {
     <section className="py-20 bg-black/20 border-y border-white/5">
       <div className="container mx-auto px-4 md:px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-white">
-            How It Works
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
+            {t("title")}
           </h2>
           <p className="text-muted-foreground text-lg">
-            Recharging your Mobile Legends account is simple. Just follow these steps.
+            {t("description")}
           </p>
         </div>
 
@@ -48,14 +50,14 @@ export function HowItWorks() {
 
           {steps.map((step, index) => (
             <div key={index} className="flex flex-col items-center text-center relative">
-              <div className="w-24 h-24 rounded-full glass-card flex items-center justify-center mb-6 relative">
-                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm border-4 border-background">
+              <div className="w-24 h-24 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-6 relative">
+                <div className="absolute -top-2 -right-2 rtl:-right-auto rtl:-left-2 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm border-4 border-background">
                   {index + 1}
                 </div>
                 <step.icon className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg text-white mb-2">{step.title}</h3>
-              <p className="text-sm text-muted-foreground max-w-[200px]">
+              <h3 className="font-semibold text-lg text-slate-900 dark:text-white mb-2">{step.title}</h3>
+              <p className="text-sm text-slate-600 dark:text-muted-foreground max-w-[200px]">
                 {step.description}
               </p>
             </div>

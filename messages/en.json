@@ -6,5 +6,146 @@
     "description": "Fast, simple and secure Mobile Legends top-ups. Experience the easiest way to power up your game in Algeria.",
     "cta_recharge": "Recharge Now",
     "cta_track": "Track My Order"
+  },
+  "Navbar": {
+    "home": "Home",
+    "games": "Games",
+    "recharge": "Recharge",
+    "track": "Track Order",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "menu": "Menu",
+    "signin": "Sign In / Dashboard",
+    "recharge_now": "Recharge Now"
+  },
+  "Footer": {
+    "services": "Services",
+    "all_games": "All Games",
+    "mlbb": "Mobile Legends",
+    "quick_recharge": "Quick Recharge",
+    "support": "Support",
+    "track_order": "Track Order",
+    "faq": "FAQ",
+    "contact": "Contact Us",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "rights": "All rights reserved."
+  },
+  "PaymentMethods": {
+    "title": "Simple & Convenient Payment",
+    "description": "Choose from multiple local and international payment methods. Secure and easy.",
+    "methods": {
+      "baridimob": {
+        "name": "BaridiMob",
+        "description": "Pay easily using BaridiMob application"
+      },
+      "ccp": {
+        "name": "CCP Transfer",
+        "description": "Pay via Algérie Poste CCP"
+      },
+      "binance": {
+        "name": "Binance Pay",
+        "description": "Pay with crypto (USDT)"
+      },
+      "flexy": {
+        "name": "Flexy",
+        "description": "Pay using mobile credit (Mobilis, Djezzy, Ooredoo)"
+      }
+    }
+  },
+  "PopularPackages": {
+    "title": "Popular Diamond Packages",
+    "description": "Get the best value on MLBB Diamonds. Delivered fast after payment verification.",
+    "view_all": "View All Packages",
+    "popular": "Popular",
+    "diamonds": "Diamonds",
+    "recharge_now": "Recharge Now"
+  },
+  "HowItWorks": {
+    "title": "How It Works",
+    "description": "Recharging your Mobile Legends account is simple. Just follow these steps.",
+    "steps": {
+      "1": {
+        "title": "Enter MLBB ID",
+        "description": "Provide your Player ID and Zone ID."
+      },
+      "2": {
+        "title": "Choose Package",
+        "description": "Select the Diamonds you need."
+      },
+      "3": {
+        "title": "Select Payment",
+        "description": "Choose BaridiMob, CCP, or Binance."
+      },
+      "4": {
+        "title": "Send Proof",
+        "description": "Upload a screenshot of the payment."
+      },
+      "5": {
+        "title": "Receive Diamonds",
+        "description": "We verify and recharge your account."
+      }
+    }
+  },
+  "WhyChooseUs": {
+    "title": "Why Choose Us",
+    "description": "We provide the most reliable top-up service for Algerian gamers.",
+    "reasons": {
+      "1": {
+        "title": "Fast Processing",
+        "description": "Fast processing after payment verification. We aim to complete orders quickly."
+      },
+      "2": {
+        "title": "Secure Orders",
+        "description": "100% safe and secure platform. Your account details are always protected."
+      },
+      "3": {
+        "title": "Multiple Payments",
+        "description": "Pay conveniently via BaridiMob, CCP, Binance, or Flexy."
+      },
+      "4": {
+        "title": "Dedicated Support",
+        "description": "Have an issue? Our support team is ready to assist you via WhatsApp."
+      }
+    }
+  },
+  "TrackOrderCTA": {
+    "title": "Already placed an order?",
+    "description": "Track your recharge status in real-time using your order number.",
+    "placeholder": "e.g. MLBB-20260913-00124",
+    "button": "Track Order"
+  },
+  "FAQPreview": {
+    "title": "Frequently Asked Questions",
+    "description": "Got questions? We've got answers. If you have some other questions, feel free to contact us.",
+    "view_all": "View All FAQs",
+    "questions": {
+      "0": {
+        "q": "How long does the recharge take?",
+        "a": "After you submit your payment proof, our team manually verifies it. Most orders are processed within 15-30 minutes during working hours."
+      },
+      "1": {
+        "q": "Where can I find my MLBB User ID?",
+        "a": "Open Mobile Legends, tap your profile picture in the top left corner. Your User ID is the number shown below your settings (e.g., 123456789)."
+      },
+      "2": {
+        "q": "Where can I find my Zone ID?",
+        "a": "The Zone ID is the 4-digit number in parentheses right next to your User ID on your MLBB profile page (e.g., (1234))."
+      },
+      "3": {
+        "q": "What happens if my payment is rejected?",
+        "a": "If we cannot verify your payment, your order will be marked as rejected. Our support team will contact you to resolve the issue or process a refund."
+      },
+      "4": {
+        "q": "How does the recharge work?",
+        "a": "You select your package, enter your game details, and pay using your preferred method. Once you upload the payment proof and we verify it, we send the Diamonds directly to your account."
+      }
+    }
+  },
+  "ContactCTA": {
+    "title": "Need help with your order?",
+    "description": "Our support team is available on WhatsApp to assist you with any questions or issues regarding your recharge.",
+    "button": "Contact Support"
   }
 }
