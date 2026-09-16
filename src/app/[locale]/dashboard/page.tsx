@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut, ChevronRight, CheckCircle2, Gamepad2, ShoppingBag, Clock } from "lucide-react";
+import { Sparkles, LogOut, ChevronRight, CheckCircle2, Gamepad2, ShoppingBag, Clock, Shield } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
@@ -114,6 +114,17 @@ export default function DashboardPage() {
                   <Gamepad2 className="w-4 h-4 mr-3 rtl:ml-3 rtl:mr-0" />
                   {t("saved_accounts")}
                 </Button>
+
+                {/* Admin Panel Button - only visible to admins */}
+                {profile?.role === "admin" && (
+                  <Link href="/admin/dashboard">
+                    <Button variant="ghost" className="w-full justify-start text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 dark:hover:bg-amber-500/10 border border-amber-500/20 mt-2">
+                      <Shield className="w-4 h-4 mr-3 rtl:ml-3 rtl:mr-0" />
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
+
                 <Button onClick={logout} variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:text-red-300 dark:hover:bg-red-500/10 mt-4">
                   <LogOut className="w-4 h-4 mr-3 rtl:ml-3 rtl:mr-0" />
                   {t("sign_out")}
