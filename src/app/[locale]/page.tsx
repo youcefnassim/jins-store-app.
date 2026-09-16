@@ -12,7 +12,21 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export default function Home() {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
+      {/* Video Background — Home Page Only */}
+      <div className="fixed inset-0 -z-20 w-full h-full overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-40"
+        >
+          <source src="/mlb.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/50 dark:from-indigo-900/30 via-background/80 to-background/95" />
+      </div>
+
       <Hero />
       <ScrollReveal delay={0.1}><PaymentMethods /></ScrollReveal>
       <ScrollReveal delay={0.2}><PopularPackages /></ScrollReveal>
