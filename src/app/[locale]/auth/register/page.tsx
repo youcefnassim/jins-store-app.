@@ -31,21 +31,43 @@ export default function RegisterPage() {
         email, 
         password,
         options: {
-          data: {
-            full_name: name,
-          }
+          data: { full_name: name },
+          emailRedirectTo: undefined,
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        // If the user already exists, try to sign in
+        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (!signInError) {
+            toast.success("Connecté avec succès !");
+            router.push("/dashboard");
+            return;
+          }
+        }
+        throw error;
+      }
       
+      // Supabase may return user even if email confirmation needed
       if (data.user) {
-        toast.success("Account created successfully!");
-        router.push("/dashboard");
+        // Try to sign in directly (works if email confirmation is disabled)
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (!signInError) {
+          toast.success("Compte créé avec succès !");
+          router.push("/dashboard");
+        } else {
+          // Email confirmation required
+          toast.success("Compte créé ! Vérifiez votre email pour confirmer.");
+        }
       }
     } catch (error: any) {
       console.error("Registration Error:", error);
-      toast.error(error.message || "Failed to create account.");
+      if (error.message === 'Failed to fetch') {
+        toast.error("Connexion impossible. Vérifiez votre connexion internet.");
+      } else {
+        toast.error(error.message || "Erreur lors de la création du compte.");
+      }
     } finally {
       setIsLoading(false);
     }
