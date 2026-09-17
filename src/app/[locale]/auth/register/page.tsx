@@ -27,22 +27,6 @@ export default function RegisterPage() {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: { full_name: name },
-          emailRedirectTo: undefined,
-        }
-      });
-      
-      if (error) {
-        // If the user already exists, try to sign in
-        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-          if (!signInError) {
-            toast.success("Connecté avec succès !");
-            router.push("/dashboard");
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,7 +36,6 @@ export default function RegisterPage() {
       
       if (!res.ok) throw new Error(data.error || 'Erreur de création de compte');
       
-      // Store session in Supabase client
       if (data.session) {
         await supabase.auth.setSession(data.session);
       }
@@ -87,10 +70,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen pt-24 pb-12 flex flex-col justify-center items-center px-4 relative">
-      {/* Background decoration */}
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] -z-10" />
-      <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-pink-600/20 rounded-full blur-[100px] -z-10" />
-
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
