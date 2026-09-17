@@ -43,31 +43,25 @@ export default function RegisterPage() {
           if (!signInError) {
             toast.success("Connecté avec succès !");
             router.push("/dashboard");
-            return;
-          }
-        }
-        throw error;
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Erreur de création de compte');
+      
+      // Store session in Supabase client
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
       }
       
-      // Supabase may return user even if email confirmation needed
-      if (data.user) {
-        // Try to sign in directly (works if email confirmation is disabled)
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-        if (!signInError) {
-          toast.success("Compte créé avec succès !");
-          router.push("/dashboard");
-        } else {
-          // Email confirmation required
-          toast.success("Compte créé ! Vérifiez votre email pour confirmer.");
-        }
-      }
+      toast.success("Compte créé avec succès !");
+      router.push("/dashboard");
     } catch (error: any) {
       console.error("Registration Error:", error);
-      if (error.message === 'Failed to fetch') {
-        toast.error("Connexion impossible. Vérifiez votre connexion internet.");
-      } else {
-        toast.error(error.message || "Erreur lors de la création du compte.");
-      }
+      toast.error(error.message || "Erreur lors de la création du compte.");
     } finally {
       setIsLoading(false);
     }

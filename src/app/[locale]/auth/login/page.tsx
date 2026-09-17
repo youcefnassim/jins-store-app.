@@ -26,13 +26,24 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Erreur de connexion');
+      
+      // Store session in Supabase client
+      if (data.session) {
+        await supabase.auth.setSession(data.session);
+      }
       
       router.push("/dashboard");
     } catch (error: any) {
       console.error("Login Error:", error);
-      toast.error(error.message || "Failed to login. Check your credentials.");
+      toast.error(error.message || "Email ou mot de passe incorrect.");
     } finally {
       setIsLoading(false);
     }
