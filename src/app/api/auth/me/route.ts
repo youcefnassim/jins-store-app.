@@ -9,14 +9,14 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export async function GET(request: NextRequest) {
   try {
-    const token = cookies().get('sb-access-token')?.value;
+    const token = request.cookies.get('sb-access-token')?.value;
     if (!token) {
       return NextResponse.json({ user: null, profile: null });
     }
 
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) {
-      return NextResponse.json({ user: null, profile: null });
+      return NextResponse.json({ user: null, profile: null, debug_error: error, debug_token: token.substring(0,10) });
     }
 
     const { data: profile } = await supabase
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     return NextResponse.json({ user, profile });
-  } catch (err) {
-    return NextResponse.json({ user: null, profile: null });
+  } catch (err: any) {
+    return NextResponse.json({ user: null, profile: null, catch_error: err.message });
   }
 }
