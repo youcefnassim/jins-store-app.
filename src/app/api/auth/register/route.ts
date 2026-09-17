@@ -37,18 +37,21 @@ export async function POST(request: NextRequest) {
       // 3. Auto sign-in after register
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (!signInError && signInData.session) {
-        cookies().set('sb-access-token', signInData.session.access_token, {
+        const response = NextResponse.json({ user: signInData.user, session: signInData.session });
+        response.cookies.set('sb-access-token', signInData.session.access_token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           maxAge: 60 * 60 * 24 * 7, // 1 week
           path: '/',
         });
-        return NextResponse.json({ user: signInData.user, session: signInData.session });
+        return response;
       }
     }
 
+    const response = NextResponse.json({ user: data.user, session: data.session });
+
     if (data.session) {
-      cookies().set('sb-access-token', data.session.access_token, {
+      response.cookies.set('sb-access-token', data.session.access_token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 7,
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ user: data.user, session: data.session });
+    return response;
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
   }
