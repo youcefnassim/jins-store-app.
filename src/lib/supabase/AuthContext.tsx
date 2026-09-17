@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('role, points')
+        .select('role, points, name, email')
         .eq('id', user.id)
         .single();
         
@@ -74,10 +74,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .insert({
             id: user.id,
             email: user.email,
+            name: user.user_metadata?.full_name || '',
             role: "user",
             points: 0
           })
-          .select('role, points')
+          .select('role, points, name, email')
           .single();
           
         if (!insertError && newProfile) {

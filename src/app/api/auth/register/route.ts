@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const { email, password, name } = await request.json();
 
+    // 1. Create user in Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -22,8 +23,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    // Auto sign-in after register
+    // 2. If user created, insert profile row with name + role
     if (data.user) {
+      await supabase.from('profiles').upsert({
+        id: data.user.id,
+        email: data.user.email,
+        name: name || '',
+        role: 'user',
+        points: 0,
+      });
+
+      // 3. Auto sign-in after register
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (!signInError && signInData.session) {
         return NextResponse.json({ user: signInData.user, session: signInData.session });

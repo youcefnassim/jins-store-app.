@@ -14,7 +14,7 @@ import { Check, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
-import { createOrder } from "@/lib/supabase/orders";
+// createOrder is now handled server-side via /api/orders/create
 
 export type OrderData = {
   playerId: string;
@@ -77,7 +77,7 @@ export function RechargeStepper() {
       return;
     }
     
-    if (!user) {
+    if (!user?.id) {
       toast.error("You must be logged in to recharge. Please log in first.");
       router.push("/auth/login");
       return;
@@ -86,27 +86,34 @@ export function RechargeStepper() {
     setIsSubmitting(true);
     
     try {
-      // Points awarded: Let's give 10% of the price back as points
       const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
       const price = parseInt(priceStr) || 0;
       const pointsToAward = Math.floor(price * 0.1);
 
-      const result = await createOrder({
-        userId: user.id,
-        game: "Mobile Legends",
-        packageId: orderData.package.id,
-        packageName: String(orderData.package.amount) + " Diamonds",
-        playerId: orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId,
-        price: String(orderData.package.price),
-        pointsToAward: pointsToAward,
-        receiptFile: file,
+      // Use server-side API to bypass network restrictions
+      const formData = new FormData();
+      formData.append('userId', user.id);
+      formData.append('game', 'Mobile Legends');
+      formData.append('packageId', orderData.package.id);
+      formData.append('packageName', String(orderData.package.amount) + ' Diamonds');
+      formData.append('playerId', orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId);
+      formData.append('price', String(orderData.package.price));
+      formData.append('pointsToAward', String(pointsToAward));
+      formData.append('receiptFile', file);
+
+      const res = await fetch('/api/orders/create', {
+        method: 'POST',
+        body: formData,
       });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Failed to submit order');
       
       toast.success("Order submitted successfully!");
-      router.push(`/order/success?id=${result.orderId}`);
-    } catch (error) {
+      router.push(`/order/success?id=${data.orderId}`);
+    } catch (error: any) {
       console.error(error);
-      toast.error("Failed to submit order. Please try again.");
+      toast.error(error.message || "Failed to submit order. Please try again.");
       setIsSubmitting(false);
     }
   };

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { supabase } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, Eye, Loader2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,26 +26,28 @@ export default function AdminDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const fetchOrders = async () => {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
-      
-    if (data) {
-      setOrders(data.map(d => ({
-        id: d.id,
-        userId: d.user_id,
-        game: d.game,
-        package: d.package,
-        playerId: d.player_id,
-        price: d.price,
-        pointsToAward: d.points_to_award,
-        status: d.status,
-        receiptUrl: d.receipt_url,
-        createdAt: d.created_at
-      })));
+    try {
+      const res = await fetch('/api/admin/orders');
+      const data = await res.json();
+      if (data.orders) {
+        setOrders(data.orders.map((d: any) => ({
+          id: d.id,
+          userId: d.user_id,
+          game: d.game,
+          package: d.package,
+          playerId: d.player_id,
+          price: d.price,
+          pointsToAward: d.points_to_award,
+          status: d.status,
+          receiptUrl: d.receipt_url,
+          createdAt: d.created_at
+        })));
+      }
+    } catch (err) {
+      console.error('Failed to fetch orders:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -56,28 +57,17 @@ export default function AdminDashboard() {
   const handleApprove = async (order: Order) => {
     if (!confirm("Are you sure you want to approve this order?")) return;
     try {
-      // 1. Update order status
-      await supabase
-        .from("orders")
-        .update({ status: "completed" })
-        .eq("id", order.id);
-
-      // 2. Award points to user
-      if (order.pointsToAward > 0) {
-        const { data: userProfile } = await supabase
-          .from("profiles")
-          .select("points")
-          .eq("id", order.userId)
-          .single();
-          
-        if (userProfile) {
-          await supabase
-            .from("profiles")
-            .update({ points: (userProfile.points || 0) + order.pointsToAward })
-            .eq("id", order.userId);
-        }
-      }
-
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          action: 'approve',
+          userId: order.userId,
+          pointsToAward: order.pointsToAward,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to approve');
       toast.success("Order approved successfully!");
       setSelectedOrder(null);
       fetchOrders();
@@ -90,11 +80,12 @@ export default function AdminDashboard() {
   const handleReject = async (order: Order) => {
     if (!confirm("Are you sure you want to reject this order?")) return;
     try {
-      await supabase
-        .from("orders")
-        .update({ status: "rejected" })
-        .eq("id", order.id);
-        
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, action: 'reject' }),
+      });
+      if (!res.ok) throw new Error('Failed to reject');
       toast.success("Order rejected.");
       setSelectedOrder(null);
       fetchOrders();
