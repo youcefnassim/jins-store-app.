@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const SUPABASE_URL = 'https://urpgraqgoaodncenylmn.supabase.co';
+const SUPABASE_URL = 'https://urpgragqoaodncenylmn.supabase.co';
 
 export async function GET() {
   try {
