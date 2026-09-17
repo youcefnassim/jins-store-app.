@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Gamepad2, Trash2, Plus, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { motion } from "framer-motion";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 interface SavedAccount {
   id: string;
