@@ -35,12 +35,10 @@ export default function LoginPage() {
       
       if (!res.ok) throw new Error(data.error || 'Erreur de connexion');
       
-      // Store session in Supabase client
-      if (data.session) {
-        await supabase.auth.setSession(data.session);
+      if (res.ok) {
+        toast.success("Connexion réussie !");
+        window.location.href = "/en/dashboard";
       }
-      
-      router.push("/dashboard");
     } catch (error: any) {
       console.error("Login Error:", error);
       toast.error(error.message || "Email ou mot de passe incorrect.");

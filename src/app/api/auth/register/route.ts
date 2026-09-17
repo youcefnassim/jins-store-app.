@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const supabase = createClient(
   'https://urpgragqoaodncenylmn.supabase.co',
@@ -36,8 +37,23 @@ export async function POST(request: NextRequest) {
       // 3. Auto sign-in after register
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (!signInError && signInData.session) {
+        cookies().set('sb-access-token', signInData.session.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24 * 7, // 1 week
+          path: '/',
+        });
         return NextResponse.json({ user: signInData.user, session: signInData.session });
       }
+    }
+
+    if (data.session) {
+      cookies().set('sb-access-token', data.session.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
     }
 
     return NextResponse.json({ user: data.user, session: data.session });

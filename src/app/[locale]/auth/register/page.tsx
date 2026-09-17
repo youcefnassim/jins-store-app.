@@ -36,12 +36,10 @@ export default function RegisterPage() {
       
       if (!res.ok) throw new Error(data.error || 'Erreur de création de compte');
       
-      if (data.session) {
-        await supabase.auth.setSession(data.session);
+      if (res.ok) {
+        toast.success("Compte créé avec succès !");
+        window.location.href = "/en/dashboard";
       }
-      
-      toast.success("Compte créé avec succès !");
-      router.push("/dashboard");
     } catch (error: any) {
       console.error("Registration Error:", error);
       toast.error(error.message || "Erreur lors de la création du compte.");

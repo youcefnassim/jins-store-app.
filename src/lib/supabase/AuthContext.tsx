@@ -33,71 +33,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and sets the user
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user);
-      } else {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        setUser(data.user);
+        setProfile(data.profile);
+      } catch (err) {
+        setUser(null);
+        setProfile(null);
+      } finally {
         setLoading(false);
       }
-    });
+    };
 
-    // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          fetchProfile(session.user);
-        } else {
-          setProfile(null);
-          setLoading(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    fetchUser();
   }, []);
 
-  const fetchProfile = async (user: User) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('role, points, name, email')
-        .eq('id', user.id)
-        .single();
-        
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create it!
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            name: user.user_metadata?.full_name || '',
-            role: "user",
-            points: 0
-          })
-          .select('role, points, name, email')
-          .single();
-          
-        if (!insertError && newProfile) {
-          setProfile(newProfile as Profile);
-        } else {
-          setProfile({ role: "user", points: 0 }); 
-        }
-      } else if (data) {
-        setProfile(data as Profile);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const logout = async () => {
-    await supabase.auth.signOut();
+    await fetch('/api/auth/logout', { method: 'POST' });
+    setUser(null);
+    setProfile(null);
+    window.location.href = '/en/auth/login';
   };
 
   return (

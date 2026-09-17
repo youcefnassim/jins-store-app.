@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const supabase = createClient(
   'https://urpgragqoaodncenylmn.supabase.co',
@@ -16,10 +17,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ 
-      user: data.user, 
-      session: data.session 
-    });
+    if (data.session) {
+      cookies().set('sb-access-token', data.session.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 7, // 1 week
+        path: '/',
+      });
+    }
+
+    return NextResponse.json({ user: data.user, session: data.session });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
   }
