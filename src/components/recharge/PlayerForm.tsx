@@ -11,6 +11,8 @@ import { ArrowRight, HelpCircle, Loader2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/lib/supabase/AuthContext";
+import { supabase } from "@/lib/supabase/client";
 
 const playerSchema = z.object({
   playerId: z.string().min(5, "Player ID is too short").max(15, "Player ID is too long").regex(/^\d+$/, "Player ID must contain only numbers"),
@@ -32,6 +34,9 @@ interface PlayerFormProps {
 export function PlayerForm({ data, onNext }: PlayerFormProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifiedName, setVerifiedName] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [savedAccounts, setSavedAccounts] = useState<any[]>([]);
+  const [accountsLoading, setAccountsLoading] = useState(true);
 
   const form = useForm<PlayerFormValues>({
     resolver: zodResolver(playerSchema),
@@ -54,6 +59,37 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
       if (savedPhone) form.setValue("phone", savedPhone);
     }
   }, [data.playerId, form]);
+
+  // Fetch saved accounts if logged in
+  useEffect(() => {
+    if (user) {
+      const fetchAccounts = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("saved_accounts")
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false });
+          if (!error && data) setSavedAccounts(data);
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setAccountsLoading(false);
+        }
+      };
+      fetchAccounts();
+    } else {
+      setAccountsLoading(false);
+    }
+  }, [user]);
+
+  const handleSelectAccount = (acc: any) => {
+    form.setValue("playerId", acc.player_id || "");
+    // Extract zone ID if present in format 123456(1234) or similar? 
+    // In saved_accounts we don't have zone_id separated, so we might just leave zoneId empty or if they saved it as player_id. 
+    // Usually MLBB players save ID and Zone. Let's just set player_id.
+    setVerifiedName(acc.player_name || null);
+  };
 
   async function onSubmit(values: PlayerFormValues) {
     if (!verifiedName) {
@@ -101,6 +137,26 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {user && savedAccounts.length > 0 && (
+          <div className="mb-6">
+            <p className="text-sm font-medium text-white/80 mb-3">Or choose a saved account:</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10">
+              {savedAccounts.map((acc) => (
+                <button
+                  key={acc.id}
+                  type="button"
+                  onClick={() => handleSelectAccount(acc)}
+                  className="flex flex-col items-start bg-black/20 hover:bg-primary/20 border border-white/5 hover:border-primary/50 p-3 rounded-xl transition-all min-w-[140px] text-left shrink-0 group"
+                >
+                  <span className="text-xs text-primary font-bold">{acc.game}</span>
+                  <span className="text-sm font-mono text-white group-hover:text-primary-foreground">{acc.player_id}</span>
+                  {acc.player_name && <span className="text-xs text-muted-foreground">{acc.player_name}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             

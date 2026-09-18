@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Lock, Loader2, Save } from "lucide-react";
+import { User, Lock, Loader2, Save, Award } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/supabase/AuthContext";
@@ -64,6 +64,27 @@ export function ProfileSettings() {
 
   return (
     <div className="space-y-6">
+      {/* Loyalty Points Card */}
+      <Card className="glass-card border-black/10 dark:border-white/10 bg-gradient-to-r from-amber-500/10 to-orange-600/10 border-amber-500/20">
+        <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6">
+          <div className="flex items-center gap-4 mb-4 sm:mb-0">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <Award className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Jins Coins</h3>
+              <p className="text-sm text-muted-foreground">Earn coins with every purchase to get discounts!</p>
+            </div>
+          </div>
+          <div className="text-center sm:text-right">
+            <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
+              {profile?.points || 0}
+            </div>
+            <p className="text-xs font-bold text-amber-500 uppercase tracking-widest mt-1">Total Coins</p>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="glass-card border-black/10 dark:border-white/10">
         <CardHeader>
           <CardTitle className="text-xl text-slate-900 dark:text-white flex items-center gap-2">

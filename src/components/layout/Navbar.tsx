@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
 
@@ -117,8 +118,9 @@ export function Navbar() {
           </nav>
 
           {/* CTA & Mobile Toggle - Right Aligned */}
-          <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
+          <div className="flex-1 flex items-center justify-end gap-2 sm:gap-3">
             
+            <GlobalSearch />
             <LanguageSwitcher />
             <ThemeToggle />
 
