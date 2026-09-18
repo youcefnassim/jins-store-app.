@@ -13,6 +13,7 @@ import { ParticlesBackground } from "@/components/ui/ParticlesBackground";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { TopMarquee } from "@/components/layout/TopMarquee";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -75,7 +76,8 @@ export default async function RootLayout({
         
         <TopMarquee />
         <Navbar />
-        <main className="flex-1 flex flex-col">
+        <BottomTabBar />
+        <main className="flex-1 flex flex-col pb-20 md:pb-0">
           <PageTransition>
             {children}
           </PageTransition>
