@@ -12,6 +12,7 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { ParticlesBackground } from "@/components/ui/ParticlesBackground";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { ScrollToTop } from "@/components/ui/ScrollToTop";
+import { TopMarquee } from "@/components/layout/TopMarquee";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -72,8 +73,9 @@ export default async function RootLayout({
         </div>
         <ParticlesBackground />
         
+        <TopMarquee />
         <Navbar />
-        <main className="flex-1 pt-16 flex flex-col">
+        <main className="flex-1 flex flex-col">
           <PageTransition>
             {children}
           </PageTransition>

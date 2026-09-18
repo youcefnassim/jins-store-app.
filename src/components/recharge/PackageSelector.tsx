@@ -44,8 +44,18 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack }: P
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div 
+                key={i} 
+                className="relative rounded-xl border border-white/5 bg-black/20 p-4 h-32 flex flex-col items-center justify-center gap-3 overflow-hidden"
+              >
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+                <div className="w-12 h-12 rounded-full bg-white/5" />
+                <div className="w-16 h-4 rounded-full bg-white/5" />
+                <div className="w-20 h-3 rounded-full bg-white/5 mt-1" />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="space-y-8">

@@ -55,7 +55,7 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 w-full z-50 transition-all duration-500",
+          "sticky top-0 w-full z-50 transition-all duration-500",
           isScrolled
             ? "bg-background/70 backdrop-blur-xl border-b border-white/10 shadow-[0_4_30px_rgba(0,0,0,0.1)] py-2"
             : "bg-transparent py-4"
@@ -111,6 +111,62 @@ export function Navbar() {
                       className="absolute inset-0 bg-black/5 dark:bg-white/5 rounded-full -z-10"
                       transition={{ type: "spring", stiffness: 400, damping: 35 }}
                     />
+                  )}
+
+                  {/* Mega Menu Dropdown for Games */}
+                  {link.href === "/games" && isHovered && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[600px] cursor-default"
+                    >
+                      <div className="bg-white/90 dark:bg-[#0a0e17]/95 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl p-6 grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Trending Games</h4>
+                          <div className="space-y-3">
+                            <Link href="/recharge?game=mobile-legends" className="flex items-center gap-3 group/item">
+                              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center shrink-0">
+                                <Gamepad2 className="w-5 h-5 text-blue-500 group-hover/item:scale-110 transition-transform" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-slate-900 dark:text-white group-hover/item:text-primary transition-colors">Mobile Legends</p>
+                                <p className="text-xs text-muted-foreground">Diamonds Top Up</p>
+                              </div>
+                            </Link>
+                            <Link href="/recharge?game=pubg-mobile" className="flex items-center gap-3 group/item">
+                              <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
+                                <Gamepad2 className="w-5 h-5 text-amber-500 group-hover/item:scale-110 transition-transform" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-slate-900 dark:text-white group-hover/item:text-primary transition-colors">PUBG Mobile</p>
+                                <p className="text-xs text-muted-foreground">UC Top Up</p>
+                              </div>
+                            </Link>
+                            <Link href="/recharge?game=free-fire" className="flex items-center gap-3 group/item">
+                              <div className="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center shrink-0">
+                                <Gamepad2 className="w-5 h-5 text-rose-500 group-hover/item:scale-110 transition-transform" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-slate-900 dark:text-white group-hover/item:text-primary transition-colors">Free Fire</p>
+                                <p className="text-xs text-muted-foreground">Diamonds Top Up</p>
+                              </div>
+                            </Link>
+                          </div>
+                        </div>
+                        
+                        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-indigo-900 to-purple-900 flex flex-col justify-end p-4">
+                          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070')] bg-cover bg-center opacity-40 mix-blend-overlay"></div>
+                          <div className="relative z-10">
+                            <span className="inline-block bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase mb-1 shadow-lg">New Promo</span>
+                            <p className="text-white font-bold text-lg leading-tight mb-2">Get 10% Extra on first Top Up!</p>
+                            <Button asChild size="sm" className="bg-primary hover:bg-primary/90 text-white border-0 shadow-lg w-full h-8 text-xs">
+                              <Link href="/games">View All Games</Link>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
                 </Link>
               );
