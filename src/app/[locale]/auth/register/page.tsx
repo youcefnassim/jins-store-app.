@@ -77,7 +77,7 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">
             <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-xl border border-white/10 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-              <img src="/logo.png" alt="Jin's Store Logo" className="w-full h-full object-cover" />
+              <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
             </div>
             {siteConfig.name}
           </Link>

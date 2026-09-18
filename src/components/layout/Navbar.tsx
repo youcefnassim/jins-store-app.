@@ -66,7 +66,7 @@ export function Navbar() {
           <div className="flex-1 flex justify-start">
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-full border border-white/10 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all duration-300">
-                <img src="/logo.png" alt="Jin's Store Logo" className="w-full h-full object-cover" />
+                <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-bold text-xl tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70">
                 {siteConfig.name}

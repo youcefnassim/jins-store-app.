@@ -11,7 +11,7 @@ export function Footer() {
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="relative w-8 h-8 flex items-center justify-center overflow-hidden rounded-lg border border-white/10">
-                <img src="/logo.png" alt="Jin's Store Logo" className="w-full h-full object-cover" />
+                <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-bold text-xl tracking-tight">
                 {siteConfig.name}
