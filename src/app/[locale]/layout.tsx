@@ -3,17 +3,14 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
-import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-
 import { Toaster } from "@/components/ui/sonner";
 import { SocialProofPopup } from "@/components/ui/SocialProofPopup";
-import { FloatingChat } from "@/components/ui/FloatingChat";
 import { CustomCursor } from "@/components/ui/CustomCursor";
 import { ParticlesBackground } from "@/components/ui/ParticlesBackground";
 import { PageTransition } from "@/components/ui/PageTransition";
-import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import { TopMarquee } from "@/components/layout/TopMarquee";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
+import { SpeedDialFAB } from "@/components/ui/SpeedDialFAB";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
@@ -83,12 +80,9 @@ export default async function RootLayout({
           </PageTransition>
         </main>
         <Footer />
-        <WhatsAppButton />
-
+        <SpeedDialFAB />
         <Toaster theme="dark" position="top-center" />
         <SocialProofPopup />
-          <FloatingChat />
-          <ScrollToTop />
           </NextIntlClientProvider>
           </AuthProvider>
         </ThemeProvider>
