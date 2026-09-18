@@ -4,7 +4,7 @@ import "../globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
-import { LiveSalesNotification } from "@/components/layout/LiveSalesNotification";
+
 import { Toaster } from "@/components/ui/sonner";
 import { SocialProofPopup } from "@/components/ui/SocialProofPopup";
 import { FloatingChat } from "@/components/ui/FloatingChat";
@@ -84,7 +84,7 @@ export default async function RootLayout({
         </main>
         <Footer />
         <WhatsAppButton />
-        <LiveSalesNotification />
+
         <Toaster theme="dark" position="top-center" />
         <SocialProofPopup />
           <FloatingChat />

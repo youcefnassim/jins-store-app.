@@ -7,11 +7,11 @@ import { siteConfig } from "@/config/site";
 
 // Mock data for social proof
 const mockPurchases = [
-  { name: "Ahmed", city: "Alger", item: "514 Diamonds", time: "2 min ago" },
-  { name: "Yanis", city: "Oran", item: "86 Diamonds", time: "5 min ago" },
-  { name: "Amine", city: "Constantine", item: "Weekly Pass", time: "12 min ago" },
-  { name: "Sami", city: "Annaba", item: "172 Diamonds", time: "just now" },
-  { name: "Riad", city: "Blida", item: "344 Diamonds", time: "1 min ago" },
+  { name: "Ahmed", city: "Alger", item: "514 Diamants", time: "Il y a 2 min" },
+  { name: "Yanis", city: "Oran", item: "86 Diamants", time: "Il y a 5 min" },
+  { name: "Amine", city: "Constantine", item: "Pass Hebdomadaire", time: "Il y a 12 min" },
+  { name: "Sami", city: "Annaba", item: "172 Diamants", time: "À l'instant" },
+  { name: "Riad", city: "Blida", item: "344 Diamants", time: "Il y a 1 min" },
 ];
 
 export function SocialProofPopup() {
@@ -60,10 +60,10 @@ export function SocialProofPopup() {
             </div>
             <div className="flex-1 pr-6">
               <p className="text-sm text-white font-medium leading-tight mb-1">
-                <span className="font-bold text-primary">{currentPurchase.name}</span> from {currentPurchase.city}
+                <span className="font-bold text-primary">{currentPurchase.name}</span> de {currentPurchase.city}
               </p>
               <p className="text-xs text-muted-foreground">
-                recently purchased <span className="text-white font-bold">{currentPurchase.item}</span>
+                vient d'acheter <span className="text-white font-bold">{currentPurchase.item}</span>
               </p>
               <p className="text-[10px] text-muted-foreground/70 mt-1">{currentPurchase.time}</p>
             </div>
