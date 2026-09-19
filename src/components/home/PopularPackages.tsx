@@ -4,7 +4,7 @@ import { packages } from "@/lib/mock-data";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
 import Tilt from "react-parallax-tilt";
 import { useTranslations } from "next-intl";

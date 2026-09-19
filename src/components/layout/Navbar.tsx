@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
 import { Menu, X, Smartphone, Search, Gamepad2, HelpCircle, Phone, ChevronRight, User, LogIn } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";

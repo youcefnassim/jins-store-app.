@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
 import { useTranslations } from "next-intl";
 

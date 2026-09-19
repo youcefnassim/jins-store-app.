@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/routing";
 import { Home, Gamepad2, Search, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 
