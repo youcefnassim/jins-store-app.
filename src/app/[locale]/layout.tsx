@@ -9,7 +9,7 @@ import { CustomCursor } from "@/components/ui/CustomCursor";
 import { ParticlesBackground } from "@/components/ui/ParticlesBackground";
 import { PageTransition } from "@/components/ui/PageTransition";
 import { TopMarquee } from "@/components/layout/TopMarquee";
-import { BottomTabBar } from "@/components/layout/BottomTabBar";
+import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 import { SpeedDialFAB } from "@/components/ui/SpeedDialFAB";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 import { NextIntlClientProvider } from "next-intl";
@@ -64,26 +64,19 @@ export default async function RootLayout({
           <AuthProvider>
             <NextIntlClientProvider messages={messages}>
               <CustomCursor />
-        {/* Background */}
-        <div className="fixed inset-0 -z-20 w-full h-full bg-slate-100 dark:bg-[#050810]">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/30 dark:from-indigo-900/20 via-background/60 to-background" />
-        </div>
-        <ParticlesBackground />
-        
-        <TopMarquee />
-        <Navbar />
-        <BottomTabBar />
-        <main className="flex-1 flex flex-col pb-20 md:pb-0">
-          <PageTransition>
-            {children}
-          </PageTransition>
-        </main>
-        <Footer />
-        <SpeedDialFAB />
-        <Toaster theme="dark" position="top-center" />
-        <SocialProofPopup />
-          </NextIntlClientProvider>
+              {/* Background */}
+              <div className="fixed inset-0 -z-20 w-full h-full bg-slate-100 dark:bg-[#050810]">
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/30 dark:from-indigo-900/20 via-background/60 to-background" />
+              </div>
+              <ParticlesBackground />
+              
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+
+              <Toaster theme="dark" position="top-center" />
+            </NextIntlClientProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
