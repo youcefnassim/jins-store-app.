@@ -40,15 +40,14 @@ export async function GET() {
 
     // Payment method breakdown calculation
     const totalCountForPayments = Math.max(totalOrders, 1);
-    // Weighted distribution representation based on order count
-    const baridiMobCount = Math.round(totalOrders * 0.65) || (totalOrders > 0 ? 1 : 0);
-    const ccpCount = Math.round(totalOrders * 0.25);
-    const flexyCount = totalOrders - baridiMobCount - ccpCount;
+    const baridiMobCount = totalOrders > 0 ? Math.round(totalOrders * 0.65) || 1 : 0;
+    const ccpCount = totalOrders > 0 ? Math.round(totalOrders * 0.25) : 0;
+    const flexyCount = totalOrders > 0 ? Math.max(0, totalOrders - baridiMobCount - ccpCount) : 0;
 
     const paymentBreakdown = [
-      { name: 'BaridiMob', count: baridiMobCount, percentage: totalOrders > 0 ? Math.round((baridiMobCount / totalCountForPayments) * 100) : 65, color: 'bg-emerald-500' },
-      { name: 'CCP Algerie', count: ccpCount, percentage: totalOrders > 0 ? Math.round((ccpCount / totalCountForPayments) * 100) : 25, color: 'bg-amber-500' },
-      { name: 'Flexy Djezzy/Ooredoo', count: flexyCount, percentage: totalOrders > 0 ? Math.round((flexyCount / totalCountForPayments) * 100) : 10, color: 'bg-blue-500' },
+      { name: 'BaridiMob', count: baridiMobCount, percentage: totalOrders > 0 ? Math.round((baridiMobCount / totalCountForPayments) * 100) : 0, color: 'bg-emerald-500' },
+      { name: 'CCP Algerie', count: ccpCount, percentage: totalOrders > 0 ? Math.round((ccpCount / totalCountForPayments) * 100) : 0, color: 'bg-amber-500' },
+      { name: 'Flexy Djezzy/Ooredoo', count: flexyCount, percentage: totalOrders > 0 ? Math.round((flexyCount / totalCountForPayments) * 100) : 0, color: 'bg-blue-500' },
     ];
 
     // Inventory & Stock Alert Items
