@@ -22,10 +22,12 @@ export default function MobileLegendsPage() {
       <section className="relative pt-20 pb-24 overflow-hidden border-b border-white/10 bg-black/20">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
-          <div className="w-20 h-20 mx-auto bg-gradient-to-br from-blue-600 to-indigo-900 rounded-2xl flex items-center justify-center shadow-[0_0_30px_rgba(79,70,229,0.3)] mb-6">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <span className="font-black text-white text-xl">MLBB</span>
-            </div>
+          <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(79,70,229,0.4)] mb-6 border border-white/10">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang.png/240px-Mobile_Legends_Bang_Bang.png"
+              alt="Mobile Legends Bang Bang"
+              className="w-full h-full object-cover"
+            />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
             {t("title")}
