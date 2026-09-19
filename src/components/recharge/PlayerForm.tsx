@@ -106,8 +106,8 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
     const timer = setTimeout(() => {
       const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99", "Dz_Hero"];
-      const seedIndex = (parseInt(watchedPlayerId.slice(-3)) || 0) % mockNames.length;
-      const verifiedNickname = mockNames[seedIndex];
+      const num = parseInt((watchedPlayerId || "").slice(-3)) || 0;
+      const verifiedNickname = mockNames[num % mockNames.length];
       
       setVerifiedName(verifiedNickname);
       setIsVerifying(false);
@@ -118,21 +118,15 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         if (watchedPhone) localStorage.setItem("dz_recharge_phone", watchedPhone);
       }
 
-      if (
-        watchedPlayerId !== data.playerId ||
-        watchedZoneId !== data.zoneId ||
-        (watchedPhone || "") !== (data.phone || "")
-      ) {
-        onNext({
-          playerId: watchedPlayerId,
-          zoneId: watchedZoneId,
-          phone: watchedPhone || "",
-        });
-      }
-    }, 500);
+      onNext({
+        playerId: watchedPlayerId,
+        zoneId: watchedZoneId,
+        phone: watchedPhone || "",
+      });
+    }, 400);
 
     return () => clearTimeout(timer);
-  }, [watchedPlayerId, watchedZoneId, watchedPhone, data.playerId, data.zoneId, data.phone]);
+  }, [watchedPlayerId, watchedZoneId, watchedPhone]);
 
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");

@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function CartSidebar() {
-  const t = useTranslations();
   const { items, removeItem, updateQuantity, getTotalPrice, getItemCount } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
