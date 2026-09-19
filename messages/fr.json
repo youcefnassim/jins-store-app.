@@ -325,5 +325,29 @@
     "slide3_title": "Free Fire - Pass Élite",
     "slide3_desc": "Ne ratez pas le nouveau Pass Élite de cette saison",
     "cta": "Profiter de l'offre"
+  },
+  "RechargeForm": {
+    "step1_title": "1. Joueur & Forfait",
+    "step2_title": "2. Paiement & Reçu",
+    "player_info_title": "Informations du Joueur",
+    "player_info_desc": "Entrez votre Player ID et Zone ID pour continuer.",
+    "player_id": "ID Joueur (Player ID)",
+    "zone_id": "ID de Zone (Zone ID)",
+    "phone": "Numéro de Téléphone (WhatsApp)",
+    "phone_desc": "Optionnel. Nous l'utilisons pour vous contacter en cas de besoin sur votre commande.",
+    "where_id": "Où trouver mon ID ?",
+    "verify_id": "Vérifier l'ID Joueur",
+    "verifying": "Vérification en cours...",
+    "account_verified": "Compte Vérifié",
+    "continue_payment": "Continuer vers le Paiement (Étape 2)",
+    "change_player_info": "Changer le Forfait ou l'ID Joueur"
+  },
+  "OrderSummary": {
+    "title": "Résumé de la Commande",
+    "game": "Jeu",
+    "player": "Joueur",
+    "package": "Forfait",
+    "payment_method": "Mode de Paiement",
+    "total_amount": "Montant Total"
   }
 }

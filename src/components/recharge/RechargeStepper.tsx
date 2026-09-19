@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export type OrderData = {
   playerId: string;
@@ -26,11 +27,12 @@ export type OrderData = {
 };
 
 const STEPS = [
-  { id: 1, name: "1. Joueur & Forfait" },
-  { id: 2, name: "2. Paiement & Reçu" },
+  { id: 1, key: "step1_title" },
+  { id: 2, key: "step2_title" },
 ];
 
 export function RechargeStepper() {
+  const t = useTranslations("RechargeForm");
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -158,7 +160,7 @@ export function RechargeStepper() {
                   {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
                 </div>
                 <span className="text-xs md:text-sm font-semibold truncate">
-                  {step.name}
+                  {t(step.key as any)}
                 </span>
               </div>
             ))}
@@ -190,8 +192,8 @@ export function RechargeStepper() {
                 size="lg"
                 className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-primary/25"
               >
-                <span>Continuer vers le Paiement (Étape 2)</span>
-                <ArrowRight className="w-4 h-4 ml-2" />
+                <span>{t("continue_payment")}</span>
+                <ArrowRight className="w-4 h-4 ml-2 rtl:rotate-180 rtl:mr-2 rtl:ml-0" />
               </Button>
             </div>
           </div>
@@ -206,8 +208,8 @@ export function RechargeStepper() {
                 onClick={handleBack}
                 className="text-xs font-semibold hover:bg-slate-100 dark:hover:bg-white/10"
               >
-                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
-                Changer le Forfait ou l'ID Joueur
+                <ArrowLeft className="w-3.5 h-3.5 mr-1 rtl:rotate-180 rtl:ml-1 rtl:mr-0" />
+                {t("change_player_info")}
               </Button>
             </div>
 

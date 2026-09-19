@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { supabase } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 
 const playerSchema = z.object({
   playerId: z.string().min(5, "Player ID is too short").max(15, "Player ID is too long").regex(/^\d+$/, "Player ID must contain only numbers"),
@@ -34,6 +35,7 @@ interface PlayerFormProps {
 }
 
 export function PlayerForm({ data, onNext }: PlayerFormProps) {
+  const t = useTranslations("RechargeForm");
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifiedName, setVerifiedName] = useState<string | null>(null);
   const { user } = useAuth();
@@ -87,19 +89,13 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");
-    // Extract zone ID if present in format 123456(1234) or similar? 
-    // In saved_accounts we don't have zone_id separated, so we might just leave zoneId empty or if they saved it as player_id. 
-    // Usually MLBB players save ID and Zone. Let's just set player_id.
     setVerifiedName(acc.player_name || null);
   };
 
   async function onSubmit(values: PlayerFormValues) {
     if (!verifiedName) {
       setIsVerifying(true);
-      // Simulate API call for ID verification
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      // Mock player name
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99"];
       const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
       setVerifiedName(randomName);
@@ -107,7 +103,6 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
       return;
     }
 
-    // Save to localStorage
     if (typeof window !== "undefined") {
       localStorage.setItem("dz_recharge_playerId", values.playerId);
       localStorage.setItem("dz_recharge_zoneId", values.zoneId);
@@ -117,7 +112,6 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
     onNext(values);
   }
 
-  // Reset verification if ID changes
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
       if (name === "playerId" || name === "zoneId") {
@@ -129,29 +123,28 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
   return (
     <Card className="glass-card border-white/10 relative overflow-hidden">
-      {/* Decorative gradient */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
       
       <CardHeader>
-        <CardTitle className="text-2xl text-white">Player Information</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Enter your MLBB Player ID and Zone ID to proceed.
+        <CardTitle className="text-2xl text-slate-900 dark:text-white">{t("player_info_title")}</CardTitle>
+        <CardDescription className="text-slate-500 dark:text-muted-foreground">
+          {t("player_info_desc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {user && savedAccounts.length > 0 && (
           <div className="mb-6">
-            <p className="text-sm font-medium text-white/80 mb-3">Or choose a saved account:</p>
+            <p className="text-sm font-medium text-slate-700 dark:text-white/80 mb-3">Ou choisir un compte enregistré :</p>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10">
               {savedAccounts.map((acc) => (
                 <button
                   key={acc.id}
                   type="button"
                   onClick={() => handleSelectAccount(acc)}
-                  className="flex flex-col items-start bg-black/20 hover:bg-primary/20 border border-white/5 hover:border-primary/50 p-3 rounded-xl transition-all min-w-[140px] text-left shrink-0 group"
+                  className="flex flex-col items-start bg-black/5 dark:bg-black/20 hover:bg-primary/20 border border-slate-200 dark:border-white/5 hover:border-primary/50 p-3 rounded-xl transition-all min-w-[140px] text-left shrink-0 group"
                 >
                   <span className="text-xs text-primary font-bold">{acc.game}</span>
-                  <span className="text-sm font-mono text-white group-hover:text-primary-foreground">{acc.player_id}</span>
+                  <span className="text-sm font-mono text-slate-900 dark:text-white group-hover:text-primary-foreground">{acc.player_id}</span>
                   {acc.player_name && <span className="text-xs text-muted-foreground">{acc.player_name}</span>}
                 </button>
               ))}
@@ -168,9 +161,9 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                 name="playerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white/80">Player ID</FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-white/80">{t("player_id")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. 123456789" className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12" {...field} />
+                      <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
                     </FormControl>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -181,9 +174,9 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                 name="zoneId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-white/80">Zone ID</FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. 1234" className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12" {...field} />
+                      <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
                     </FormControl>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -200,11 +193,11 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 flex items-center gap-3"
                 >
                   <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                    <CheckCircle2 className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-emerald-400/80 font-medium uppercase tracking-wider">Account Verified</p>
-                    <p className="text-white font-bold text-lg">{verifiedName}</p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400/80 font-bold uppercase tracking-wider">{t("account_verified")}</p>
+                    <p className="text-slate-900 dark:text-white font-bold text-lg">{verifiedName}</p>
                   </div>
                 </motion.div>
               )}
@@ -215,42 +208,37 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/80">
-                    Phone Number (WhatsApp) <span className="text-muted-foreground text-xs font-normal">(Optionnel)</span>
+                  <FormLabel className="text-slate-700 dark:text-white/80">
+                    {t("phone")}
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. 0550000000 (Optionnel)" className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12" {...field} />
+                    <Input placeholder="e.g. 0550000000" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12" {...field} />
                   </FormControl>
-                  <p className="text-xs text-muted-foreground mt-1">Optionnel. Nous l'utilisons pour vous contacter en cas de besoin sur votre commande.</p>
+                  <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1">{t("phone_desc")}</p>
                   <FormMessage className="text-destructive" />
                 </FormItem>
               )}
             />
 
             <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-4">
-              <Link href="/games/mobile-legends" target="_blank" className="text-sm text-primary hover:underline flex items-center gap-1 order-2 sm:order-1">
+              <Link href="/games/mobile-legends" target="_blank" className="text-sm text-primary hover:underline flex items-center gap-1 order-2 sm:order-1 font-medium">
                 <HelpCircle className="w-4 h-4" />
-                Where do I find my ID?
+                {t("where_id")}
               </Link>
               
               <Button 
                 type="submit" 
                 disabled={isVerifying}
-                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 px-8 w-full sm:w-auto order-1 sm:order-2 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all"
+                className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 w-full sm:w-auto order-1 sm:order-2 rounded-xl shadow-lg shadow-primary/25 transition-all"
               >
                 {isVerifying ? (
                   <>
                     <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                    Verifying ID...
-                  </>
-                ) : !verifiedName ? (
-                  <>
-                    Verify Player ID
+                    {t("verifying")}
                   </>
                 ) : (
                   <>
-                    Continue to Packages
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    {t("verify_id")}
                   </>
                 )}
               </Button>

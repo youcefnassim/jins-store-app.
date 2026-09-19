@@ -325,5 +325,29 @@
     "slide3_title": "Free Fire - Elite Pass",
     "slide3_desc": "Don't miss this season's Elite Pass",
     "cta": "Get Offer"
+  },
+  "RechargeForm": {
+    "step1_title": "1. Player & Package",
+    "step2_title": "2. Payment & Proof",
+    "player_info_title": "Player Information",
+    "player_info_desc": "Enter your Player ID and Zone ID to proceed.",
+    "player_id": "Player ID",
+    "zone_id": "Zone ID",
+    "phone": "Phone Number (WhatsApp)",
+    "phone_desc": "Optional. We use this to contact you if needed regarding your order.",
+    "where_id": "Where do I find my ID?",
+    "verify_id": "Verify Player ID",
+    "verifying": "Verifying ID...",
+    "account_verified": "Account Verified",
+    "continue_payment": "Continue to Payment (Step 2)",
+    "change_player_info": "Change Package or Player ID"
+  },
+  "OrderSummary": {
+    "title": "Order Summary",
+    "game": "Game",
+    "player": "Player",
+    "package": "Package",
+    "payment_method": "Payment Method",
+    "total_amount": "Total Amount"
   }
 }
