@@ -12,7 +12,7 @@ interface AdminSearchModalProps {
 
 export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
   const [query, setQuery] = useState("");
-  const router = RouterHook();
+  const router = useRouter();
 
   // Keyboard shortcut listener for ESC to close
   useEffect(() => {
@@ -131,8 +131,4 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
       </div>
     </AnimatePresence>
   );
-}
-
-function RouterHook() {
-  return useRouter();
 }

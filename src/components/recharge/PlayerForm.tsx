@@ -118,15 +118,21 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         if (watchedPhone) localStorage.setItem("dz_recharge_phone", watchedPhone);
       }
 
-      onNext({
-        playerId: watchedPlayerId,
-        zoneId: watchedZoneId,
-        phone: watchedPhone || "",
-      });
+      if (
+        watchedPlayerId !== data.playerId ||
+        watchedZoneId !== data.zoneId ||
+        (watchedPhone || "") !== (data.phone || "")
+      ) {
+        onNext({
+          playerId: watchedPlayerId,
+          zoneId: watchedZoneId,
+          phone: watchedPhone || "",
+        });
+      }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [watchedPlayerId, watchedZoneId, watchedPhone]);
+  }, [watchedPlayerId, watchedZoneId, watchedPhone, data.playerId, data.zoneId, data.phone]);
 
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");

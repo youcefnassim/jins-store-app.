@@ -1,15 +1,23 @@
 import { Suspense } from "react";
 import { RechargeStepper } from "@/components/recharge/RechargeStepper";
 import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Recharge Diamonds",
   description: "Secure and fast Mobile Legends Diamonds recharge.",
 };
 
-export default async function RechargePage() {
-  const t = await getTranslations("Recharge");
+export default async function RechargePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations({ locale, namespace: "Recharge" });
+
   return (
     <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
       <div className="max-w-6xl mx-auto">
