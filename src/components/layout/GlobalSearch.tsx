@@ -88,7 +88,7 @@ export function GlobalSearch() {
                         key={game.id}
                         onClick={() => {
                           setIsOpen(false);
-                          router.push(`/recharge/${game.id}`);
+                          router.push(`/recharge?game=${game.id}`);
                         }}
                         className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors text-left"
                       >

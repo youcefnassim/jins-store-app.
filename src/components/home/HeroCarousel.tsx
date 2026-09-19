@@ -12,7 +12,7 @@ const banners = [
     title: "Offre Spéciale PUBG Mobile",
     description: "Rechargez 660 UC et obtenez 60 UC Bonus !",
     image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200&h=400", // Generic gaming image
-    link: "/recharge/pubg-mobile",
+    link: "/recharge?game=pubg-mobile",
     color: "from-amber-500/80 to-orange-600/80"
   },
   {
@@ -20,7 +20,7 @@ const banners = [
     title: "Genshin Impact - Nouveauté",
     description: "Les Cristaux Primaires au meilleur prix d'Algérie",
     image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&q=80&w=1200&h=400", // Anime/fantasy style
-    link: "/recharge/genshin-impact",
+    link: "/recharge?game=genshin-impact",
     color: "from-indigo-500/80 to-purple-600/80"
   },
   {
@@ -28,7 +28,7 @@ const banners = [
     title: "Free Fire - Pass Élite",
     description: "Ne ratez pas le nouveau Pass Élite de cette saison",
     image: "https://images.unsplash.com/photo-1538481199005-c710c4e965fc?auto=format&fit=crop&q=80&w=1200&h=400", // Action game style
-    link: "/recharge/free-fire",
+    link: "/recharge?game=free-fire",
     color: "from-rose-500/80 to-red-600/80"
   }
 ];
