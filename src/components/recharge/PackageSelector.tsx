@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/useCartStore";
+import { useTranslations } from "next-intl";
 
 interface PackageSelectorProps {
   selectedPackage?: Package;
@@ -22,6 +23,8 @@ interface PackageSelectorProps {
 }
 
 export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gameName = "Mobile Legends" }: PackageSelectorProps) {
+  const t = useTranslations("PackageSelector");
+  const tForm = useTranslations("RechargeForm");
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -44,7 +47,6 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
       });
       setCartPkg(null);
       setPlayerId("");
-      // Could add a toast notification here
     }
   };
 
@@ -65,9 +67,9 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
       <div className="absolute top-1/2 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2" />
       
       <CardHeader>
-        <CardTitle className="text-2xl text-white">Select Package</CardTitle>
+        <CardTitle className="text-2xl text-white">{t("select_package")}</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Choose the amount of Diamonds you want to recharge.
+          {t("choose_package")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -100,15 +102,15 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                   )}
                 >
                   {/* Points Badge */}
-                  <div className="absolute top-0 left-0 bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-br-lg flex items-center gap-1">
+                  <div className="absolute top-0 left-0 bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-br-lg flex items-center gap-1 rtl:left-auto rtl:right-0 rtl:rounded-br-none rtl:rounded-bl-lg">
                     <Sparkles className="w-2 h-2" />
-                    +{Math.floor(pkg.price * 0.1)} Pts
+                    +{Math.floor(pkg.price * 0.1)} {t("pts")}
                   </div>
 
                   {pkg.popular && (
                     <div className="absolute -top-2 inset-x-0 mx-auto w-fit">
                       <span className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md">
-                        Popular
+                        {t("popular")}
                       </span>
                     </div>
                   )}
@@ -119,7 +121,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                       e.stopPropagation();
                       setCartPkg(pkg);
                     }}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/10 hover:bg-primary text-white/70 hover:text-white flex items-center justify-center transition-all z-10"
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/10 hover:bg-primary text-white/70 hover:text-white flex items-center justify-center transition-all z-10 rtl:right-auto rtl:left-2"
                   >
                     <ShoppingCart className="w-4 h-4" />
                   </div>
@@ -140,8 +142,8 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
 
             <div className="flex items-center justify-between pt-4 border-t border-white/5">
               <Button type="button" variant="ghost" onClick={onBack} className="text-white/70 hover:text-white hover:bg-white/5">
-                <ArrowLeft className="mr-2 w-4 h-4" />
-                Back
+                <ArrowLeft className="mr-2 w-4 h-4 rtl:rotate-180 rtl:ml-2 rtl:mr-0" />
+                {t("back")}
               </Button>
               
               <Button 
@@ -150,8 +152,8 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                 disabled={!selectedPackage}
                 className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 px-8 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all"
               >
-                Acheter directement
-                <ArrowRight className="ml-2 w-4 h-4" />
+                {t("buy_now")}
+                <ArrowRight className="ml-2 w-4 h-4 rtl:rotate-180 rtl:mr-2 rtl:ml-0" />
               </Button>
             </div>
           </div>
@@ -161,13 +163,13 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
       <Dialog open={!!cartPkg} onOpenChange={(open) => !open && setCartPkg(null)}>
         <DialogContent className="sm:max-w-md bg-[#0a0e17] border-white/10">
           <DialogHeader>
-            <DialogTitle>Ajouter au panier</DialogTitle>
+            <DialogTitle>{t("add_to_cart_title")}</DialogTitle>
             <DialogDescription>
-              Veuillez entrer votre ID de joueur pour le forfait {cartPkg?.amount}.
+              {t("enter_player_id", { amount: cartPkg?.amount ?? "" })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Label htmlFor="playerId" className="text-white">ID Joueur</Label>
+            <Label htmlFor="playerId" className="text-white">{tForm("player_id")}</Label>
             <Input 
               id="playerId" 
               value={playerId} 
@@ -177,13 +179,13 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCartPkg(null)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setCartPkg(null)}>{t("cancel")}</Button>
             <Button 
               onClick={handleAddToCart} 
               disabled={!playerId.trim()}
               className="bg-primary hover:bg-primary/90 text-white"
             >
-              Ajouter au panier
+              {t("add_to_cart_title")}
             </Button>
           </DialogFooter>
         </DialogContent>

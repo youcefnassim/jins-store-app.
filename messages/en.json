@@ -349,5 +349,36 @@
     "package": "Package",
     "payment_method": "Payment Method",
     "total_amount": "Total Amount"
+  },
+  "PackageSelector": {
+    "select_package": "Select Package",
+    "choose_package": "Choose the amount of Diamonds you want to recharge.",
+    "popular": "Popular",
+    "pts": "Pts",
+    "back": "Back",
+    "buy_now": "Buy Directly",
+    "add_to_cart_title": "Add to Cart",
+    "enter_player_id": "Please enter your Player ID for package {amount}.",
+    "cancel": "Cancel"
+  },
+  "PaymentSelector": {
+    "select_payment": "Select Payment Method",
+    "choose_payment_desc": "Choose how you want to pay for your recharge.",
+    "instructions": "Payment Instructions",
+    "amount_to_send": "Amount to send:",
+    "i_have_paid": "I have paid",
+    "scan_to_pay": "SCAN TO PAY"
+  },
+  "ProofUpload": {
+    "title": "Upload Payment Proof",
+    "description": "Please upload a screenshot or photo of your payment receipt.",
+    "drop_here": "Drop your screenshot here",
+    "click_or_drag": "Click or drag image to upload",
+    "format_info": "JPG, PNG, WEBP up to 5MB",
+    "too_large": "File is too large. Maximum size is 5MB.",
+    "tx_ref": "Transaction Reference (Optional)",
+    "tx_ref_placeholder": "e.g. TRX123456789",
+    "submitting": "Submitting...",
+    "submit_order": "Submit Order"
   }
 }

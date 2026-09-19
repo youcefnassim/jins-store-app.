@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, CheckCircle, UploadCloud, X, Loader2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface ProofUploadProps {
   onBack: () => void;
@@ -16,6 +17,8 @@ interface ProofUploadProps {
 }
 
 export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps) {
+  const t = useTranslations("ProofUpload");
+  const tPkg = useTranslations("PackageSelector");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [transactionRef, setTransactionRef] = useState("");
@@ -30,7 +33,7 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
   const processFile = (selected?: File) => {
     if (selected) {
       if (selected.size > 5 * 1024 * 1024) {
-        alert("File is too large. Maximum size is 5MB.");
+        alert(t("too_large"));
         return;
       }
       setFile(selected);
@@ -77,9 +80,9 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
       
       <CardHeader>
-        <CardTitle className="text-2xl text-white">Upload Payment Proof</CardTitle>
+        <CardTitle className="text-2xl text-white">{t("title")}</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Please upload a screenshot or photo of your payment receipt.
+          {t("description")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -146,9 +149,9 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
                     <UploadCloud className="w-8 h-8" />
                   </div>
                   <p className="text-lg font-medium text-white mb-1">
-                    {isDragging ? "Drop your screenshot here" : "Click or drag image to upload"}
+                    {isDragging ? t("drop_here") : t("click_or_drag")}
                   </p>
-                  <p className="text-sm text-muted-foreground">JPG, PNG, WEBP up to 5MB</p>
+                  <p className="text-sm text-muted-foreground">{t("format_info")}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -162,20 +165,20 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="ref" className="text-white/80">Transaction Reference (Optional)</Label>
+            <Label htmlFor="ref" className="text-white/80">{t("tx_ref")}</Label>
             <Input 
               id="ref"
               value={transactionRef}
               onChange={(e) => setTransactionRef(e.target.value)}
-              placeholder="e.g. TRX123456789" 
+              placeholder={t("tx_ref_placeholder")}
               className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12 focus-visible:ring-emerald-500"
             />
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t border-white/5">
             <Button type="button" variant="ghost" onClick={onBack} disabled={isSubmitting} className="text-white/70 hover:text-white hover:bg-white/5">
-              <ArrowLeft className="mr-2 w-4 h-4" />
-              Back
+              <ArrowLeft className="mr-2 w-4 h-4 rtl:rotate-180 rtl:ml-2 rtl:mr-0" />
+              {tPkg("back")}
             </Button>
             
             <Button 
@@ -186,12 +189,12 @@ export function ProofUpload({ onBack, onSubmit, isSubmitting }: ProofUploadProps
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                  Submitting...
+                  {t("submitting")}
                 </>
               ) : (
                 <>
-                  <CheckCircle className="mr-2 w-5 h-5" />
-                  Submit Order
+                  <CheckCircle className="mr-2 w-5 h-5 rtl:ml-2 rtl:mr-0" />
+                  {t("submit_order")}
                 </>
               )}
             </Button>

@@ -349,5 +349,36 @@
     "package": "الباقة",
     "payment_method": "طريقة الدفع",
     "total_amount": "المبلغ الإجمالي"
+  },
+  "PackageSelector": {
+    "select_package": "اختر الباقة",
+    "choose_package": "اختر كمية الجواهر التي تريد شحنها.",
+    "popular": "شائع",
+    "pts": "نقطة",
+    "back": "رجوع",
+    "buy_now": "شراء مباشر",
+    "add_to_cart_title": "إضافة إلى السلة",
+    "enter_player_id": "يرجى إدخال معرف اللاعب للباقة {amount}.",
+    "cancel": "إلغاء"
+  },
+  "PaymentSelector": {
+    "select_payment": "اختر طريقة الدفع",
+    "choose_payment_desc": "اختر طريقة الدفع المناسبة لك لشحن حسابك.",
+    "instructions": "تعليمات الدفع",
+    "amount_to_send": "المبلغ المراد إرساله:",
+    "i_have_paid": "لقد قمت بالدفع",
+    "scan_to_pay": "امسح للدفع"
+  },
+  "ProofUpload": {
+    "title": "رفع إثبات الدفع",
+    "description": "يرجى رفع لقطة شاشة أو صورة لإثبات الدفع الخاص بك.",
+    "drop_here": "أفلت لقطة الشاشة هنا",
+    "click_or_drag": "انقر أو اسحب الصورة للرفع",
+    "format_info": "JPG، PNG، WEBP حتى 5 ميغابايت",
+    "too_large": "الملف كبير جداً. الحد الأقصى هو 5 ميغابايت.",
+    "tx_ref": "رقم المرجع / المعاملة (اختياري)",
+    "tx_ref_placeholder": "مثال: TRX123456789",
+    "submitting": "جاري الإرسال...",
+    "submit_order": "تأكيد وإرسال الطلب"
   }
 }

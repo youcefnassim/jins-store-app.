@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Smartphon
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
@@ -19,6 +20,8 @@ interface PaymentSelectorProps {
 }
 
 export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amount }: PaymentSelectorProps) {
+  const t = useTranslations("PaymentSelector");
+  const tPkg = useTranslations("PackageSelector");
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -79,9 +82,9 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10 translate-x-1/2 translate-y-1/2" />
       
       <CardHeader>
-        <CardTitle className="text-2xl text-white">Select Payment Method</CardTitle>
+        <CardTitle className="text-2xl text-white">{t("select_payment")}</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Choose how you want to pay for your recharge.
+          {t("choose_payment_desc")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -125,7 +128,7 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                   <div className="flex gap-3 mb-4">
                     <Info className="w-6 h-6 text-blue-400 shrink-0" />
                     <div>
-                      <h4 className="font-bold text-blue-100 text-lg mb-1">Payment Instructions</h4>
+                      <h4 className="font-bold text-blue-100 text-lg mb-1">{t("instructions")}</h4>
                       <p className="text-blue-200/80 text-sm leading-relaxed">
                         {selectedPayment.instructions}
                       </p>
@@ -164,14 +167,14 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                       {getAccountDetails(selectedPayment.id)?.showQr && (
                         <div className="flex flex-col items-center justify-center shrink-0 bg-white p-2 rounded-lg cursor-pointer hover:scale-105 transition-transform" title="Scan to pay">
                           <QrCode className="w-16 h-16 text-black" />
-                          <span className="text-[10px] text-black font-bold mt-1 tracking-tighter">SCAN TO PAY</span>
+                          <span className="text-[10px] text-black font-bold mt-1 tracking-tighter">{t("scan_to_pay")}</span>
                         </div>
                       )}
                     </div>
                   )}
                   
                   <div className="bg-gradient-to-r from-primary/20 to-transparent rounded-lg p-4 mt-4 flex justify-between items-center border border-primary/20">
-                    <span className="text-white/90 font-medium">Amount to send:</span>
+                    <span className="text-white/90 font-medium">{t("amount_to_send")}</span>
                     <span className="text-2xl font-bold text-white tracking-wider">
                       {displayAmount} <span className="text-sm font-medium text-primary">{displayCurrency}</span>
                     </span>
@@ -182,8 +185,8 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
 
             <div className="flex items-center justify-between pt-4 border-t border-white/5">
               <Button type="button" variant="ghost" onClick={onBack} className="text-white/70 hover:text-white hover:bg-white/5">
-                <ArrowLeft className="mr-2 w-4 h-4" />
-                Back
+                <ArrowLeft className="mr-2 w-4 h-4 rtl:rotate-180 rtl:ml-2 rtl:mr-0" />
+                {tPkg("back")}
               </Button>
               
               <Button 
@@ -192,8 +195,8 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                 disabled={!selectedPayment}
                 className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 px-8 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all"
               >
-                I have paid
-                <ArrowRight className="ml-2 w-4 h-4" />
+                {t("i_have_paid")}
+                <ArrowRight className="ml-2 w-4 h-4 rtl:rotate-180 rtl:mr-2 rtl:ml-0" />
               </Button>
             </div>
           </div>

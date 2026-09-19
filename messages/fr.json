@@ -349,5 +349,36 @@
     "package": "Forfait",
     "payment_method": "Mode de Paiement",
     "total_amount": "Montant Total"
+  },
+  "PackageSelector": {
+    "select_package": "Sélectionner le Forfait",
+    "choose_package": "Choisissez la quantité de diamants que vous souhaitez recharger.",
+    "popular": "Populaire",
+    "pts": "Pts",
+    "back": "Retour",
+    "buy_now": "Acheter directement",
+    "add_to_cart_title": "Ajouter au panier",
+    "enter_player_id": "Veuillez entrer votre ID de joueur pour le forfait {amount}.",
+    "cancel": "Annuler"
+  },
+  "PaymentSelector": {
+    "select_payment": "Sélectionner le Mode de Paiement",
+    "choose_payment_desc": "Choisissez comment vous souhaitez payer votre recharge.",
+    "instructions": "Instructions de Paiement",
+    "amount_to_send": "Montant à envoyer :",
+    "i_have_paid": "J'ai effectué le paiement",
+    "scan_to_pay": "SCANNER POUR PAYER"
+  },
+  "ProofUpload": {
+    "title": "Téléverser le Reçu de Paiement",
+    "description": "Veuillez téléverser une capture d'écran ou photo de votre reçu de paiement.",
+    "drop_here": "Déposez votre capture d'écran ici",
+    "click_or_drag": "Cliquez ou glissez une image à téléverser",
+    "format_info": "JPG, PNG, WEBP jusqu'à 5 Mo",
+    "too_large": "Le fichier est trop volumineux. La taille maximale est de 5 Mo.",
+    "tx_ref": "Référence de Transaction (Optionnel)",
+    "tx_ref_placeholder": "ex: TRX123456789",
+    "submitting": "Envoi en cours...",
+    "submit_order": "Valider la Commande"
   }
 }
