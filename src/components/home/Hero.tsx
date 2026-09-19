@@ -57,16 +57,31 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="relative lg:ml-auto w-full max-w-[500px] aspect-square mx-auto lg:mx-0"
           >
-            {/* Abstract Gaming Art Placeholder */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl border border-white/10 backdrop-blur-sm overflow-hidden flex items-center justify-center">
-              
-              <motion.div 
-                animate={{ y: [0, -15, 0] }} 
+            {/* Glow background */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.15)_0%,_transparent_70%)]" />
+
+              {/* Jin's Store Logo */}
+              <motion.div
+                animate={{ y: [0, -15, 0] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="w-48 h-48 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-2xl rotate-45 shadow-[0_0_50px_rgba(56,189,248,0.5)] flex items-center justify-center relative"
+                className="relative"
               >
-                {/* Diamond core */}
-                <div className="w-32 h-32 bg-gradient-to-br from-white/80 to-white/20 rounded-xl" />
+                {/* Outer glow pulse */}
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.1, 0.5] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-0 rounded-3xl bg-blue-500/30 blur-2xl"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.08, 1], opacity: [0.6, 0.2, 0.6] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+                  className="absolute inset-0 rounded-3xl border-2 border-blue-400/30"
+                />
+                <img
+                  src="/logo.jpg"
+                  alt="Jin's Store"
+                  className="relative w-48 h-48 rounded-3xl object-cover border-2 border-white/20 shadow-[0_0_60px_rgba(59,130,246,0.5)]"
+                />
               </motion.div>
 
               {/* Floating particles */}
