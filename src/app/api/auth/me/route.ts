@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    const isAdminEmail = user.email === 'youcefnassim60@gmail.com' || user.email?.includes('admin');
+    const isAdminEmail = user.email === 'youcefnassim60@gmail.com' || user.email === 'contact@jins-store.com' || user.email?.includes('admin');
 
     if (!profile || (isAdminEmail && profile?.role !== 'admin')) {
       const newRole = isAdminEmail ? 'admin' : (profile?.role || 'user');
