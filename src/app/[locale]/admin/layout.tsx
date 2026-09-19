@@ -3,15 +3,17 @@
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { Loader2, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { AdminSearchModal } from "@/components/admin/AdminSearchModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -22,6 +24,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     }
   }, [user, profile, loading, router]);
+
+  // Global Keyboard listener for Cmd + K / Ctrl + K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   if (loading) {
     return (
@@ -37,6 +51,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-[#050810] text-slate-900 dark:text-white flex relative transition-colors duration-300">
+      {/* Cmd + K Quick Search Modal */}
+      <AdminSearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+
       {/* Sidebar with Animated Slide In/Out */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -65,11 +82,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {sidebarOpen ? <PanelLeftClose className="w-4 h-4 text-primary" /> : <PanelLeftOpen className="w-4 h-4 text-primary" />}
               <span className="hidden sm:inline">{sidebarOpen ? "Masquer Menu" : "Ouvrir Menu Admin"}</span>
             </button>
-            <span className="font-bold text-sm text-slate-900 dark:text-white tracking-wide">Jin's Store Admin</span>
+            <span className="font-bold text-sm text-slate-900 dark:text-white tracking-wide hidden sm:inline">Jin's Store Admin</span>
           </div>
 
-          {/* Right Actions: Dark/Light Mode Switcher */}
+          {/* Right Actions: Quick Search + Dark/Light Mode Switcher */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs transition-all shadow-sm"
+            >
+              <Search className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Rechercher dans l'Admin...</span>
+              <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[9px] font-mono font-bold bg-white dark:bg-white/10 rounded border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300">
+                ⌘K
+              </kbd>
+            </button>
             <ThemeToggle />
           </div>
         </div>
