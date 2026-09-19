@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#050810]/70 backdrop-blur-sm text-slate-900 dark:text-white flex relative">
+    <div className="min-h-screen bg-slate-100 dark:bg-[#050810] text-slate-900 dark:text-white flex relative transition-colors duration-300">
       {/* Sidebar with Animated Slide In/Out */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -55,17 +55,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 flex flex-col min-h-screen ${sidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}>
         {/* Top Control Bar with Menu Toggle & Theme Toggle */}
-        <div className="sticky top-0 z-30 bg-[#0a0c14]/80 backdrop-blur-md border-b border-white/10 px-4 lg:px-6 h-14 flex items-center justify-between">
+        <div className="sticky top-0 z-30 bg-white/90 dark:bg-[#0a0c14]/90 backdrop-blur-md border-b border-slate-200 dark:border-white/10 px-4 lg:px-6 h-14 flex items-center justify-between shadow-sm transition-colors duration-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all border border-white/10 text-xs font-semibold shadow-sm"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all border border-slate-200 dark:border-white/10 text-xs font-semibold shadow-sm"
               title={sidebarOpen ? "Masquer le menu" : "Afficher le menu"}
             >
               {sidebarOpen ? <PanelLeftClose className="w-4 h-4 text-primary" /> : <PanelLeftOpen className="w-4 h-4 text-primary" />}
               <span className="hidden sm:inline">{sidebarOpen ? "Masquer Menu" : "Ouvrir Menu Admin"}</span>
             </button>
-            <span className="font-bold text-sm text-white tracking-wide">Jin's Store Admin</span>
+            <span className="font-bold text-sm text-slate-900 dark:text-white tracking-wide">Jin's Store Admin</span>
           </div>
 
           {/* Right Actions: Dark/Light Mode Switcher */}

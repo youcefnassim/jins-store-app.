@@ -6,14 +6,15 @@ import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch
   useEffect(() => setMounted(true), []);
-  if (!mounted) return <div className="w-14 h-7 rounded-full bg-white/10" />;
+  if (!mounted) return <div className="w-14 h-7 rounded-full bg-slate-200 dark:bg-white/10" />;
 
-  const isDark = theme === "dark";
+  const currentTheme = resolvedTheme || theme;
+  const isDark = currentTheme === "dark";
 
   return (
     <button

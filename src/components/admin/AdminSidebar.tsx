@@ -39,15 +39,15 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   };
 
   return (
-    <aside className="w-64 h-screen bg-[#0a0c14]/95 backdrop-blur-xl border-r border-white/10 flex flex-col fixed left-0 top-0 z-40 shadow-2xl">
+    <aside className="w-64 h-screen bg-white/95 dark:bg-[#0a0c14]/95 backdrop-blur-xl border-r border-slate-200 dark:border-white/10 flex flex-col fixed left-0 top-0 z-40 shadow-2xl transition-colors duration-300">
       {/* Header with Close Button */}
-      <div className="p-5 border-b border-white/10 flex items-center justify-between">
+      <div className="p-5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)] shrink-0">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)] shrink-0">
             <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <p className="font-bold text-white text-sm">Jin's Store</p>
+            <p className="font-bold text-slate-900 dark:text-white text-sm">Jin's Store</p>
             <p className="text-xs text-primary font-semibold">Admin Panel</p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all border border-white/10 shadow-sm"
+            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-center transition-all border border-slate-200 dark:border-white/10 shadow-sm"
             title="Masquer le menu"
           >
             <X className="w-4.5 h-4.5" />
@@ -76,7 +76,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
                 active
                   ? "bg-primary/15 text-primary font-semibold"
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
               }`}
             >
               {active && (
@@ -95,19 +95,19 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
       </nav>
 
       {/* Footer: user info + logout */}
-      <div className="p-4 border-t border-white/10 bg-black/20">
+      <div className="p-4 border-t border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-black/20">
         <div className="flex items-center gap-3 px-2 mb-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
             {profile?.name?.[0]?.toUpperCase() ?? profile?.email?.[0]?.toUpperCase() ?? "A"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{profile?.name || profile?.email || "Admin"}</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{profile?.name || profile?.email || "Admin"}</p>
             <p className="text-xs text-primary">Administrateur</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20"
         >
           <LogOut className="w-4 h-4" />
           Déconnexion
