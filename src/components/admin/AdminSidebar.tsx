@@ -39,8 +39,8 @@ export function AdminSidebar() {
       {/* Header */}
       <div className="p-6 border-b border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-700 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)]">
-            <Shield className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)]">
+            <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <p className="font-bold text-white text-sm">Jin's Store</p>

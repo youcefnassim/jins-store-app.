@@ -71,6 +71,17 @@ export default async function RootLayout({
               </div>
               <ParticlesBackground />
               
+              {/* Centered Background Logo Watermark */}
+              <div className="fixed inset-0 -z-10 flex items-center justify-center pointer-events-none overflow-hidden select-none opacity-5 dark:opacity-10">
+                <div className="relative w-[450px] h-[450px] sm:w-[550px] sm:h-[550px] md:w-[650px] md:h-[650px] rounded-full overflow-hidden">
+                  <img 
+                    src="/logo.jpg" 
+                    alt="Jin's Store Watermark Logo" 
+                    className="w-full h-full object-cover rounded-full filter contrast-125"
+                  />
+                </div>
+              </div>
+              
               <LayoutWrapper>
                 {children}
               </LayoutWrapper>
