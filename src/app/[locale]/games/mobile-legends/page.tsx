@@ -71,13 +71,18 @@ export default function MobileLegendsPage() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">{t("how_to")}</h2>
             
             <Card className="glass-card border-black/10 dark:border-white/10 overflow-hidden">
-              <div className="aspect-video bg-black/5 dark:bg-black/40 flex items-center justify-center border-b border-black/10 dark:border-white/5 relative">
-                {/* Visual Placeholder for tutorial */}
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
-                <div className="z-10 flex flex-col items-center">
-                  <HelpCircle className="w-12 h-12 text-white/50 mb-2" />
-                  <span className="text-sm text-white/70">{t("screenshot")}</span>
-                </div>
+              <div className="aspect-video bg-black/40 flex items-center justify-center border-b border-black/10 dark:border-white/5 relative overflow-hidden">
+                {/* Background glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/40 to-indigo-900/40" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.2)_0%,_transparent_70%)]" />
+                {/* Logo */}
+                <motion.img
+                  src="/logo.jpg"
+                  alt="Jin's Store"
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  className="relative z-10 w-32 h-32 object-cover rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.5)] border border-white/10"
+                />
               </div>
               <CardContent className="p-6">
                 <ol className="space-y-4 text-sm text-muted-foreground">
