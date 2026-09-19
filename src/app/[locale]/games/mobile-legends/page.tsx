@@ -46,8 +46,8 @@ export default function MobileLegendsPage() {
               className="relative w-full h-full rounded-3xl overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.5)]"
             >
               <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang.png/240px-Mobile_Legends_Bang_Bang.png"
-                alt="Mobile Legends Bang Bang"
+                src="/logo.jpg"
+                alt="Jin's Store"
                 className="w-full h-full object-cover"
               />
             </motion.div>
