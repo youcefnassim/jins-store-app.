@@ -37,7 +37,7 @@ export function CartSidebar() {
       </SheetTrigger>
       
       <SheetContent className="w-full sm:max-w-md flex flex-col bg-slate-50 dark:bg-[#0a0e17] border-l-slate-200 dark:border-l-white/10 p-0">
-        <SheetHeader className="p-6 border-b border-slate-200 dark:border-white/10 text-left">
+        <SheetHeader className="p-6 pr-16 border-b border-slate-200 dark:border-white/10 text-left">
           <SheetTitle className="flex items-center gap-2 text-xl font-bold">
             <ShoppingCart className="w-5 h-5 text-primary" />
             Mon Panier

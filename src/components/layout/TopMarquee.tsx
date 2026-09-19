@@ -7,7 +7,7 @@ export function TopMarquee() {
   const t = useTranslations("Common"); // Assuming Common has generic text, or we hardcode for effect
   
   return (
-    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white text-xs font-bold py-1.5 overflow-hidden relative z-[60] flex">
+    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white text-xs font-bold py-1.5 overflow-hidden relative z-40 flex">
       {/* 
         We use a fast CSS animation (marquee) defined in Tailwind or globals.css. 
         For simple implementation without complex CSS, we can use Tailwind's animate-pulse or just multiple spans 
