@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowRight, HelpCircle, Loader2, CheckCircle2 } from "lucide-react";
+import { HelpCircle, Loader2, CheckCircle2, UserCheck } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -87,39 +87,69 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
     }
   }, [user]);
 
+  // Automatic verification effect with debounce
+  const watchedPlayerId = form.watch("playerId");
+  const watchedZoneId = form.watch("zoneId");
+  const watchedPhone = form.watch("phone");
+
+  useEffect(() => {
+    const isPlayerValid = /^\d{5,15}$/.test(watchedPlayerId || "");
+    const isZoneValid = /^\d{3,5}$/.test(watchedZoneId || "");
+
+    if (!isPlayerValid || !isZoneValid) {
+      setVerifiedName(null);
+      setIsVerifying(false);
+      return;
+    }
+
+    setIsVerifying(true);
+
+    const timer = setTimeout(() => {
+      const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99", "Dz_Hero"];
+      const seedIndex = (parseInt(watchedPlayerId.slice(-3)) || 0) % mockNames.length;
+      const verifiedNickname = mockNames[seedIndex];
+      
+      setVerifiedName(verifiedNickname);
+      setIsVerifying(false);
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dz_recharge_playerId", watchedPlayerId);
+        localStorage.setItem("dz_recharge_zoneId", watchedZoneId);
+        if (watchedPhone) localStorage.setItem("dz_recharge_phone", watchedPhone);
+      }
+
+      onNext({
+        playerId: watchedPlayerId,
+        zoneId: watchedZoneId,
+        phone: watchedPhone || "",
+      });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [watchedPlayerId, watchedZoneId, watchedPhone]);
+
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");
-    setVerifiedName(acc.player_name || null);
+    if (acc.zone_id) form.setValue("zoneId", acc.zone_id);
+    setVerifiedName(acc.player_name || "DZ_Player");
+    onNext({
+      playerId: acc.player_id || "",
+      zoneId: acc.zone_id || watchedZoneId || "",
+      phone: watchedPhone || "",
+    });
   };
 
   async function onSubmit(values: PlayerFormValues) {
     if (!verifiedName) {
       setIsVerifying(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99"];
       const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
       setVerifiedName(randomName);
       setIsVerifying(false);
-      return;
     }
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("dz_recharge_playerId", values.playerId);
-      localStorage.setItem("dz_recharge_zoneId", values.zoneId);
-      localStorage.setItem("dz_recharge_phone", values.phone);
-    }
-
     onNext(values);
   }
-
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "playerId" || name === "zoneId") {
-        setVerifiedName(null);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
 
   return (
     <Card className="glass-card border-white/10 relative overflow-hidden">
@@ -163,7 +193,14 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   <FormItem>
                     <FormLabel className="text-slate-700 dark:text-white/80">{t("player_id")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                      <div className="relative">
+                        <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                        {isVerifying && (
+                          <div className="absolute right-3 top-3.5 rtl:right-auto rtl:left-3">
+                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -176,7 +213,14 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   <FormItem>
                     <FormLabel className="text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                      <div className="relative">
+                        <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                        {isVerifying && (
+                          <div className="absolute right-3 top-3.5 rtl:right-auto rtl:left-3">
+                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          </div>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage className="text-destructive" />
                   </FormItem>
@@ -190,15 +234,18 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   initial={{ opacity: 0, height: 0, y: -10 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -10 }}
-                  className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 flex items-center gap-3"
+                  className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between"
                 >
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400/80 font-bold uppercase tracking-wider">{t("account_verified")}</p>
+                      <p className="text-slate-900 dark:text-white font-bold text-lg">{verifiedName}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-emerald-600 dark:text-emerald-400/80 font-bold uppercase tracking-wider">{t("account_verified")}</p>
-                    <p className="text-slate-900 dark:text-white font-bold text-lg">{verifiedName}</p>
-                  </div>
+                  <UserCheck className="w-5 h-5 text-emerald-500 opacity-60" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -229,12 +276,22 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
               <Button 
                 type="submit" 
                 disabled={isVerifying}
-                className="bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 w-full sm:w-auto order-1 sm:order-2 rounded-xl shadow-lg shadow-primary/25 transition-all"
+                className={cn(
+                  "font-bold h-12 px-8 w-full sm:w-auto order-1 sm:order-2 rounded-xl transition-all shadow-lg",
+                  verifiedName 
+                    ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25"
+                    : "bg-primary hover:bg-primary/90 text-white shadow-primary/25"
+                )}
               >
                 {isVerifying ? (
                   <>
                     <Loader2 className="mr-2 w-5 h-5 animate-spin" />
                     {t("verifying")}
+                  </>
+                ) : verifiedName ? (
+                  <>
+                    <CheckCircle2 className="mr-2 w-5 h-5" />
+                    {t("account_verified")}
                   </>
                 ) : (
                   <>
