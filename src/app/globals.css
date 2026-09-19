@@ -102,12 +102,19 @@
   --ring: #8b5cf6;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground antialiased selection:bg-primary/30;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
   }
 }
 
