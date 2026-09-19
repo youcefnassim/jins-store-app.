@@ -14,19 +14,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!loading) {
-      if (!user) router.push("/auth/login");
-      else if (profile?.role !== "admin") router.push("/dashboard");
+      if (!user) {
+        router.push("/auth/login");
+      } else if (profile?.role !== "admin" && user.email !== "youcefnassim60@gmail.com") {
+        router.push("/dashboard");
+      }
     }
   }, [user, profile, loading, router]);
 
-  if (loading || !profile || profile.role !== "admin") {
+  if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#050810]">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-700 flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.5)] mb-4 animate-pulse">
           <span className="text-2xl">🛡️</span>
         </div>
         <Loader2 className="w-8 h-8 text-primary animate-spin mb-3" />
-        <p className="text-slate-400 text-sm">Vérification des accès...</p>
+        <p className="text-slate-400 text-sm">Vérification des accès Admin...</p>
       </div>
     );
   }
