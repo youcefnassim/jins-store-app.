@@ -189,9 +189,6 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
         </DialogContent>
       </Dialog>
 
-          </div>
-        )}
-      </CardContent>
     </Card>
   );
 }
