@@ -3,14 +3,14 @@
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Loader2, Menu, X } from "lucide-react";
+import { Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     if (!loading) {
@@ -35,51 +35,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#070910] text-white flex">
-      {/* Sidebar desktop */}
-      <div className="hidden lg:block">
-        <AdminSidebar />
-      </div>
-
-      {/* Mobile sidebar overlay */}
+    <div className="min-h-screen bg-[#050810]/70 backdrop-blur-sm text-white flex relative">
+      {/* Sidebar with Animated Slide In/Out */}
       <AnimatePresence>
         {sidebarOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 bg-black/70 z-30 lg:hidden"
-            />
-            <motion.div
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed left-0 top-0 z-40 lg:hidden"
-            >
-              <AdminSidebar />
-            </motion.div>
-          </>
+          <motion.div
+            initial={{ x: -280, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -280, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed left-0 top-0 z-40"
+          >
+            <AdminSidebar onClose={() => setSidebarOpen(false)} />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Main content */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        {/* Mobile top bar */}
-        <div className="lg:hidden sticky top-0 z-20 bg-[#0a0c14] border-b border-white/5 px-4 h-14 flex items-center gap-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <span className="font-bold text-sm">Admin Panel</span>
+      {/* Main Content Area */}
+      <div className={`flex-1 transition-all duration-300 flex flex-col min-h-screen ${sidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}>
+        {/* Top Control Bar with Menu Toggle */}
+        <div className="sticky top-0 z-30 bg-[#0a0c14]/80 backdrop-blur-md border-b border-white/10 px-4 lg:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-all border border-white/10 text-xs font-semibold shadow-sm"
+              title={sidebarOpen ? "Masquer le menu" : "Afficher le menu"}
+            >
+              {sidebarOpen ? <PanelLeftClose className="w-4 h-4 text-primary" /> : <PanelLeftOpen className="w-4 h-4 text-primary" />}
+              <span className="hidden sm:inline">{sidebarOpen ? "Masquer Menu" : "Ouvrir Menu Admin"}</span>
+            </button>
+            <span className="font-bold text-sm text-white tracking-wide">Jin's Store Admin</span>
+          </div>
         </div>
 
-        {/* Page content */}
-        <main className="flex-1 p-6 lg:p-8">
+        {/* Page Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 relative z-10">
           {children}
         </main>
       </div>

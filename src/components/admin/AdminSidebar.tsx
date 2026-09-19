@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, ShoppingBag, Users, Gamepad2,
-  Tag, Star, Activity, LogOut, ChevronRight, Shield
+  Tag, Star, Activity, LogOut, ChevronRight, X
 } from "lucide-react";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,11 @@ const navItems = [
   { label: "Logs", icon: Activity, href: "/admin/logs" },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  onClose?: () => void;
+}
+
+export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const { profile } = useAuth();
   const router = useRouter();
@@ -35,11 +39,11 @@ export function AdminSidebar() {
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-[#0a0c14] border-r border-white/5 flex flex-col fixed left-0 top-0 z-40">
-      {/* Header */}
-      <div className="p-6 border-b border-white/5">
+    <aside className="w-64 h-screen bg-[#0a0c14]/95 backdrop-blur-xl border-r border-white/10 flex flex-col fixed left-0 top-0 z-40 shadow-2xl">
+      {/* Header with Close Button */}
+      <div className="p-5 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)]">
+          <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.4)] shrink-0">
             <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
           </div>
           <div>
@@ -47,6 +51,17 @@ export function AdminSidebar() {
             <p className="text-xs text-primary font-semibold">Admin Panel</p>
           </div>
         </div>
+
+        {/* Close / Collapse Toggle Button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all border border-white/10 shadow-sm"
+            title="Masquer le menu"
+          >
+            <X className="w-4.5 h-4.5" />
+          </button>
+        )}
       </div>
 
       {/* Nav items */}
@@ -57,9 +72,10 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onClose?.()}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative ${
                 active
-                  ? "bg-primary/15 text-primary"
+                  ? "bg-primary/15 text-primary font-semibold"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
             >
@@ -79,19 +95,19 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer: user info + logout */}
-      <div className="p-4 border-t border-white/5">
+      <div className="p-4 border-t border-white/10 bg-black/20">
         <div className="flex items-center gap-3 px-2 mb-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-xs font-bold text-white">
-            {profile?.username?.[0]?.toUpperCase() ?? "A"}
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+            {profile?.name?.[0]?.toUpperCase() ?? profile?.email?.[0]?.toUpperCase() ?? "A"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">{profile?.username ?? "Admin"}</p>
+            <p className="text-sm font-medium text-white truncate">{profile?.name || profile?.email || "Admin"}</p>
             <p className="text-xs text-primary">Administrateur</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20"
         >
           <LogOut className="w-4 h-4" />
           Déconnexion
