@@ -56,20 +56,20 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "sticky top-0 md:top-4 w-full md:max-w-4xl md:mx-auto z-50 transition-all duration-500 rounded-none md:rounded-full",
+          "sticky top-0 md:top-4 w-full md:max-w-6xl xl:max-w-7xl md:mx-auto z-50 transition-all duration-500 rounded-none md:rounded-full px-3 md:px-6",
           isScrolled
-            ? "bg-background/80 dark:bg-black/50 backdrop-blur-xl border-b md:border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.1)] py-2"
-            : "bg-background/40 dark:bg-black/20 backdrop-blur-md md:border border-white/5 py-4"
+            ? "bg-background/80 dark:bg-black/60 backdrop-blur-xl border-b md:border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.2)] py-2"
+            : "bg-background/40 dark:bg-black/30 backdrop-blur-md md:border border-white/10 py-3"
         )}
       >
-        <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
+        <div className="w-full flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo - Left Aligned */}
-          <div className="flex-1 flex justify-start">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="relative w-12 h-12 flex items-center justify-center overflow-hidden rounded-full border border-white/10 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all duration-300">
+          <div className="flex items-center shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-full border border-white/10 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all duration-300">
                 <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold text-xl tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70">
+              <span className="font-bold text-lg tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70 whitespace-nowrap">
                 {siteConfig.name}
               </span>
             </Link>
@@ -77,7 +77,7 @@ export function Navbar() {
 
           {/* Desktop Navigation - Centered (Hidden on Mobile) */}
           <nav 
-            className="hidden md:flex items-center justify-center gap-1 flex-1 relative"
+            className="hidden md:flex items-center justify-center gap-1 lg:gap-2 flex-1 relative px-2"
             onMouseLeave={() => setHoveredLink(null)}
           >
             {navLinks.slice(1).map((link) => {
@@ -90,7 +90,7 @@ export function Navbar() {
                   href={link.href}
                   onMouseEnter={() => setHoveredLink(link.href)}
                   className={cn(
-                    "relative px-4 py-2 text-sm font-medium transition-colors z-10",
+                    "relative px-2.5 lg:px-3.5 py-1.5 text-xs lg:text-sm font-medium transition-colors z-10 whitespace-nowrap",
                     isActive || isHovered ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-muted-foreground"
                   )}
                 >
@@ -175,7 +175,7 @@ export function Navbar() {
           </nav>
 
           {/* CTA & Actions - Right Aligned */}
-          <div className="flex-1 flex items-center justify-end gap-2 sm:gap-3">
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
             <GlobalSearch />
             <LanguageSwitcher />
             <ThemeToggle />
@@ -184,14 +184,14 @@ export function Navbar() {
             {/* User Profile / Login (Hidden on Mobile) */}
             <div className="hidden md:block">
               {user ? (
-                <Button asChild variant="outline" className="rounded-full border-black/10 dark:border-white/10 glass-card">
+                <Button asChild variant="outline" className="rounded-full border-black/10 dark:border-white/10 glass-card text-xs lg:text-sm">
                   <Link href="/dashboard" className="flex items-center gap-2">
                     <User className="w-4 h-4 text-primary" />
                     <span>Profile</span>
                   </Link>
                 </Button>
               ) : (
-                <Button asChild className="rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 border-0 px-5 py-2 font-semibold tracking-wide">
+                <Button asChild className="rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 border-0 px-4 lg:px-5 py-2 text-xs lg:text-sm font-semibold tracking-wide whitespace-nowrap">
                   <Link href="/auth/login" className="flex items-center gap-2">
                     <span>Se Connecter</span>
                     <ChevronRight className="w-4 h-4" />
