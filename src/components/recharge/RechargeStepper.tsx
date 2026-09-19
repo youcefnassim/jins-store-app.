@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { PlayerForm } from "./PlayerForm";
 import { PackageSelector } from "./PackageSelector";
 import { PaymentSelector } from "./PaymentSelector";
