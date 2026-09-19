@@ -14,7 +14,7 @@ export function PopularPackages() {
   const popularPackages = packages.filter(p => p.gameId === "mobile-legends" && p.active).slice(0, 4);
 
   return (
-    <section className="py-20 relative">
+    <section id="offers" className="py-20 relative">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-2xl">

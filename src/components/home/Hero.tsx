@@ -38,11 +38,9 @@ export function Hero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full sm:w-auto">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl">
-                <Link href="/recharge">
-                  {t("cta_recharge")}
-                  <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
-                </Link>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl" onClick={() => { const el = document.getElementById('offers'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>
+                Recharge Now
+                <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
               </Button>
               <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl border-white/10 hover:bg-white/5">
                 <Link href="/track">
