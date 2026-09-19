@@ -17,7 +17,9 @@ import { supabase } from "@/lib/supabase/client";
 const playerSchema = z.object({
   playerId: z.string().min(5, "Player ID is too short").max(15, "Player ID is too long").regex(/^\d+$/, "Player ID must contain only numbers"),
   zoneId: z.string().min(3, "Zone ID is too short").max(5, "Zone ID is too long").regex(/^\d+$/, "Zone ID must contain only numbers"),
-  phone: z.string().regex(/^(05|06|07)\d{8}$/, "Must be a valid Algerian phone number (e.g. 0550000000)"),
+  phone: z.string().optional().refine((val) => !val || /^(05|06|07)\d{8}$/.test(val), {
+    message: "Must be a valid Algerian phone number (e.g. 0550000000)",
+  }),
 });
 
 type PlayerFormValues = z.infer<typeof playerSchema>;
@@ -213,11 +215,13 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-white/80">Phone Number (WhatsApp)</FormLabel>
+                  <FormLabel className="text-white/80">
+                    Phone Number (WhatsApp) <span className="text-muted-foreground text-xs font-normal">(Optionnel)</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. 0550000000" className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12" {...field} />
+                    <Input placeholder="e.g. 0550000000 (Optionnel)" className="bg-black/40 border-white/10 text-white placeholder:text-muted-foreground/50 h-12" {...field} />
                   </FormControl>
-                  <p className="text-xs text-muted-foreground mt-1">We need this to contact you if there's an issue with your order.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Optionnel. Nous l'utilisons pour vous contacter en cas de besoin sur votre commande.</p>
                   <FormMessage className="text-destructive" />
                 </FormItem>
               )}
