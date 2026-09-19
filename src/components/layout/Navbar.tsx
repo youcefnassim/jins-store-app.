@@ -189,10 +189,10 @@ export function Navbar() {
                   </Link>
                 </Button>
               ) : (
-                <Button asChild className="rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 border-0">
+                <Button asChild className="rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 border-0 px-5 py-2 font-semibold tracking-wide">
                   <Link href="/auth/login" className="flex items-center gap-2">
-                    <LogIn className="w-4 h-4" />
-                    <span>{t("login")}</span>
+                    <span>Se Connecter</span>
+                    <ChevronRight className="w-4 h-4" />
                   </Link>
                 </Button>
               )}
