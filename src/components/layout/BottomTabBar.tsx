@@ -11,7 +11,7 @@ export function BottomTabBar() {
   const tabs = [
     { name: "Accueil", icon: Home, href: "/" },
     { name: "Jeux", icon: Gamepad2, href: "/games" },
-    { name: "Recherche", icon: Search, href: "/search" }, // Or open a search modal
+    { name: "Recherche", icon: Search, href: "/search" }, // Or open a search moda
     { name: "Profil", icon: User, href: "/dashboard" },
   ];
 
@@ -36,7 +36,7 @@ export function BottomTabBar() {
               {active && (
                 <div className="absolute top-0 w-8 h-1 bg-gradient-to-r from-primary to-purple-600 rounded-b-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
               )}
-              
+
               <div className={`p-1.5 rounded-xl transition-all duration-300 ${active ? 'bg-primary/10 text-primary' : 'text-slate-500 dark:text-slate-400 group-hover:text-primary group-hover:bg-primary/5'}`}>
                 <tab.icon className={`w-6 h-6 transition-transform duration-300 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
               </div>

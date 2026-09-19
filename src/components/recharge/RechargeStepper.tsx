@@ -178,6 +178,7 @@ export function RechargeStepper() {
               onSelect={(pkg) => setOrderData(prev => ({ ...prev, package: pkg }))}
               onNext={handleNext}
               onBack={handleBack}
+              gameName={searchParams.get("game") || "Mobile Legends"}
             />
           )}
           

@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
+import { CartSidebar } from "@/components/cart/CartSidebar";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
 
@@ -178,6 +179,7 @@ export function Navbar() {
             <GlobalSearch />
             <LanguageSwitcher />
             <ThemeToggle />
+            <CartSidebar />
 
             {/* User Profile / Login (Hidden on Mobile) */}
             <div className="hidden md:block">

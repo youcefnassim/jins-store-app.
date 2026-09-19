@@ -6,19 +6,47 @@ import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
-import { ArrowLeft, ArrowRight, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Sparkles, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useCartStore } from "@/store/useCartStore";
 
 interface PackageSelectorProps {
   selectedPackage?: Package;
   onSelect: (pkg: Package) => void;
   onNext: () => void;
   onBack: () => void;
+  gameName?: string;
 }
 
-export function PackageSelector({ selectedPackage, onSelect, onNext, onBack }: PackageSelectorProps) {
+export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gameName = "Mobile Legends" }: PackageSelectorProps) {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Cart state
+  const [cartPkg, setCartPkg] = useState<Package | null>(null);
+  const [playerId, setPlayerId] = useState("");
+  const { addItem } = useCartStore();
+
+  const handleAddToCart = () => {
+    if (cartPkg && playerId.trim()) {
+      addItem({
+        gameId: cartPkg.gameId,
+        packageId: cartPkg.id,
+        playerId: playerId.trim(),
+        price: cartPkg.price,
+        quantity: 1,
+        name: cartPkg.amount,
+        gameName: gameName,
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
+      });
+      setCartPkg(null);
+      setPlayerId("");
+      // Could add a toast notification here
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -72,7 +100,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack }: P
                   )}
                 >
                   {/* Points Badge */}
-                  <div className="absolute top-0 right-0 bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg flex items-center gap-1">
+                  <div className="absolute top-0 left-0 bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-br-lg flex items-center gap-1">
                     <Sparkles className="w-2 h-2" />
                     +{Math.floor(pkg.price * 0.1)} Pts
                   </div>
@@ -84,6 +112,17 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack }: P
                       </span>
                     </div>
                   )}
+
+                  {/* Add to Cart Button */}
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCartPkg(pkg);
+                    }}
+                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/10 hover:bg-primary text-white/70 hover:text-white flex items-center justify-center transition-all z-10"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                  </div>
                   
                   <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all">
                     <div className="w-6 h-6 bg-gradient-to-tr from-cyan-400 to-blue-500 rotate-45 rounded-sm shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
@@ -111,10 +150,45 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack }: P
                 disabled={!selectedPackage}
                 className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 px-8 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all"
               >
-                Continue
+                Acheter directement
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </div>
+          </div>
+        )}
+      </CardContent>
+
+      <Dialog open={!!cartPkg} onOpenChange={(open) => !open && setCartPkg(null)}>
+        <DialogContent className="sm:max-w-md bg-[#0a0e17] border-white/10">
+          <DialogHeader>
+            <DialogTitle>Ajouter au panier</DialogTitle>
+            <DialogDescription>
+              Veuillez entrer votre ID de joueur pour le forfait {cartPkg?.amount}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="playerId" className="text-white">ID Joueur</Label>
+            <Input 
+              id="playerId" 
+              value={playerId} 
+              onChange={(e) => setPlayerId(e.target.value)} 
+              placeholder="Ex: 12345678" 
+              className="mt-2 bg-black/40 border-white/10 text-white"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCartPkg(null)}>Annuler</Button>
+            <Button 
+              onClick={handleAddToCart} 
+              disabled={!playerId.trim()}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              Ajouter au panier
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
           </div>
         )}
       </CardContent>
