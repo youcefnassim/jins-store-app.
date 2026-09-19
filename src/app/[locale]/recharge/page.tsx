@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { RechargeStepper } from "@/components/recharge/RechargeStepper";
 import { Metadata } from "next";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Recharge Diamonds",
   description: "Secure and fast Mobile Legends Diamonds recharge.",
 };
 
-export default function RechargePage() {
-  const t = useTranslations("Recharge");
+export default async function RechargePage() {
+  const t = await getTranslations("Recharge");
   return (
     <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
       <div className="max-w-6xl mx-auto">

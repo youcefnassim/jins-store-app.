@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { MessageCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function FAQPage() {
-  const t = useTranslations("FAQ");
-  const tPreview = useTranslations("FAQPreview.questions");
+export default async function FAQPage() {
+  const t = await getTranslations("FAQ");
+  const tPreview = await getTranslations("FAQPreview.questions");
   // Group FAQs by category
   const categories = Array.from(new Set(faqs.map(f => f.category)));
 

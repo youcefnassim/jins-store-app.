@@ -1,9 +1,9 @@
 import { siteConfig } from "@/config/site";
 import { Card, CardContent } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
-export default function TermsPage() {
-  const t = useTranslations("Terms");
+export default async function TermsPage() {
+  const t = await getTranslations("Terms");
   return (
     <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
       <div className="max-w-4xl mx-auto">
