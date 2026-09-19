@@ -9,8 +9,8 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'i.ibb.co' },
-      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '**' },
+      { protocol: 'http', hostname: '**' },
     ],
   },
 };
