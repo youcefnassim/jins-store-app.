@@ -1,16 +1,14 @@
+"use client";
+
 import { packages } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Info, HelpCircle } from "lucide-react";
-import Link from "next/link";
+import { HelpCircle } from "lucide-react";
+import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
-import { Metadata } from "next";
 import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
 
-export const metadata: Metadata = {
-  title: "Mobile Legends Diamonds Recharge",
-  description: "Recharge your Mobile Legends Diamonds instantly with local payment methods in Algeria.",
-};
 
 export default function MobileLegendsPage() {
   const t = useTranslations("MobileLegends");
@@ -22,13 +20,38 @@ export default function MobileLegendsPage() {
       <section className="relative pt-20 pb-24 overflow-hidden border-b border-white/10 bg-black/20">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
-          <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(79,70,229,0.4)] mb-6 border border-white/10">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang.png/240px-Mobile_Legends_Bang_Bang.png"
-              alt="Mobile Legends Bang Bang"
-              className="w-full h-full object-cover"
+          {/* Animated Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
+            className="relative w-32 h-32 mx-auto mb-8"
+          >
+            {/* Outer glow pulse ring */}
+            <motion.div
+              animate={{ scale: [1, 1.18, 1], opacity: [0.4, 0.1, 0.4] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 rounded-3xl bg-blue-500/40 blur-xl"
             />
-          </div>
+            {/* Second ring */}
+            <motion.div
+              animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+              className="absolute inset-0 rounded-3xl border-2 border-blue-400/40"
+            />
+            {/* Logo floating animation */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="relative w-full h-full rounded-3xl overflow-hidden border-2 border-white/20 shadow-[0_0_50px_rgba(59,130,246,0.5)]"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang.png/240px-Mobile_Legends_Bang_Bang.png"
+                alt="Mobile Legends Bang Bang"
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          </motion.div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
             {t("title")}
           </h1>
