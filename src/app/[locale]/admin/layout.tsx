@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -35,7 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-[#050810]/70 backdrop-blur-sm text-white flex relative">
+    <div className="min-h-screen bg-[#050810]/70 backdrop-blur-sm text-slate-900 dark:text-white flex relative">
       {/* Sidebar with Animated Slide In/Out */}
       <AnimatePresence>
         {sidebarOpen && (
@@ -53,7 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main Content Area */}
       <div className={`flex-1 transition-all duration-300 flex flex-col min-h-screen ${sidebarOpen ? "lg:ml-64" : "lg:ml-0"}`}>
-        {/* Top Control Bar with Menu Toggle */}
+        {/* Top Control Bar with Menu Toggle & Theme Toggle */}
         <div className="sticky top-0 z-30 bg-[#0a0c14]/80 backdrop-blur-md border-b border-white/10 px-4 lg:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -65,6 +66,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="hidden sm:inline">{sidebarOpen ? "Masquer Menu" : "Ouvrir Menu Admin"}</span>
             </button>
             <span className="font-bold text-sm text-white tracking-wide">Jin's Store Admin</span>
+          </div>
+
+          {/* Right Actions: Dark/Light Mode Switcher */}
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
           </div>
         </div>
 
