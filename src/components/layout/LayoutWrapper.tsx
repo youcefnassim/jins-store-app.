@@ -33,7 +33,6 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       </main>
       <Footer />
       <SpeedDialFAB />
-      <SocialProofPopup />
     </>
   );
 }

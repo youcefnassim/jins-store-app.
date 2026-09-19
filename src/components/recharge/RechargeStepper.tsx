@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardContent } from "@/components/ui/card";
 import { PlayerForm } from "./PlayerForm";
 import { PackageSelector } from "./PackageSelector";
 import { PaymentSelector } from "./PaymentSelector";
@@ -10,11 +9,11 @@ import { ProofUpload } from "./ProofUpload";
 import { OrderSummary } from "./OrderSummary";
 import { Package, PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
-import { Check, ChevronRight } from "lucide-react";
+import { Check, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
-// createOrder is now handled server-side via /api/orders/create
+import { Button } from "@/components/ui/button";
 
 export type OrderData = {
   playerId: string;
@@ -22,15 +21,13 @@ export type OrderData = {
   phone: string;
   package?: Package;
   paymentMethod?: PaymentMethod;
-  proofUrl?: string; // For mock purposes
+  proofUrl?: string;
   transactionRef?: string;
 };
 
 const STEPS = [
-  { id: 1, name: "Player" },
-  { id: 2, name: "Package" },
-  { id: 3, name: "Payment" },
-  { id: 4, name: "Proof" },
+  { id: 1, name: "1. Joueur & Forfait" },
+  { id: 2, name: "2. Paiement & Reçu" },
 ];
 
 export function RechargeStepper() {
@@ -56,29 +53,35 @@ export function RechargeStepper() {
         const pkg = packages.find(p => p.id === packageId);
         if (pkg) {
           setOrderData(prev => ({ ...prev, package: pkg }));
-          // If we have package from URL, we can optionally skip step 2 later, 
-          // but for now let's just preselect it.
         }
       });
     }
   }, [searchParams]);
 
-  const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(prev => prev + 1);
+  const handleNextToPayment = () => {
+    if (!orderData.playerId.trim()) {
+      toast.error("Veuillez saisir votre ID de joueur.");
+      return;
+    }
+    if (!orderData.package) {
+      toast.error("Veuillez sélectionner un forfait de diamants.");
+      return;
+    }
+    setCurrentStep(2);
   };
 
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(prev => prev - 1);
+    setCurrentStep(1);
   };
 
   const handleSubmit = async (file: File, transactionRef: string) => {
     if (!orderData.package || !orderData.paymentMethod) {
-      toast.error("Missing information. Please check all steps.");
+      toast.error("Informations manquantes. Veuillez vérifier le moyen de paiement.");
       return;
     }
     
     if (!user?.id) {
-      toast.error("You must be logged in to recharge. Please log in first.");
+      toast.error("Vous devez être connecté pour passer commande. Veuillez vous connecter.");
       router.push("/auth/login");
       return;
     }
@@ -90,12 +93,11 @@ export function RechargeStepper() {
       const price = parseInt(priceStr) || 0;
       const pointsToAward = Math.floor(price * 0.1);
 
-      // Use server-side API to bypass network restrictions
       const formData = new FormData();
       formData.append('userId', user.id);
       formData.append('game', 'Mobile Legends');
       formData.append('packageId', orderData.package.id);
-      formData.append('packageName', String(orderData.package.amount) + ' Diamonds');
+      formData.append('packageName', String(orderData.package.amount) + ' Diamants');
       formData.append('playerId', orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId);
       formData.append('price', String(orderData.package.price));
       formData.append('pointsToAward', String(pointsToAward));
@@ -107,13 +109,13 @@ export function RechargeStepper() {
       });
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || 'Failed to submit order');
+      if (!res.ok) throw new Error(data.error || 'Échec de la création de la commande');
       
-      toast.success("Order submitted successfully!");
+      toast.success("Commande transmise avec succès !");
       router.push(`/order/success?id=${data.orderId}`);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to submit order. Please try again.");
+      toast.error(error.message || "Échec de l'envoi. Veuillez réessayer.");
       setIsSubmitting(false);
     }
   };
@@ -122,31 +124,40 @@ export function RechargeStepper() {
     <div className="flex flex-col lg:flex-row gap-8 items-start">
       
       {/* Main Steps Form */}
-      <div className="w-full lg:w-2/3 flex flex-col gap-8">
+      <div className="w-full lg:w-2/3 flex flex-col gap-6">
         
-        {/* Progress Indicator */}
-        <div className="glass-card rounded-xl p-4 md:p-6 mb-2 hidden sm:block border-white/5">
-          <div className="flex items-center justify-between relative">
-            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-white/10 -z-10 -translate-y-1/2" />
-            
+        {/* Progress Indicator (2 Steps) */}
+        <div className="glass-card rounded-xl p-4 md:p-6 border border-slate-200/60 dark:border-white/10 shadow-sm">
+          <div className="grid grid-cols-2 gap-4 relative">
             {STEPS.map((step) => (
-              <div key={step.id} className="flex flex-col items-center gap-2 bg-[#0a0e17] px-2 relative z-10">
+              <div 
+                key={step.id} 
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                  currentStep === step.id 
+                    ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
+                    : currentStep > step.id
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                    : "bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/5 text-slate-400"
+                )}
+                onClick={() => {
+                  if (step.id === 1) setCurrentStep(1);
+                  else if (step.id === 2 && orderData.playerId && orderData.package) setCurrentStep(2);
+                }}
+              >
                 <div 
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2",
-                    currentStep > step.id 
-                      ? "bg-primary border-primary text-white" 
+                    "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                    currentStep > step.id
+                      ? "bg-emerald-500 text-white"
                       : currentStep === step.id
-                        ? "bg-primary/20 border-primary text-primary"
-                        : "bg-black/50 border-white/10 text-muted-foreground"
+                      ? "bg-primary text-white"
+                      : "bg-slate-200 dark:bg-white/10 text-slate-500"
                   )}
                 >
-                  {currentStep > step.id ? <Check className="w-5 h-5" /> : step.id}
+                  {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
                 </div>
-                <span className={cn(
-                  "text-xs md:text-sm font-medium transition-colors",
-                  currentStep >= step.id ? "text-white" : "text-muted-foreground"
-                )}>
+                <span className="text-xs md:text-sm font-semibold truncate">
                   {step.name}
                 </span>
               </div>
@@ -154,52 +165,69 @@ export function RechargeStepper() {
           </div>
         </div>
 
-        {/* Mobile Progress Indicator */}
-        <div className="sm:hidden glass-card rounded-xl p-4 mb-2 border-white/5 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Step {currentStep} of {STEPS.length}</span>
-          <span className="font-medium text-white">{STEPS[currentStep - 1].name}</span>
-        </div>
-
-        {/* Step Content */}
-        <div className="min-h-[400px]">
-          {currentStep === 1 && (
+        {/* Step 1: Joueur & Forfait (Combined Essential Step 1) */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
             <PlayerForm 
               data={orderData} 
               onNext={(data) => {
                 setOrderData(prev => ({ ...prev, ...data }));
-                handleNext();
               }} 
             />
-          )}
-          
-          {currentStep === 2 && (
+            
             <PackageSelector 
               selectedPackage={orderData.package}
               onSelect={(pkg) => setOrderData(prev => ({ ...prev, package: pkg }))}
-              onNext={handleNext}
-              onBack={handleBack}
+              onNext={handleNextToPayment}
+              onBack={() => router.back()}
               gameName={searchParams.get("game") || "Mobile Legends"}
             />
-          )}
-          
-          {currentStep === 3 && (
+
+            <div className="flex justify-end pt-4">
+              <Button
+                onClick={handleNextToPayment}
+                disabled={!orderData.playerId.trim() || !orderData.package}
+                size="lg"
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-primary/25"
+              >
+                <span>Continuer vers le Paiement (Étape 2)</span>
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Paiement & Preuve (Combined Essential Step 2) */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                className="text-xs font-semibold hover:bg-slate-100 dark:hover:bg-white/10"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" />
+                Changer le Forfait ou l'ID Joueur
+              </Button>
+            </div>
+
             <PaymentSelector 
               selectedPayment={orderData.paymentMethod}
               onSelect={(method) => setOrderData(prev => ({ ...prev, paymentMethod: method }))}
-              onNext={handleNext}
+              onNext={() => {}}
               onBack={handleBack}
               amount={orderData.package?.price || 0}
             />
-          )}
-          
-          {currentStep === 4 && (
-            <ProofUpload 
-              onBack={handleBack}
-              onSubmit={handleSubmit}
-              isSubmitting={isSubmitting}
-            />
-          )}
-        </div>
+
+            {orderData.paymentMethod && (
+              <ProofUpload 
+                onBack={handleBack}
+                onSubmit={handleSubmit}
+                isSubmitting={isSubmitting}
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Sticky Order Summary */}
