@@ -306,5 +306,24 @@
     "description": "Get up to 20% extra diamonds on all Mobile Legends packages. Limited time only.",
     "cta": "Claim Offer Now",
     "time_left": "Offer ends in:"
+  },
+  "TrustBadges": {
+    "b1_title": "5 Min Delivery",
+    "b1_desc": "Instant account top up 24/7.",
+    "b2_title": "100% Secure",
+    "b2_desc": "Payments protected & certified.",
+    "b3_title": "Dedicated Support",
+    "b3_desc": "Our team is here on WhatsApp.",
+    "b4_title": "Best Prices",
+    "b4_desc": "Cheapest rates in Algeria guaranteed."
+  },
+  "HeroCarousel": {
+    "slide1_title": "PUBG Mobile Special Offer",
+    "slide1_desc": "Top up 660 UC and get 60 UC Bonus!",
+    "slide2_title": "Genshin Impact - New",
+    "slide2_desc": "Genesis Crystals best prices in Algeria",
+    "slide3_title": "Free Fire - Elite Pass",
+    "slide3_desc": "Don't miss this season's Elite Pass",
+    "cta": "Get Offer"
   }
 }

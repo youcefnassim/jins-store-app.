@@ -3,39 +3,39 @@
 import { Zap, ShieldCheck, HeadphonesIcon, TrendingDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const features = [
-  {
-    icon: Zap,
-    title: "Livraison 5 Min",
-    description: "Rechargez votre compte instantanément 24/7.",
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-  },
-  {
-    icon: ShieldCheck,
-    title: "100% Sécurisé",
-    description: "Vos paiements sont protégés et certifiés.",
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-  },
-  {
-    icon: HeadphonesIcon,
-    title: "Support Dédié",
-    description: "Notre équipe est là pour vous aider sur WhatsApp.",
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  {
-    icon: TrendingDown,
-    title: "Meilleurs Prix",
-    description: "Les tarifs les moins chers en Algérie garantis.",
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
-  },
-];
-
 export function TrustBadges() {
-  const t = useTranslations("Common"); // Assuming Common exists, else fallback to hardcoded
+  const t = useTranslations("TrustBadges");
+
+  const features = [
+    {
+      icon: TrendingDown,
+      title: t("b4_title"),
+      description: t("b4_desc"),
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
+    },
+    {
+      icon: HeadphonesIcon,
+      title: t("b3_title"),
+      description: t("b3_desc"),
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+    },
+    {
+      icon: ShieldCheck,
+      title: t("b2_title"),
+      description: t("b2_desc"),
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
+    },
+    {
+      icon: Zap,
+      title: t("b1_title"),
+      description: t("b1_desc"),
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+    },
+  ];
 
   return (
     <section className="py-12 relative z-10 -mt-6">

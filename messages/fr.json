@@ -306,5 +306,24 @@
     "description": "Obtenez jusqu'à 20% de diamants supplémentaires sur tous les packs Mobile Legends. Durée limitée.",
     "cta": "Profiter de l'Offre",
     "time_left": "L'offre se termine dans :"
+  },
+  "TrustBadges": {
+    "b1_title": "Livraison 5 Min",
+    "b1_desc": "Rechargez votre compte instantanément 24/7.",
+    "b2_title": "100% Sécurisé",
+    "b2_desc": "Vos paiements sont protégés et certifiés.",
+    "b3_title": "Support Dédié",
+    "b3_desc": "Notre équipe est là pour vous aider sur WhatsApp.",
+    "b4_title": "Meilleurs Prix",
+    "b4_desc": "Les tarifs les moins chers en Algérie garantis."
+  },
+  "HeroCarousel": {
+    "slide1_title": "Offre Spéciale PUBG Mobile",
+    "slide1_desc": "Rechargez 660 UC et obtenez 60 UC Bonus !",
+    "slide2_title": "Genshin Impact - Nouveauté",
+    "slide2_desc": "Les Cristaux Primaires au meilleur prix d'Algérie",
+    "slide3_title": "Free Fire - Pass Élite",
+    "slide3_desc": "Ne ratez pas le nouveau Pass Élite de cette saison",
+    "cta": "Profiter de l'offre"
   }
 }

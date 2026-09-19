@@ -5,43 +5,45 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
-
-const banners = [
-  {
-    id: 1,
-    title: "Offre Spéciale PUBG Mobile",
-    description: "Rechargez 660 UC et obtenez 60 UC Bonus !",
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200&h=400", // Generic gaming image
-    link: "/recharge?game=pubg-mobile",
-    color: "from-amber-500/80 to-orange-600/80"
-  },
-  {
-    id: 2,
-    title: "Genshin Impact - Nouveauté",
-    description: "Les Cristaux Primaires au meilleur prix d'Algérie",
-    image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&q=80&w=1200&h=400", // Anime/fantasy style
-    link: "/recharge?game=genshin-impact",
-    color: "from-indigo-500/80 to-purple-600/80"
-  },
-  {
-    id: 3,
-    title: "Free Fire - Pass Élite",
-    description: "Ne ratez pas le nouveau Pass Élite de cette saison",
-    image: "https://images.unsplash.com/photo-1538481199005-c710c4e965fc?auto=format&fit=crop&q=80&w=1200&h=400", // Action game style
-    link: "/recharge?game=free-fire",
-    color: "from-rose-500/80 to-red-600/80"
-  }
-];
+import { useTranslations } from "next-intl";
 
 export function HeroCarousel() {
+  const t = useTranslations("HeroCarousel");
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const banners = [
+    {
+      id: 1,
+      title: t("slide1_title"),
+      description: t("slide1_desc"),
+      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200&h=400",
+      link: "/recharge?game=pubg-mobile",
+      color: "from-amber-500/80 to-orange-600/80"
+    },
+    {
+      id: 2,
+      title: t("slide2_title"),
+      description: t("slide2_desc"),
+      image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&q=80&w=1200&h=400",
+      link: "/recharge?game=genshin-impact",
+      color: "from-indigo-500/80 to-purple-600/80"
+    },
+    {
+      id: 3,
+      title: t("slide3_title"),
+      description: t("slide3_desc"),
+      image: "https://images.unsplash.com/photo-1538481199005-c710c4e965fc?auto=format&fit=crop&q=80&w=1200&h=400",
+      link: "/recharge?game=free-fire",
+      color: "from-rose-500/80 to-red-600/80"
+    }
+  ];
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-    }, 5000); // Auto-slide every 5 seconds
+    }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
@@ -96,7 +98,7 @@ export function HeroCarousel() {
             >
               <Button asChild size="lg" className="bg-white text-slate-900 hover:bg-slate-100 rounded-full font-bold px-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
                 <Link href={banners[currentIndex].link}>
-                  Profiter de l'offre
+                  {t("cta")}
                 </Link>
               </Button>
             </motion.div>
@@ -107,15 +109,15 @@ export function HeroCarousel() {
       {/* Navigation Buttons */}
       <button 
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-20"
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-20 rtl:left-auto rtl:right-4"
       >
-        <ChevronLeft className="w-6 h-6" />
+        <ChevronLeft className="w-6 h-6 rtl:rotate-180" />
       </button>
       <button 
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-20"
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/20 hover:bg-black/50 text-white flex items-center justify-center backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all z-20 rtl:right-auto rtl:left-4"
       >
-        <ChevronRight className="w-6 h-6" />
+        <ChevronRight className="w-6 h-6 rtl:rotate-180" />
       </button>
 
       {/* Indicators */}

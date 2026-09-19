@@ -187,14 +187,14 @@ export function Navbar() {
                 <Button asChild variant="outline" className="rounded-full border-black/10 dark:border-white/10 glass-card text-xs lg:text-sm">
                   <Link href="/dashboard" className="flex items-center gap-2">
                     <User className="w-4 h-4 text-primary" />
-                    <span>Profile</span>
+                    <span>{t("dashboard")}</span>
                   </Link>
                 </Button>
               ) : (
                 <Button asChild className="rounded-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 border-0 px-4 lg:px-5 py-2 text-xs lg:text-sm font-semibold tracking-wide whitespace-nowrap">
                   <Link href="/auth/login" className="flex items-center gap-2">
-                    <span>Se Connecter</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span>{t("signin")}</span>
+                    <ChevronRight className="w-4 h-4 rtl:rotate-180" />
                   </Link>
                 </Button>
               )}
