@@ -274,32 +274,40 @@ export default function AdminDashboard() {
               </div>
 
               <div className="space-y-3">
-                {stats?.stockAlerts.map((item) => {
-                  const isOut = item.status === 'out_of_stock';
-                  const isCrit = item.status === 'critical';
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl text-xs"
-                    >
-                      <div>
-                        <div className="font-semibold text-slate-800 dark:text-slate-200">{item.name}</div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.game}</div>
+                {stats?.stockAlerts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <CheckCircle2 className="w-8 h-8 text-emerald-500 mb-2" />
+                    <p className="text-xs font-semibold text-slate-800 dark:text-slate-200">Tous les stocks sont suffisants</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Aucune alerte de rupture actuellement</p>
+                  </div>
+                ) : (
+                  stats?.stockAlerts.map((item) => {
+                    const isOut = item.status === 'out_of_stock';
+                    const isCrit = item.status === 'critical';
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl text-xs"
+                      >
+                        <div>
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{item.name}</div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400">{item.game}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                            isOut 
+                              ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20' 
+                              : isCrit 
+                              ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
+                              : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+                          }`}>
+                            {isOut ? 'ÉPUISÉ (0)' : `Reste: ${item.stock}`}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
-                          isOut 
-                            ? 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20' 
-                            : isCrit 
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                            : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
-                        }`}>
-                          {isOut ? 'ÉPUISÉ (0)' : `Reste: ${item.stock}`}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </motion.div>
           </div>

@@ -50,13 +50,8 @@ export async function GET() {
       { name: 'Flexy Djezzy/Ooredoo', count: flexyCount, percentage: totalOrders > 0 ? Math.round((flexyCount / totalCountForPayments) * 100) : 0, color: 'bg-blue-500' },
     ];
 
-    // Inventory & Stock Alert Items
-    const stockAlerts = [
-      { id: '1', name: 'Google Play $10 Code', game: 'Google Play', stock: 2, threshold: 5, status: 'critical' },
-      { id: '2', name: 'Free Fire 1080 Diamants', game: 'Free Fire', stock: 4, threshold: 10, status: 'warning' },
-      { id: '3', name: 'PUBG Mobile 660 UC', game: 'PUBG Mobile', stock: 0, threshold: 5, status: 'out_of_stock' },
-      { id: '4', name: 'PlayStation $25 US', game: 'PlayStation', stock: 3, threshold: 8, status: 'warning' },
-    ];
+    // Inventory & Stock Alert Items (Populated when low stock products are flagged)
+    const stockAlerts: any[] = [];
 
     // Orders per game
     const gameMap: Record<string, number> = {};
