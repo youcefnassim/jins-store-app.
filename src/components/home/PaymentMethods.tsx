@@ -8,11 +8,11 @@ export function PaymentMethods() {
 
   const getIcon = (id: string) => {
     switch (id) {
-      case "baridimob": return <Smartphone className="w-8 h-8 text-[#facc15]" />;
-      case "ccp": return <Landmark className="w-8 h-8 text-[#60a5fa]" />;
-      case "binance": return <Wallet className="w-8 h-8 text-[#f59e0b]" />;
-      case "flexy": return <CreditCard className="w-8 h-8 text-[#34d399]" />;
-      default: return <Wallet className="w-8 h-8 text-primary" />;
+      case "baridimob": return <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 text-[#facc15]" />;
+      case "ccp": return <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-[#60a5fa]" />;
+      case "binance": return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-[#f59e0b]" />;
+      case "flexy": return <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399]" />;
+      default: return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />;
     }
   };
 
@@ -28,17 +28,19 @@ export function PaymentMethods() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
           {paymentMethods.map((method) => (
             <Card key={method.id} className="glass-card hover:-translate-y-1 transition-transform duration-300">
-              <CardContent className="p-6 flex flex-col items-center text-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2">
+              <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center gap-2 sm:gap-4">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
                   {getIcon(method.id)}
                 </div>
-                <h3 className="font-semibold text-lg text-slate-900 dark:text-white">{t(`methods.${method.id}.name`) || method.name}</h3>
-                <p className="text-sm text-slate-600 dark:text-muted-foreground line-clamp-2">
-                  {t(`methods.${method.id}.description`) || method.description}
-                </p>
+                <div className="w-full">
+                  <h3 className="font-semibold text-sm sm:text-lg text-slate-900 dark:text-white leading-tight mb-1">{t(`methods.${method.id}.name`) || method.name}</h3>
+                  <p className="text-[11px] sm:text-sm text-slate-600 dark:text-muted-foreground line-clamp-2 leading-tight">
+                    {t(`methods.${method.id}.description`) || method.description}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           ))}
