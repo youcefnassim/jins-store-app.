@@ -19,12 +19,14 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-
-      if (error) throw error;
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Erreur de connexion');
 
       // Verify if the user is an admin
       const { data: profile } = await supabase
@@ -33,16 +35,13 @@ export default function AdminLoginPage() {
         .eq("id", data.user.id)
         .single();
 
-      const isAdmin = profile?.role === "admin" || email === "youcefnassim60@gmail.com" || email === "contact@jins-store.com" || email.includes("admin");
-
-      if (!isAdmin) {
-        await supabase.auth.signOut();
+      if (profile?.role !== "admin") {
+        await fetch('/api/auth/logout', { method: 'POST' });
         throw new Error("Accès refusé. Vous n'avez pas les droits d'administrateur.");
       }
 
       toast.success("Bienvenue dans le panneau d'administration !");
-      router.push("/admin/dashboard");
-      router.refresh();
+      window.location.href = "/admin/dashboard";
     } catch (error: any) {
       toast.error(error.message || "Erreur de connexion");
       setLoading(false);
