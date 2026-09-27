@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/supabase/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -12,13 +12,16 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const isLoginPage = pathname?.includes("/admin/login");
+
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !isLoginPage) {
       if (!user) {
-        router.push("/auth/login");
+        router.push("/admin/login");
       } else {
         const isAdmin = profile?.role === "admin" || user.email === "youcefnassim60@gmail.com" || user.email === "contact@jins-store.com" || user.email?.includes("admin");
         if (!isAdmin) {
@@ -26,10 +29,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
       }
     }
-  }, [user, profile, loading, router]);
+  }, [user, profile, loading, router, isLoginPage, pathname]);
 
   // Global Keyboard listener for Cmd + K / Ctrl + K
   useEffect(() => {
+    if (isLoginPage) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -38,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [isLoginPage]);
 
   if (loading) {
     return (
@@ -50,6 +54,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <p className="text-slate-400 text-sm">Vérification des accès Admin...</p>
       </div>
     );
+  }
+
+  if (isLoginPage) {
+    return <main className="min-h-screen bg-[#050810] text-white flex">{children}</main>;
   }
 
   return (
