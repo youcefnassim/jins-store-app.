@@ -1,64 +1,127 @@
 "use client";
 
-import { Gamepad2, Info } from "lucide-react";
+import { Gamepad2, Info, Plus, Trash2, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
-const games = [
-  { name: "Mobile Legends: Bang Bang", slug: "mobile-legends", emoji: "💎", packages: [
-    { label: "86 Diamants", price: 190 }, { label: "172 Diamants", price: 370 },
-    { label: "344 Diamants", price: 720 }, { label: "514 Diamants", price: 1050 },
-    { label: "706 Diamants", price: 1420 }, { label: "1060 Diamants", price: 2120 },
-  ]},
-  { name: "Free Fire", slug: "free-fire", emoji: "🔥", packages: [
-    { label: "140 Diamonds", price: 200 }, { label: "355 Diamonds", price: 480 },
-    { label: "530 Diamonds", price: 700 }, { label: "1080 Diamonds", price: 1380 },
-    { label: "2200 Diamonds", price: 2700 },
-  ]},
-  { name: "PUBG Mobile", slug: "pubg-mobile", emoji: "🎯", packages: [
-    { label: "60 UC", price: 120 }, { label: "325 UC", price: 600 },
-    { label: "660 UC", price: 1180 }, { label: "1800 UC", price: 3100 },
-  ]},
-  { name: "Valorant", slug: "valorant", emoji: "⚡", packages: [
-    { label: "475 VP", price: 450 }, { label: "1000 VP", price: 900 },
-    { label: "2050 VP", price: 1800 }, { label: "3650 VP", price: 3150 },
-  ]},
-];
+interface GamePackage {
+  id: string;
+  label: string;
+  price: number;
+}
+
+interface Game {
+  id: string;
+  name: string;
+  slug: string;
+  emoji: string;
+  packages: GamePackage[];
+}
 
 export default function AdminGamesPage() {
+  const [games, setGames] = useState<Game[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchGames = async () => {
+    try {
+      const res = await fetch("/api/games");
+      const data = await res.json();
+      if (res.ok) {
+        setGames(data.games);
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      toast.error("Erreur lors du chargement des jeux");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGames();
+  }, []);
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Voulez-vous vraiment supprimer le jeu ${name} ?`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/games?id=${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Jeu supprimé avec succès !");
+        fetchGames();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de la suppression.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Jeux & Packs</h1>
-          <p className="text-slate-400 text-sm mt-1">Catalogue des jeux et prix actuels</p>
+          <p className="text-slate-400 text-sm mt-1">Catalogue dynamique des jeux et prix</p>
+        </div>
+        <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl">
+          <Plus className="w-4 h-4 mr-2" />
+          Ajouter un jeu
+        </Button>
+      </div>
+
+      <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-3 text-sm text-emerald-400">
+        <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+        <div>
+          <strong>Catalogue Dynamique Activé !</strong> Les jeux et les prix sont maintenant récupérés directement depuis votre base de données Supabase.
         </div>
       </div>
 
-      <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex gap-3 text-sm text-amber-300">
-        <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-        <div>Les prix sont actuellement codés en dur dans le code source. La gestion dynamique des prix via cette interface sera disponible dans une prochaine version (nécessite une table `games` dans Supabase).</div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {games.map(game => (
-          <div key={game.slug} className="bg-[#0d1020] border border-white/5 rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/5 flex items-center gap-3">
-              <span className="text-2xl">{game.emoji}</span>
-              <div>
-                <h3 className="font-bold text-white">{game.name}</h3>
-                <p className="text-xs text-slate-400">{game.packages.length} packs disponibles</p>
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        </div>
+      ) : games.length === 0 ? (
+        <div className="text-center py-12 text-slate-400">
+          <Gamepad2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+          <p>Aucun jeu trouvé dans la base de données.</p>
+          <p className="text-sm">Veuillez exécuter le script SQL pour insérer les jeux par défaut.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {games.map((game) => (
+            <div key={game.id} className="bg-[#0d1020] border border-white/5 rounded-2xl overflow-hidden group">
+              <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{game.emoji}</span>
+                  <div>
+                    <h3 className="font-bold text-white">{game.name}</h3>
+                    <p className="text-xs text-slate-400">{game.packages?.length || 0} packs disponibles</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleDelete(game.id, game.name)}
+                  className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                  title="Supprimer ce jeu"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="p-4 space-y-2">
+                {game.packages?.map((pkg) => (
+                  <div key={pkg.id} className="flex items-center justify-between px-4 py-2.5 bg-white/3 hover:bg-white/5 rounded-xl transition-colors">
+                    <span className="text-sm text-slate-300">{pkg.label}</span>
+                    <span className="text-sm font-bold text-primary">{pkg.price} DA</span>
+                  </div>
+                ))}
               </div>
             </div>
-            <div className="p-4 space-y-2">
-              {game.packages.map(pkg => (
-                <div key={pkg.label} className="flex items-center justify-between px-4 py-2.5 bg-white/3 hover:bg-white/5 rounded-xl transition-colors">
-                  <span className="text-sm text-slate-300">{pkg.label}</span>
-                  <span className="text-sm font-bold text-primary">{pkg.price} DA</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
