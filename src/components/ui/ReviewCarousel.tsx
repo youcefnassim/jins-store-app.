@@ -5,46 +5,42 @@ import { Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const reviews = [
-  {
-    id: 1,
-    name: "Yassine DZ",
-    role: "Regular Customer",
-    content: "The fastest recharge service in Algeria! I got my Mobile Legends diamonds in less than 5 minutes. Highly recommended.",
-    rating: 5,
-  },
-  {
-    id: 2,
-    name: "Aminesniiper",
-    role: "Pro Player",
-    content: "Trustworthy and very professional. The customer support helped me immediately when I made a mistake with my Zone ID.",
-    rating: 5,
-  },
-  {
-    id: 3,
-    name: "Karim_16",
-    role: "New Customer",
-    content: "First time buying here and I paid with BaridiMob. Everything went smooth and the interface is incredibly beautiful.",
-    rating: 5,
-  },
-  {
-    id: 4,
-    name: "Sarah_Gamer",
-    role: "Regular Customer",
-    content: "I love the new fidelity points system! Now I can get discounts on my weekly passes. The best store for MLBB.",
-    rating: 5,
-  },
-];
+interface Review {
+  id: string;
+  name: string;
+  game: string;
+  rating: number;
+  comment: string;
+}
 
 export function ReviewCarousel() {
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch('/api/reviews');
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data.reviews || []);
+        }
+      } catch (err) {
+        console.error("Erreur chargement avis", err);
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    if (reviews.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [reviews.length]);
+
+  if (reviews.length === 0) return null;
 
   return (
     <div className="relative w-full max-w-5xl mx-auto px-4 py-12 overflow-hidden">
@@ -110,7 +106,7 @@ export function ReviewCarousel() {
                   </div>
                   
                   <p className="text-white/90 text-lg mb-6 line-clamp-3 relative z-10">
-                    "{review.content}"
+                    "{review.comment}"
                   </p>
                   
                   <div className="flex items-center gap-4 border-t border-white/5 pt-4">
@@ -119,7 +115,7 @@ export function ReviewCarousel() {
                     </div>
                     <div>
                       <h4 className="text-white font-bold text-sm">{review.name}</h4>
-                      <p className="text-xs text-primary">{review.role}</p>
+                      <p className="text-xs text-primary">{review.game}</p>
                     </div>
                   </div>
                 </CardContent>
