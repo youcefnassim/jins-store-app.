@@ -173,67 +173,77 @@ export default function AdminGamesPage() {
 
       {/* Add Game Modal */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="bg-[#0c0f1d] border-white/10 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Ajouter un nouveau jeu</DialogTitle>
+        <DialogContent className="bg-[#0a0c14] border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] text-white sm:max-w-[700px] sm:rounded-3xl p-6 sm:p-8 max-h-[90vh] overflow-y-auto overflow-x-hidden">
+          <DialogHeader className="mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 mb-4">
+              <Gamepad2 className="w-6 h-6 text-white" />
+            </div>
+            <DialogTitle className="text-2xl font-bold tracking-tight">Nouveau Jeu</DialogTitle>
+            <p className="text-sm text-slate-400">Ajoutez un nouveau jeu et ses tarifs à votre catalogue.</p>
           </DialogHeader>
-          <form onSubmit={handleCreateGame} className="space-y-6 mt-4">
+          
+          <form onSubmit={handleCreateGame} className="space-y-8">
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Nom du jeu</Label>
-                <Input required value={newGame.name} onChange={e => setNewGame({...newGame, name: e.target.value})} className="bg-black/20 border-white/10" placeholder="ex: Mobile Legends" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Nom du jeu</label>
+                <Input required value={newGame.name} onChange={e => setNewGame({...newGame, name: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="ex: Mobile Legends" />
               </div>
-              <div className="space-y-2">
-                <Label>Slug (URL)</Label>
-                <Input required value={newGame.slug} onChange={e => setNewGame({...newGame, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} className="bg-black/20 border-white/10" placeholder="ex: mobile-legends" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Émoji</Label>
-                <Input required value={newGame.emoji} onChange={e => setNewGame({...newGame, emoji: e.target.value})} className="bg-black/20 border-white/10" placeholder="ex: 💎" />
-              </div>
-              <div className="space-y-2">
-                <Label>URL de l'image (Optionnel)</Label>
-                <Input value={newGame.image_url} onChange={e => setNewGame({...newGame, image_url: e.target.value})} className="bg-black/20 border-white/10" placeholder="/images/games/mlbb.jpg" />
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Slug (URL)</label>
+                <Input required value={newGame.slug} onChange={e => setNewGame({...newGame, slug: e.target.value.toLowerCase().replace(/\s+/g, '-')})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="ex: mobile-legends" />
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t border-white/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Émoji</label>
+                <Input required value={newGame.emoji} onChange={e => setNewGame({...newGame, emoji: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="ex: 💎" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">URL de l'image</label>
+                <Input value={newGame.image_url} onChange={e => setNewGame({...newGame, image_url: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="/images/games/mlbb.jpg" />
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-white/10 space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-lg">Packs de prix</h3>
-                <Button type="button" variant="outline" size="sm" onClick={handleAddPackage} className="border-white/10 bg-white/5 hover:bg-white/10">
-                  <Plus className="w-4 h-4 mr-1" /> Ajouter un pack
+                <div>
+                  <h3 className="font-semibold text-lg text-white">Packs de prix</h3>
+                  <p className="text-xs text-slate-400 mt-1">Configurez les différentes recharges disponibles.</p>
+                </div>
+                <Button type="button" onClick={handleAddPackage} className="bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl h-10 px-4">
+                  <Plus className="w-4 h-4 mr-2" /> Ajouter
                 </Button>
               </div>
 
-              {newPackages.map((pkg, index) => (
-                <div key={index} className="flex items-end gap-4 p-4 rounded-xl bg-black/20 border border-white/5">
-                  <div className="flex-1 space-y-2">
-                    <Label>Label (ex: 86 Diamants)</Label>
-                    <Input required value={pkg.label} onChange={e => handlePackageChange(index, 'label', e.target.value)} className="bg-black/40 border-white/10" />
+              <div className="space-y-4">
+                {newPackages.map((pkg, index) => (
+                  <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 relative group">
+                    <div className="flex-1 w-full">
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Label (ex: 86 Diamants)</label>
+                      <Input required value={pkg.label} onChange={e => handlePackageChange(index, 'label', e.target.value)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="Nom du pack" />
+                    </div>
+                    <div className="w-full sm:w-40">
+                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Prix (DA)</label>
+                      <Input required type="number" min="0" value={pkg.price} onChange={e => handlePackageChange(index, 'price', parseInt(e.target.value))} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="0" />
+                    </div>
+                    {newPackages.length > 1 && (
+                      <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
-                  <div className="w-32 space-y-2">
-                    <Label>Prix (DA)</Label>
-                    <Input required type="number" min="0" value={pkg.price} onChange={e => handlePackageChange(index, 'price', parseInt(e.target.value))} className="bg-black/40 border-white/10" />
-                  </div>
-                  {newPackages.length > 1 && (
-                    <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="text-red-500 hover:text-red-400 hover:bg-red-500/10 shrink-0">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-              <Button type="button" variant="ghost" onClick={() => setIsAddOpen(false)} className="hover:bg-white/5">
+            <div className="flex justify-end gap-4 pt-6 border-t border-white/10 mt-8">
+              <Button type="button" variant="ghost" onClick={() => setIsAddOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/5 rounded-xl px-6 h-12">
                 Annuler
               </Button>
-              <Button type="submit" disabled={isAdding} className="bg-primary hover:bg-primary/90 text-white">
-                {isAdding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Sauvegarder le jeu"}
+              <Button type="submit" disabled={isAdding} className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 rounded-xl px-8 h-12 font-bold">
+                {isAdding ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : "Sauvegarder le jeu"}
               </Button>
             </div>
           </form>
