@@ -9,7 +9,7 @@ import { Link } from "@/i18n/routing";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export function CartSidebar() {
+export function CartSidebar({ children }: { children?: React.ReactNode }) {
   const { items, removeItem, updateQuantity, getTotalPrice, getItemCount } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -25,14 +25,16 @@ export function CartSidebar() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative group">
-          <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors" />
-          {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-[#0a0e17]">
-              {totalItems}
-            </span>
-          )}
-        </Button>
+        {children ? children : (
+          <Button variant="ghost" size="icon" className="relative group">
+            <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors" />
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-[#0a0e17]">
+                {totalItems}
+              </span>
+            )}
+          </Button>
+        )}
       </SheetTrigger>
       
       <SheetContent className="w-full sm:max-w-md flex flex-col bg-slate-50 dark:bg-[#0a0e17] border-l-slate-200 dark:border-l-white/10 p-0">

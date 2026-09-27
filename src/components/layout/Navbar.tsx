@@ -179,7 +179,9 @@ export function Navbar() {
             <GlobalSearch />
             <LanguageSwitcher />
             <ThemeToggle />
-            <CartSidebar />
+            <div className="hidden md:block">
+              <CartSidebar />
+            </div>
 
             {/* User Profile / Login (Hidden on Mobile) */}
             <div className="hidden md:block">
