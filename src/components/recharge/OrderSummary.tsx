@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useTranslations } from "next-intl";
 
 interface OrderSummaryProps {
-  data: OrderData;
+  data: OrderData & { promoCode?: string; promoDiscount?: number };
   step: number;
 }
 
@@ -59,15 +59,34 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
         {data.package && (
           <>
             <Separator className="bg-white/10" />
-            <div className="p-6 bg-black/40 flex justify-between items-end">
-              <span className="text-white/80 font-medium">{t("total_amount")}</span>
-              <div className="text-right">
-                <span className="text-2xl font-bold text-white block leading-none mb-1">
-                  {data.package.price}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                  {siteConfig.currency}
-                </span>
+            <div className="p-6 bg-black/40 flex flex-col gap-2">
+              
+              {data.promoDiscount ? (
+                <div className="flex justify-between items-center text-emerald-400 text-sm">
+                  <span>Code Promo ({data.promoCode})</span>
+                  <span>-{data.promoDiscount}%</span>
+                </div>
+              ) : null}
+
+              <div className="flex justify-between items-end mt-2">
+                <span className="text-white/80 font-medium">{t("total_amount")}</span>
+                <div className="text-right">
+                  {data.promoDiscount ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm text-slate-500 line-through mb-1">{data.package.price} DZD</span>
+                      <span className="text-2xl font-bold text-white block leading-none mb-1">
+                        {Math.round(parseInt(String(data.package.price).replace(/[^0-9]/g, '')) * (1 - data.promoDiscount / 100))}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-2xl font-bold text-white block leading-none mb-1">
+                      {data.package.price}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                    {siteConfig.currency}
+                  </span>
+                </div>
               </div>
             </div>
           </>

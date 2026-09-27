@@ -65,6 +65,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Order creation failed: ' + orderError.message }, { status: 500 });
     }
 
+    // 4. Increment promo code usage if applicable
+    const promoCode = formData.get('promoCode') as string;
+    if (promoCode) {
+      // Fetch current usage first (to increment safely, or use RPC if available, but simplest is via select then update)
+      const { data: promo } = await supabase
+        .from('promo_codes')
+        .select('id, current_uses')
+        .eq('code', promoCode.toUpperCase())
+        .single();
+        
+      if (promo) {
+        await supabase
+          .from('promo_codes')
+          .update({ current_uses: promo.current_uses + 1 })
+          .eq('id', promo.id);
+      }
+    }
+
     return NextResponse.json({ success: true, orderId: orderData.id });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });

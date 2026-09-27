@@ -17,14 +17,21 @@ interface PaymentSelectorProps {
   onNext: () => void;
   onBack: () => void;
   amount: number;
+  promoCode?: string;
+  onPromoApply?: (code: string, discount: number) => void;
 }
 
-export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amount }: PaymentSelectorProps) {
+export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amount, promoCode, onPromoApply }: PaymentSelectorProps) {
   const t = useTranslations("PaymentSelector");
   const tPkg = useTranslations("PackageSelector");
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+
+  const [promoInput, setPromoInput] = useState(promoCode || "");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState("");
+  const [promoSuccess, setPromoSuccess] = useState(!!promoCode);
 
   useEffect(() => {
     let isMounted = true;
@@ -73,8 +80,35 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
   const displayAmount = selectedPayment?.id === "binance" 
     ? (amount / 240).toFixed(2) // Mock conversion rate: 1 USDT = 240 DZD
     : amount;
-  
   const displayCurrency = selectedPayment?.id === "binance" ? "USDT" : siteConfig.currency;
+
+  const handleApplyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    setPromoError("");
+    try {
+      const res = await fetch("/api/promo/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoInput.trim() })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPromoSuccess(true);
+        if (onPromoApply) onPromoApply(promoInput.trim().toUpperCase(), data.discount_percentage);
+      } else {
+        setPromoError(data.error || "Code invalide");
+        setPromoSuccess(false);
+        if (onPromoApply) onPromoApply("", 0);
+      }
+    } catch (err) {
+      setPromoError("Erreur de connexion");
+      setPromoSuccess(false);
+      if (onPromoApply) onPromoApply("", 0);
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   return (
     <Card className="glass-card border-white/10 relative overflow-hidden">
@@ -173,6 +207,36 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                     </div>
                   )}
                   
+                  
+                  {/* PROMO CODE SECTION */}
+                  <div className="mt-4 p-4 bg-black/20 border border-white/5 rounded-lg">
+                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Avez-vous un code promo ?</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="Code promo" 
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value.toUpperCase());
+                          setPromoError("");
+                          setPromoSuccess(false);
+                          if (onPromoApply) onPromoApply("", 0);
+                        }}
+                        className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary uppercase"
+                      />
+                      <Button 
+                        onClick={handleApplyPromo}
+                        disabled={!promoInput.trim() || promoLoading || promoSuccess}
+                        variant={promoSuccess ? "default" : "secondary"}
+                        className={promoSuccess ? "bg-emerald-500 hover:bg-emerald-600 text-white" : ""}
+                      >
+                        {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : promoSuccess ? <Check className="w-4 h-4" /> : "Appliquer"}
+                      </Button>
+                    </div>
+                    {promoError && <p className="text-red-400 text-xs mt-2">{promoError}</p>}
+                    {promoSuccess && <p className="text-emerald-400 text-xs mt-2">Code promo appliqué !</p>}
+                  </div>
+
                   <div className="bg-gradient-to-r from-primary/20 to-transparent rounded-lg p-4 mt-4 flex justify-between items-center border border-primary/20">
                     <span className="text-white/90 font-medium">{t("amount_to_send")}</span>
                     <span className="text-2xl font-bold text-white tracking-wider">

@@ -25,6 +25,8 @@ export type OrderData = {
   paymentMethod?: PaymentMethod;
   proofUrl?: string;
   transactionRef?: string;
+  promoCode?: string;
+  promoDiscount?: number;
 };
 
 const STEPS = [
@@ -94,7 +96,12 @@ export function RechargeStepper() {
     try {
       const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
       const price = parseInt(priceStr) || 0;
-      const pointsToAward = Math.floor(price * 0.1);
+      let finalPrice = price;
+      if (orderData.promoDiscount) {
+        finalPrice = Math.round(price * (1 - orderData.promoDiscount / 100));
+      }
+      
+      const pointsToAward = Math.floor(finalPrice * 0.1);
 
       const formData = new FormData();
       formData.append('userId', user.id);
@@ -102,7 +109,8 @@ export function RechargeStepper() {
       formData.append('packageId', orderData.package.id);
       formData.append('packageName', String(orderData.package.amount) + ' Diamants');
       formData.append('playerId', orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId);
-      formData.append('price', String(orderData.package.price));
+      formData.append('price', String(finalPrice));
+      if (orderData.promoCode) formData.append('promoCode', orderData.promoCode);
       formData.append('pointsToAward', String(pointsToAward));
       formData.append('receiptFile', file);
 
@@ -219,7 +227,13 @@ export function RechargeStepper() {
               onSelect={(method) => setOrderData(prev => ({ ...prev, paymentMethod: method }))}
               onNext={() => {}}
               onBack={handleBack}
-              amount={orderData.package?.price || 0}
+              amount={
+                orderData.promoDiscount 
+                ? Math.round(parseInt(String(orderData.package?.price).replace(/[^0-9]/g, '')) * (1 - orderData.promoDiscount / 100))
+                : parseInt(String(orderData.package?.price).replace(/[^0-9]/g, '')) || 0
+              }
+              promoCode={orderData.promoCode}
+              onPromoApply={(code, discount) => setOrderData(prev => ({ ...prev, promoCode: code, promoDiscount: discount }))}
             />
 
             {orderData.paymentMethod && (
