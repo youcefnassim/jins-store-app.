@@ -39,17 +39,17 @@ export function WhyChooseUs() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {reasons.map((reason, index) => (
             <Card key={index} className="glass-card border-white/5 hover:border-primary/50 transition-colors">
-              <CardHeader className="pb-2">
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 text-primary">
-                  <reason.icon className="w-6 h-6" />
+              <CardHeader className="p-3 sm:p-6 pb-0 sm:pb-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-4 text-primary">
+                  <reason.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <CardTitle className="text-lg text-slate-900 dark:text-white">{reason.title}</CardTitle>
+                <CardTitle className="text-base sm:text-lg text-slate-900 dark:text-white leading-tight">{reason.title}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-slate-600 dark:text-muted-foreground leading-relaxed">
+              <CardContent className="p-3 sm:p-6 pt-2 sm:pt-2">
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-muted-foreground leading-snug sm:leading-relaxed">
                   {reason.description}
                 </p>
               </CardContent>
