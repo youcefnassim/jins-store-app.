@@ -30,7 +30,7 @@ export function BottomTabBar() {
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-[#0a0e17]/80 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-      <div className="flex justify-around items-center h-16">
+      <div className="grid grid-cols-5 h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           
