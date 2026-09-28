@@ -33,7 +33,7 @@ export default function Home() {
       <HeroCarousel />
       <TrustBadges />
       <ScrollReveal delay={0.1}><PaymentMethods /></ScrollReveal>
-      <ScrollReveal delay={0.2}><PopularPackages /></ScrollReveal>
+      {/* <ScrollReveal delay={0.2}><PopularPackages /></ScrollReveal> */}
       <ScrollReveal delay={0.1}><PromoBanner /></ScrollReveal>
       <ScrollReveal delay={0.1}><HowItWorks /></ScrollReveal>
       <ScrollReveal delay={0.1}><WhyChooseUs /></ScrollReveal>
