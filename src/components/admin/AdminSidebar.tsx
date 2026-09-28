@@ -32,10 +32,19 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const isActive = (href: string) => pathname.includes(href);
 
   const handleLogout = async () => {
-    const { createClient } = await import("@/lib/supabase/client");
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/auth/login");
+    try {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      
+      // Call the API to clear the HTTP-only cookie
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      router.push("/auth/login");
+      router.refresh();
+    }
   };
 
   return (
