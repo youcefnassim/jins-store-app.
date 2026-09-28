@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Search, Gamepad2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export function Hero() {
@@ -43,9 +43,9 @@ export function Hero() {
                 <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
               </Button>
               <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl border-white/10 hover:bg-white/5">
-                <Link href="/track">
-                  <Search className="mr-2 w-5 h-5 rtl:ml-2 rtl:mr-0" />
-                  {t("cta_track")}
+                <Link href="/games">
+                  <Gamepad2 className="mr-2 w-5 h-5 rtl:ml-2 rtl:mr-0" />
+                  {t("cta_games")}
                 </Link>
               </Button>
             </div>
