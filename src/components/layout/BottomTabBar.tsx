@@ -15,7 +15,7 @@ export function BottomTabBar() {
   const tabs = [
     { name: "Accueil", icon: Home, href: "/" },
     { name: "Jeux", icon: Gamepad2, href: "/games" },
-    { name: "Recherche", icon: Search, href: "/search" },
+    { name: "Suivi", icon: Search, href: "/track" },
     { name: "Panier", icon: ShoppingCart, href: "#", isCart: true },
     { name: "Profil", icon: User, href: "/dashboard" },
   ];
