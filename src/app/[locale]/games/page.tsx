@@ -72,7 +72,7 @@ export default function GamesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         <AnimatePresence>
           {filteredGames.map((game, index) => (
             <motion.div
@@ -97,20 +97,20 @@ export default function GamesPage() {
                 <Card className={`glass-card overflow-hidden group border-black/10 dark:border-white/10 transition-colors h-full flex flex-col ${game.isAvailable ? 'hover:border-primary/50' : 'opacity-60 grayscale'}`}>
                   <div className="aspect-[4/3] bg-gradient-to-br from-indigo-900 to-purple-900 relative flex items-center justify-center overflow-hidden">
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                    <Gamepad2 className="w-16 h-16 text-white/50 group-hover:scale-110 transition-transform duration-300" />
+                    <Gamepad2 className="w-10 h-10 sm:w-16 sm:h-16 text-white/50 group-hover:scale-110 transition-transform duration-300" />
                     
                     {!game.isAvailable && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                        <span className="bg-black/80 text-white px-4 py-1 rounded-full text-sm font-bold tracking-widest uppercase border border-white/10">
+                        <span className="bg-black/80 text-white px-2 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-bold tracking-widest uppercase border border-white/10 text-center">
                           {t("coming_soon")}
                         </span>
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-6 text-center flex flex-col gap-4 flex-1 justify-between">
+                  <CardContent className="p-3 sm:p-6 text-center flex flex-col gap-2 sm:gap-4 flex-1 justify-between">
                     <div>
-                      <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-1">{game.name}</h3>
-                      <p className="text-sm text-primary font-medium">{game.currencyName}</p>
+                      <h3 className="font-bold text-sm sm:text-lg text-slate-900 dark:text-white mb-0.5 sm:mb-1 line-clamp-1">{game.name}</h3>
+                      <p className="text-xs sm:text-sm text-primary font-medium">{game.currencyName}</p>
                     </div>
                     <Button 
                       asChild={game.isAvailable} 
