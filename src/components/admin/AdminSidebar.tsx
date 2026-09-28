@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, ShoppingBag, Users, Gamepad2,
-  Tag, Star, Activity, LogOut, ChevronRight, X
+  Tag, Star, Activity, LogOut, ChevronRight, X, ExternalLink
 } from "lucide-react";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
@@ -105,6 +105,13 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
             <p className="text-xs text-primary">Administrateur</p>
           </div>
         </div>
+        <Link
+          href="/"
+          className="w-full flex items-center gap-3 px-4 py-2.5 mb-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors border border-slate-200 dark:border-white/10"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Retour au site
+        </Link>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-colors border border-red-500/20"
