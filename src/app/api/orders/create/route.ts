@@ -9,17 +9,25 @@ const supabase = createClient(
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const userId = formData.get('userId') as string;
-    const game = formData.get('game') as string;
-    const packageId = formData.get('packageId') as string;
-    const packageName = formData.get('packageName') as string;
-    const playerId = formData.get('playerId') as string;
-    const price = formData.get('price') as string;
-    const pointsToAward = parseInt(formData.get('pointsToAward') as string) || 0;
-    const receiptFile = formData.get('receiptFile') as File;
+
+    const userId         = formData.get('userId') as string;
+    const game           = formData.get('game') as string;
+    const packageId      = formData.get('packageId') as string;
+    const packageName    = formData.get('packageName') as string;
+    const playerId       = formData.get('playerId') as string;
+    const zoneId         = formData.get('zoneId') as string | null;
+    const phone          = formData.get('phone') as string | null;
+    const paymentMethod  = formData.get('paymentMethod') as string | null;
+    const price          = formData.get('price') as string;
+    const promoCode      = formData.get('promoCode') as string | null;
+    const pointsToAward  = parseInt(formData.get('pointsToAward') as string) || 0;
+    const receiptFile    = formData.get('receiptFile') as File;
 
     if (!receiptFile) {
       return NextResponse.json({ error: 'Receipt file is required' }, { status: 400 });
+    }
+    if (!userId) {
+      return NextResponse.json({ error: 'User must be authenticated' }, { status: 401 });
     }
 
     // 1. Upload receipt to Supabase Storage
@@ -45,19 +53,26 @@ export async function POST(request: NextRequest) {
     // 2. Get public URL
     const { data: { publicUrl } } = supabase.storage.from('receipts').getPublicUrl(fileName);
 
-    // 3. Create order in DB
+    // 3. Create order in DB (with all fields including zone_id, phone, payment_method)
+    const orderPayload: Record<string, unknown> = {
+      user_id: userId,
+      game,
+      package: packageName,
+      player_id: playerId,
+      price,
+      points_to_award: pointsToAward,
+      receipt_url: publicUrl,
+      status: 'pending',
+    };
+
+    if (zoneId) orderPayload.zone_id = zoneId;
+    if (phone) orderPayload.phone = phone;
+    if (paymentMethod) orderPayload.payment_method = paymentMethod;
+    if (promoCode) orderPayload.promo_code = promoCode;
+
     const { data: orderData, error: orderError } = await supabase
       .from('orders')
-      .insert({
-        user_id: userId,
-        game,
-        package: packageName,
-        player_id: playerId,
-        price,
-        points_to_award: pointsToAward,
-        receipt_url: publicUrl,
-        status: 'pending',
-      })
+      .insert(orderPayload)
       .select()
       .single();
 
@@ -66,9 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Increment promo code usage if applicable
-    const promoCode = formData.get('promoCode') as string;
     if (promoCode) {
-      // Fetch current usage first (to increment safely, or use RPC if available, but simplest is via select then update)
       const { data: promo } = await supabase
         .from('promo_codes')
         .select('id, current_uses')
@@ -84,7 +97,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, orderId: orderData.id });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

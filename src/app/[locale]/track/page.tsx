@@ -2,22 +2,38 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { api, Order } from "@/lib/api";
+import { supabase } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, Package as PackageIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Search, Loader2, Package as PackageIcon, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+
+type OrderStatus = "pending" | "processing" | "completed" | "rejected";
+
+type SupabaseOrder = {
+  id: string;
+  game: string;
+  package: string;
+  player_id: string;
+  zone_id?: string;
+  phone?: string;
+  payment_method?: string;
+  price: string;
+  status: OrderStatus;
+  created_at: string;
+  receipt_url?: string;
+};
 
 function TrackOrderContent() {
   const t = useTranslations("TrackOrder");
   const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [order, setOrder] = useState<Order | null>(null);
+  const [order, setOrder] = useState<SupabaseOrder | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -26,23 +42,29 @@ function TrackOrderContent() {
       setOrderId(id);
       handleSearch(id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const handleSearch = async (idToSearch: string = orderId) => {
     if (!idToSearch.trim()) return;
-    
+
     setLoading(true);
     setError("");
     setOrder(null);
-    
+
     try {
-      const result = await api.getOrder(idToSearch.trim());
-      if (result) {
-        setOrder(result);
-      } else {
+      const { data, error: dbError } = await supabase
+        .from("orders")
+        .select("id, game, package, player_id, zone_id, phone, payment_method, price, status, created_at, receipt_url")
+        .eq("id", idToSearch.trim())
+        .single();
+
+      if (dbError || !data) {
         setError(t("error_not_found"));
+      } else {
+        setOrder(data as SupabaseOrder);
       }
-    } catch (err) {
+    } catch {
       setError(t("error_generic"));
     } finally {
       setLoading(false);
@@ -51,10 +73,10 @@ function TrackOrderContent() {
 
   const getStatusIndex = (status: string) => {
     switch (status) {
-      case 'pending': return 1;
-      case 'processing': return 2;
-      case 'completed': return 3;
-      case 'rejected': return -1;
+      case "pending": return 1;
+      case "processing": return 2;
+      case "completed": return 3;
+      case "rejected": return -1;
       default: return 0;
     }
   };
@@ -80,13 +102,13 @@ function TrackOrderContent() {
 
         <Card className="glass-card mb-8 border-white/10">
           <CardContent className="p-6">
-            <form 
+            <form
               onSubmit={(e) => { e.preventDefault(); handleSearch(); }}
               className="flex flex-col sm:flex-row gap-4"
             >
               <div className="relative flex-1">
                 <Search className="absolute left-3 rtl:left-auto rtl:right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input 
+                <Input
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
                   placeholder={t("placeholder")}
@@ -117,11 +139,11 @@ function TrackOrderContent() {
               <div className="bg-black/5 dark:bg-black/20 p-4 border-b border-black/10 dark:border-white/5 flex flex-wrap justify-between items-center gap-4 text-left rtl:text-right">
                 <div>
                   <p className="text-sm text-muted-foreground">{t("order_number")}</p>
-                  <p className="font-bold text-slate-900 dark:text-white tracking-widest">{order.id}</p>
+                  <p className="font-bold text-slate-900 dark:text-white font-mono text-sm">{order.id}</p>
                 </div>
                 <div className="text-right rtl:text-left">
                   <p className="text-sm text-muted-foreground">{t("date")}</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{new Date(order.createdAt).toLocaleDateString()}</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
               <CardContent className="p-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-left rtl:text-right">
@@ -129,35 +151,52 @@ function TrackOrderContent() {
                   <p className="text-sm text-muted-foreground mb-1">{t("game")}</p>
                   <p className="font-medium text-slate-900 dark:text-white flex items-center gap-2">
                     <PackageIcon className="w-4 h-4 text-primary" />
-                    MLBB
+                    {order.game}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t("player_id")}</p>
-                  <p className="font-medium text-slate-900 dark:text-white">{order.playerId}</p>
+                  <p className="font-medium text-slate-900 dark:text-white font-mono">
+                    {order.player_id}
+                    {order.zone_id && <span className="text-muted-foreground"> ({order.zone_id})</span>}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t("amount")}</p>
-                  <p className="font-medium text-primary">{order.amount} {siteConfig.currency}</p>
+                  <p className="font-medium text-primary">{order.price} {siteConfig.currency}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">{t("status")}</p>
                   <span className={cn(
                     "px-2.5 py-1 rounded-full text-xs font-bold uppercase",
-                    order.status === 'completed' ? "bg-green-500/20 text-green-400" :
-                    order.status === 'rejected' ? "bg-red-500/20 text-red-400" :
-                    "bg-blue-500/20 text-blue-400"
+                    order.status === "completed" ? "bg-green-500/20 text-green-400" :
+                    order.status === "rejected"  ? "bg-red-500/20 text-red-400" :
+                    order.status === "processing" ? "bg-blue-500/20 text-blue-400" :
+                    "bg-amber-500/20 text-amber-400"
                   )}>
                     {order.status}
                   </span>
                 </div>
               </CardContent>
+
+              {/* Package detail */}
+              {order.package && (
+                <div className="px-6 pb-6">
+                  <p className="text-sm text-muted-foreground mb-1">Pack</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{order.package}</p>
+                  {order.payment_method && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Paiement : <span className="text-slate-900 dark:text-white font-medium">{order.payment_method}</span>
+                    </p>
+                  )}
+                </div>
+              )}
             </Card>
 
             {/* Timeline Card */}
             <Card className="glass-card border-black/10 dark:border-white/10">
               <CardContent className="p-6 md:p-10">
-                {order.status === 'rejected' ? (
+                {order.status === "rejected" ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
                       <AlertCircle className="w-8 h-8 text-red-500" />
@@ -167,7 +206,7 @@ function TrackOrderContent() {
                       {t("rejected_desc")}
                     </p>
                     <Button asChild className="bg-[#25D366] hover:bg-[#25D366]/90 text-white border-none">
-                      <Link href={`https://wa.me/${siteConfig.supportWhatsApp.replace('+', '')}`} target="_blank">
+                      <Link href={`https://wa.me/${siteConfig.supportWhatsApp.replace("+", "")}`} target="_blank">
                         {t("contact_support")}
                       </Link>
                     </Button>
@@ -176,23 +215,28 @@ function TrackOrderContent() {
                   <div className="relative">
                     {/* Vertical line for mobile */}
                     <div className="md:hidden absolute left-[19px] top-4 bottom-4 w-0.5 bg-white/10" />
-                    
                     {/* Horizontal line for desktop */}
                     <div className="hidden md:block absolute top-[19px] left-8 right-8 h-0.5 bg-white/10" />
 
                     <div className="flex flex-col md:flex-row justify-between gap-8 md:gap-4 relative z-10">
                       {timeline.map((step, index) => {
-                        const isCompleted = getStatusIndex(order.status) >= step.index;
-                        const isCurrent = getStatusIndex(order.status) === step.index;
-                        
+                        const statusIdx = getStatusIndex(order.status);
+                        const isCompleted = statusIdx >= step.index;
+                        const isCurrent = statusIdx === step.index;
+
                         return (
                           <div key={index} className="flex md:flex-col items-center gap-4 md:text-center">
                             <div className={cn(
                               "w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
-                              isCompleted ? "bg-primary border-primary text-white" :
-                              "bg-slate-100 border-slate-200 dark:bg-black dark:border-white/20 text-muted-foreground"
+                              isCompleted
+                                ? "bg-primary border-primary text-white"
+                                : "bg-slate-100 border-slate-200 dark:bg-black dark:border-white/20 text-muted-foreground"
                             )}>
-                              {isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground" />}
+                              {isCompleted
+                                ? <CheckCircle2 className="w-5 h-5" />
+                                : isCurrent
+                                  ? <Clock className="w-4 h-4 animate-pulse text-primary" />
+                                  : <div className="w-2.5 h-2.5 rounded-full bg-muted-foreground" />}
                             </div>
                             <div>
                               <p className={cn(

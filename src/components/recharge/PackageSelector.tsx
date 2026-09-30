@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Package } from "@/lib/mock-data";
-import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { siteConfig } from "@/config/site";
@@ -52,14 +51,55 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
 
   useEffect(() => {
     let isMounted = true;
-    api.getPackages("mobile-legends").then((res) => {
-      if (isMounted) {
-        setPackages(res);
-        setLoading(false);
+
+    const loadPackages = async () => {
+      try {
+        const slugMap: Record<string, string> = {
+          "Mobile Legends": "mobile-legends",
+          "Mobile Legends: Bang Bang": "mobile-legends",
+          "MLBB": "mobile-legends",
+          "Free Fire": "free-fire",
+          "PUBG Mobile": "pubg-mobile",
+          "Valorant": "valorant",
+        };
+        const slug = slugMap[gameName] ?? "mobile-legends";
+
+        const { getPackagesByGame } = await import("@/lib/supabase/database");
+        const dbPackages = await getPackagesByGame(slug);
+
+        if (!isMounted) return;
+
+        if (dbPackages.length > 0) {
+          // Map DbPackage → Package shape used by the UI
+          const mapped: Package[] = dbPackages.map((p, index) => ({
+            id: p.id,
+            gameId: slug,
+            amount: p.label,       // e.g. "86 Diamants"
+            price: p.price,
+            currency: "DZD",
+            popular: p.popular ?? (index === 2),
+            active: true,
+          }));
+          setPackages(mapped);
+        } else {
+          // Fallback to mock data when Supabase returns nothing
+          const { api } = await import("@/lib/api");
+          const res = await api.getPackages("mobile-legends");
+          if (isMounted) setPackages(res);
+        }
+      } catch (err) {
+        console.error("PackageSelector load error:", err);
+        const { api } = await import("@/lib/api");
+        const res = await api.getPackages("mobile-legends");
+        if (isMounted) setPackages(res);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-    });
+    };
+
+    loadPackages();
     return () => { isMounted = false; };
-  }, []);
+  }, [gameName]);
 
   return (
     <Card className="glass-card border-white/10 relative overflow-hidden">

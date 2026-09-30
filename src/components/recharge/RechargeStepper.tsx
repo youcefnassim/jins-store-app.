@@ -9,7 +9,6 @@ import { PaymentSelector } from "./PaymentSelector";
 import { ProofUpload } from "./ProofUpload";
 import { OrderSummary } from "./OrderSummary";
 import { Package, PaymentMethod } from "@/lib/mock-data";
-import { api } from "@/lib/api";
 import { Check, ArrowRight, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -50,17 +49,31 @@ export function RechargeStepper() {
 
   const { user } = useAuth();
 
-  // Pre-select package from URL if available
+  // Pre-select package from URL if available (Supabase lookup)
   useEffect(() => {
     const packageId = searchParams.get("package");
-    if (packageId) {
-      api.getPackages("mobile-legends").then((packages) => {
-        const pkg = packages.find(p => p.id === packageId);
-        if (pkg) {
+    if (!packageId) return;
+
+    const loadPackage = async () => {
+      try {
+        const { getPackageById } = await import("@/lib/supabase/database");
+        const dbPkg = await getPackageById(packageId);
+        if (dbPkg) {
+          const pkg: Package = {
+            id: dbPkg.id,
+            gameId: "mobile-legends",
+            amount: dbPkg.label,
+            price: dbPkg.price,
+            currency: "DZD",
+            active: true,
+          };
           setOrderData(prev => ({ ...prev, package: pkg }));
         }
-      });
-    }
+      } catch {
+        // Ignore — package will just not be pre-selected
+      }
+    };
+    loadPackage();
   }, [searchParams]);
 
   const handleNextToPayment = () => {
@@ -107,8 +120,11 @@ export function RechargeStepper() {
       formData.append('userId', user.id);
       formData.append('game', 'Mobile Legends');
       formData.append('packageId', orderData.package.id);
-      formData.append('packageName', String(orderData.package.amount) + ' Diamants');
-      formData.append('playerId', orderData.zoneId ? `${orderData.playerId} (${orderData.zoneId})` : orderData.playerId);
+      formData.append('packageName', String(orderData.package.amount));
+      formData.append('playerId', orderData.playerId);
+      if (orderData.zoneId) formData.append('zoneId', orderData.zoneId);
+      if (orderData.phone) formData.append('phone', orderData.phone);
+      formData.append('paymentMethod', orderData.paymentMethod?.name ?? '');
       formData.append('price', String(finalPrice));
       if (orderData.promoCode) formData.append('promoCode', orderData.promoCode);
       formData.append('pointsToAward', String(pointsToAward));
@@ -119,6 +135,7 @@ export function RechargeStepper() {
         body: formData,
       });
       const data = await res.json();
+
 
       if (!res.ok) throw new Error(data.error || 'Échec de la création de la commande');
       
