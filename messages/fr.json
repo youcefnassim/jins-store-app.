@@ -367,7 +367,12 @@
     "instructions": "Instructions de Paiement",
     "amount_to_send": "Montant à envoyer :",
     "i_have_paid": "J'ai effectué le paiement",
-    "scan_to_pay": "SCANNER POUR PAYER"
+    "scan_to_pay": "SCANNER POUR PAYER",
+    "promo_title": "Avez-vous un code promo ?",
+    "promo_placeholder": "Code promo",
+    "promo_apply": "Appliquer",
+    "promo_success": "Code promo appliqué avec succès !",
+    "promo_error": "Code invalide ou expiré."
   },
   "ProofUpload": {
     "title": "Téléverser le Reçu de Paiement",

@@ -209,39 +209,63 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                   
                   
                   {/* PROMO CODE SECTION */}
-                  <div className="mt-4 p-4 bg-black/20 border border-white/5 rounded-lg">
-                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Avez-vous un code promo ?</label>
-                    <div className="flex gap-2">
-                      <input 
-                        type="text" 
-                        placeholder="Code promo" 
-                        value={promoInput}
-                        onChange={(e) => {
-                          setPromoInput(e.target.value.toUpperCase());
-                          setPromoError("");
-                          setPromoSuccess(false);
-                          if (onPromoApply) onPromoApply("", 0);
-                        }}
-                        className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary uppercase"
-                      />
-                      <Button 
-                        onClick={handleApplyPromo}
-                        disabled={!promoInput.trim() || promoLoading || promoSuccess}
-                        variant={promoSuccess ? "default" : "secondary"}
-                        className={promoSuccess ? "bg-emerald-500 hover:bg-emerald-600 text-white" : ""}
-                      >
-                        {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : promoSuccess ? <Check className="w-4 h-4" /> : "Appliquer"}
-                      </Button>
+                  <div className="mt-4 rounded-xl border border-white/10 bg-black/20 overflow-hidden">
+                    <div className="px-4 pt-4 pb-2">
+                      <label className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <span className="text-primary">%</span>
+                        {t("promo_title")}
+                      </label>
+                      <div className="flex gap-2">
+                        <input 
+                          type="text" 
+                          placeholder={t("promo_placeholder")}
+                          value={promoInput}
+                          onChange={(e) => {
+                            setPromoInput(e.target.value.toUpperCase());
+                            setPromoError("");
+                            setPromoSuccess(false);
+                            if (onPromoApply) onPromoApply("", 0);
+                          }}
+                          className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary uppercase placeholder:normal-case placeholder:text-white/30 transition-colors"
+                        />
+                        <Button 
+                          onClick={handleApplyPromo}
+                          disabled={!promoInput.trim() || promoLoading || promoSuccess}
+                          variant={promoSuccess ? "default" : "secondary"}
+                          className={promoSuccess ? "bg-emerald-500 hover:bg-emerald-600 text-white px-5" : "px-5"}
+                        >
+                          {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : promoSuccess ? <Check className="w-4 h-4" /> : t("promo_apply")}
+                        </Button>
+                      </div>
                     </div>
-                    {promoError && <p className="text-red-400 text-xs mt-2">{promoError}</p>}
-                    {promoSuccess && <p className="text-emerald-400 text-xs mt-2">Code promo appliqué !</p>}
+                    {promoError && (
+                      <div className="px-4 pb-3">
+                        <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1.5">
+                          <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
+                          {t("promo_error")}
+                        </p>
+                      </div>
+                    )}
+                    {promoSuccess && (
+                      <div className="px-4 pb-3">
+                        <p className="text-emerald-400 text-xs mt-1.5 flex items-center gap-1.5">
+                          <Check className="w-3 h-3" />
+                          {t("promo_success")}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="bg-gradient-to-r from-primary/20 to-transparent rounded-lg p-4 mt-4 flex justify-between items-center border border-primary/20">
-                    <span className="text-white/90 font-medium">{t("amount_to_send")}</span>
-                    <span className="text-2xl font-bold text-white tracking-wider">
-                      {displayAmount} <span className="text-sm font-medium text-primary">{displayCurrency}</span>
-                    </span>
+                  <div className="bg-gradient-to-r from-primary/20 via-purple-500/10 to-transparent rounded-xl p-5 mt-4 flex justify-between items-center border border-primary/30 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                    <div>
+                      <p className="text-xs text-white/50 uppercase tracking-widest mb-1">{t("amount_to_send")}</p>
+                      <span className="text-3xl font-black text-white tracking-wider">
+                        {displayAmount} <span className="text-base font-semibold text-primary">{displayCurrency}</span>
+                      </span>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                      <Wallet className="w-6 h-6 text-primary" />
+                    </div>
                   </div>
                 </motion.div>
               )}

@@ -367,7 +367,12 @@
     "instructions": "تعليمات الدفع",
     "amount_to_send": "المبلغ المراد إرساله:",
     "i_have_paid": "لقد قمت بالدفع",
-    "scan_to_pay": "امسح للدفع"
+    "scan_to_pay": "امسح للدفع",
+    "promo_title": "هل لديك رمز ترويجي؟",
+    "promo_placeholder": "رمز الخصم",
+    "promo_apply": "تطبيق",
+    "promo_success": "تم تطبيق رمز الخصم بنجاح!",
+    "promo_error": "الرمز غير صحيح أو منتهي."
   },
   "ProofUpload": {
     "title": "رفع إثبات الدفع",

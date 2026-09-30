@@ -367,7 +367,12 @@
     "instructions": "Payment Instructions",
     "amount_to_send": "Amount to send:",
     "i_have_paid": "I have paid",
-    "scan_to_pay": "SCAN TO PAY"
+    "scan_to_pay": "SCAN TO PAY",
+    "promo_title": "Do you have a promo code?",
+    "promo_placeholder": "Promo code",
+    "promo_apply": "Apply",
+    "promo_success": "Promo code applied successfully!",
+    "promo_error": "Invalid or expired code."
   },
   "ProofUpload": {
     "title": "Upload Payment Proof",
