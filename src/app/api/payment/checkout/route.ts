@@ -7,8 +7,8 @@ const supabase = createClient(
 );
 
 const CHARGILY_API_KEY = process.env.CHARGILY_API_KEY!;
-// Use test mode URL for development, live for production
-const CHARGILY_BASE_URL = process.env.NODE_ENV === 'production'
+// Explicit mode: set CHARGILY_MODE=test or CHARGILY_MODE=live
+const CHARGILY_BASE_URL = process.env.CHARGILY_MODE === 'live'
   ? 'https://pay.chargily.net/api/v2'
   : 'https://pay.chargily.net/test/api/v2';
 
