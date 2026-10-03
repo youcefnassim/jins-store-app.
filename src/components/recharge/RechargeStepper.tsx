@@ -148,6 +148,57 @@ export function RechargeStepper() {
     }
   };
 
+  // ── Chargily Pay automatic payment ──────────────────────────
+  const handleChargilyCheckout = async () => {
+    if (!orderData.package) {
+      toast.error("Veuillez sélectionner un forfait.");
+      return;
+    }
+    if (!orderData.playerId.trim()) {
+      toast.error("Veuillez saisir votre ID de joueur.");
+      return;
+    }
+    if (!user?.id) {
+      toast.error("Connectez-vous pour payer.");
+      router.push("/auth/login");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
+      const price = parseInt(priceStr) || 0;
+      const finalPrice = orderData.promoDiscount
+        ? Math.round(price * (1 - orderData.promoDiscount / 100))
+        : price;
+
+      const res = await fetch('/api/payment/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          playerId: orderData.playerId,
+          zoneId: orderData.zoneId,
+          packageId: orderData.package.id,
+          packageName: String(orderData.package.amount),
+          price: finalPrice,
+          phone: orderData.phone,
+          gameSlug: 'mobile-legends',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur de paiement');
+
+      // Redirect to Chargily payment page
+      window.location.href = data.checkout_url;
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Erreur lors de la création du paiement.");
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start">
       
@@ -228,15 +279,43 @@ export function RechargeStepper() {
         {/* Step 2: Paiement & Preuve (Combined Essential Step 2) */}
         {currentStep === 2 && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                className="text-xs font-semibold hover:bg-slate-100 dark:hover:bg-white/10"
-              >
-                <ArrowLeft className="w-3.5 h-3.5 mr-1 rtl:rotate-180 rtl:ml-1 rtl:mr-0" />
-                {t("change_player_info")}
-              </Button>
+            {/* ── Chargily Pay Card (Automatic Payment) ───────── */}
+            <div className="relative rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent p-6 overflow-hidden">
+              {/* Glow */}
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
+              
+              <div className="flex items-start gap-4">
+                <div className="w-14 h-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-white text-lg">Chargily Pay</h3>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Automatique</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Mode Test</span>
+                  </div>
+                  <p className="text-sm text-white/60 mb-4">Paiement sécurisé par carte <strong className="text-white/80">CIB</strong> ou <strong className="text-white/80">DAHABIA</strong>. Confirmation instantanée — aucun reçu requis.</p>
+                  
+                  <Button
+                    onClick={handleChargilyCheckout}
+                    disabled={isSubmitting || !orderData.playerId.trim() || !orderData.package}
+                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />Redirection...</>
+                    ) : (
+                      <>⚡ Payer maintenant — {orderData.promoDiscount ? Math.round(parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g,'')) * (1 - orderData.promoDiscount/100)) : parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g,''))} DZD</>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-white/10" />
+              <span className="text-xs text-white/40 uppercase tracking-widest font-semibold">ou paiement manuel</span>
+              <div className="flex-1 h-px bg-white/10" />
             </div>
 
             <PaymentSelector 
