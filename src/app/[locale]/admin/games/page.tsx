@@ -202,14 +202,14 @@ export default function AdminGamesPage() {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => openEditModal(game)}
-                    className="p-2 text-blue-500/50 hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                    className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                     title="Modifier ce jeu"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                   </button>
                   <button 
                     onClick={() => handleDelete(game.id, game.name)}
-                    className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                     title="Supprimer ce jeu"
                   >
                     <Trash2 className="w-4 h-4" />
