@@ -285,7 +285,7 @@ export default function AdminGamesPage() {
                       <Input required type="number" min="0" value={pkg.price} onChange={e => handleEditPackageChange(index, 'price', parseInt(e.target.value))} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" />
                     </div>
                     {editPackages.length > 1 && (
-                      <Button type="button" variant="ghost" onClick={() => setEditPackages(editPackages.filter((_, i) => i !== index))} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
+                      <Button type="button" variant="ghost" onClick={() => setEditPackages(editPackages.filter((_, i) => i !== index))} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
                         <X className="w-4 h-4" />
                       </Button>
                     )}
@@ -364,7 +364,7 @@ export default function AdminGamesPage() {
                       <Input required type="number" min="0" value={pkg.price} onChange={e => handlePackageChange(index, 'price', parseInt(e.target.value))} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="0" />
                     </div>
                     {newPackages.length > 1 && (
-                      <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-0 group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
+                      <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
                         <X className="w-4 h-4" />
                       </Button>
                     )}
