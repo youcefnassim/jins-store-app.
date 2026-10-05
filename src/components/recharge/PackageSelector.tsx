@@ -141,11 +141,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                       : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                   )}
                 >
-                  {/* Points Badge */}
-                  <div className="absolute top-0 left-0 bg-amber-500/20 text-amber-400 text-[9px] font-bold px-2 py-0.5 rounded-br-lg flex items-center gap-1 rtl:left-auto rtl:right-0 rtl:rounded-br-none rtl:rounded-bl-lg">
-                    <Sparkles className="w-2 h-2" />
-                    +{Math.floor(pkg.price * 0.1)} {t("pts")}
-                  </div>
+                  {/* Points Badge Removed */}
 
                   {pkg.popular && (
                     <div className="absolute -top-2 inset-x-0 mx-auto w-fit">
