@@ -236,7 +236,7 @@ export function RechargeStepper() {
                 >
                   {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
                 </div>
-                <span className="text-xs md:text-sm font-semibold truncate">
+                <span className="text-xs md:text-sm font-semibold">
                   {t(step.key as any)}
                 </span>
               </div>
