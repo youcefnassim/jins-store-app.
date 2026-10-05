@@ -62,3 +62,49 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+// PUT: Update a game and its packages
+export async function PUT(request: NextRequest) {
+  try {
+    const auth = await checkAdminAuth(request);
+    if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
+
+    const { id, name, slug, emoji, image_url, packages } = await request.json();
+
+    if (!id) return NextResponse.json({ error: "L'ID du jeu est requis." }, { status: 400 });
+
+    // 1. Update Game
+    const { error: gameError } = await supabaseServer
+      .from('games')
+      .update({ name, slug, emoji, image_url })
+      .eq('id', id);
+
+    if (gameError) throw new Error(gameError.message);
+
+    // 2. Update Packages (Delete old, insert new)
+    const { error: deletePkgError } = await supabaseServer
+      .from('game_packages')
+      .delete()
+      .eq('game_id', id);
+      
+    if (deletePkgError) throw new Error(deletePkgError.message);
+
+    if (packages && packages.length > 0) {
+      const packagesToInsert = packages.map((pkg: any) => ({
+        game_id: id,
+        label: pkg.label,
+        price: pkg.price
+      }));
+
+      const { error: insertPkgError } = await supabaseServer
+        .from('game_packages')
+        .insert(packagesToInsert);
+
+      if (insertPkgError) throw new Error(insertPkgError.message);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
