@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       .order('sort_order', { ascending: true });
       
     if (error) {
-      if (error.code === '42P01') {
+      if (error.code === '42P01' || (error.message && error.message.toLowerCase().includes('schema cache'))) {
         // relation "banners" does not exist -> return empty array
         return NextResponse.json({ banners: [] });
       }
