@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
@@ -53,7 +53,6 @@ export function HeroCarousel() {
     setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
   };
 
-  return (
   const getOffset = (idx: number, current: number, length: number) => {
     let diff = idx - current;
     if (diff > Math.floor(length / 2)) {
