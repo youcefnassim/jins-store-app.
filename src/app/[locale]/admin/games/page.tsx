@@ -1,6 +1,7 @@
 "use client";
 
-import { Gamepad2, Info, Plus, Trash2, Loader2, X } from "lucide-react";
+import { Gamepad2, Info, Plus, Trash2, Loader2, X, GripVertical, ListOrdered, Save } from "lucide-react";
+import { Reorder, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,8 @@ interface Game {
 export default function AdminGamesPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isReorderMode, setIsReorderMode] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Add Game State
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -40,7 +43,9 @@ export default function AdminGamesPage() {
       const res = await fetch("/api/games");
       const data = await res.json();
       if (res.ok) {
-        setGames(data.games);
+        // Ensure they are sorted by sort_order
+        const sortedGames = data.games.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0));
+        setGames(sortedGames);
       } else {
         throw new Error(data.error);
       }
@@ -161,6 +166,35 @@ export default function AdminGamesPage() {
     }
   };
 
+  const handleSaveReorder = async () => {
+    setIsSavingOrder(true);
+    try {
+      const orderedGames = games.map((game, index) => ({
+        id: game.id,
+        sort_order: index,
+      }));
+
+      const res = await fetch("/api/admin/games/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedGames }),
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Ordre sauvegardé avec succès !");
+        setIsReorderMode(false);
+        fetchGames(); // Refresh to make sure the order and categories are consistent
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la sauvegarde.");
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -168,10 +202,23 @@ export default function AdminGamesPage() {
           <h1 className="text-2xl font-bold text-white">Jeux & Packs</h1>
           <p className="text-slate-400 text-sm mt-1">Catalogue dynamique des jeux et prix</p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)} className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
-          <Plus className="w-4 h-4 mr-2" />
-          Ajouter un jeu
-        </Button>
+        <div className="flex items-center gap-3">
+          {isReorderMode ? (
+            <Button onClick={handleSaveReorder} disabled={isSavingOrder} className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20">
+              {isSavingOrder ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+              Sauvegarder l'ordre
+            </Button>
+          ) : (
+            <Button onClick={() => setIsReorderMode(true)} variant="outline" className="border-white/10 bg-black/40 text-white rounded-xl hover:bg-white/10">
+              <ListOrdered className="w-4 h-4 mr-2" />
+              Réorganiser
+            </Button>
+          )}
+          <Button onClick={() => setIsAddOpen(true)} className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
+            <Plus className="w-4 h-4 mr-2" />
+            Ajouter un jeu
+          </Button>
+        </div>
       </div>
 
       <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-3 text-sm text-emerald-400">
@@ -190,6 +237,32 @@ export default function AdminGamesPage() {
           <Gamepad2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>Aucun jeu trouvé dans la base de données.</p>
           <p className="text-sm">Veuillez exécuter le script SQL pour insérer les jeux par défaut.</p>
+        </div>
+      ) : isReorderMode ? (
+        <div className="bg-[#0d1020] border border-white/5 rounded-2xl p-6">
+          <p className="text-sm text-slate-400 mb-6 flex items-center gap-2">
+            <Info className="w-4 h-4" />
+            Glissez-déposez les jeux pour les réorganiser. N'oubliez pas de sauvegarder une fois terminé.
+          </p>
+          <Reorder.Group axis="y" values={games} onReorder={setGames} className="space-y-3">
+            {games.map((game, index) => (
+              <Reorder.Item key={game.id} value={game} className="bg-black/40 border border-white/10 rounded-xl p-4 flex items-center justify-between cursor-grab active:cursor-grabbing hover:bg-white/5 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="p-2 bg-white/5 rounded-lg text-slate-400">
+                    <GripVertical className="w-5 h-5" />
+                  </div>
+                  <div className="text-2xl">{game.emoji}</div>
+                  <div>
+                    <h3 className="font-bold text-white text-lg">{game.name}</h3>
+                    <p className="text-xs text-primary">{game.category || 'Jeux'}</p>
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-slate-500">
+                  #{index + 1}
+                </div>
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
         </div>
       ) : (
         <div className="space-y-10">
