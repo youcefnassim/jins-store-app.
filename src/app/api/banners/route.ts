@@ -26,7 +26,12 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
-    return NextResponse.json({ banners });
+    return NextResponse.json({ banners }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
