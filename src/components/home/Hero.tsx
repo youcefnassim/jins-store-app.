@@ -11,7 +11,7 @@ export function Hero() {
   const t = useTranslations("Hero");
 
   return (
-    <section className="relative pt-32 pb-8 md:pt-40 md:pb-24 overflow-hidden">
+    <section className="relative pt-32 pb-0 md:pt-40 md:pb-16 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -z-10" />
       
@@ -55,7 +55,7 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative lg:ml-auto w-full max-w-[500px] h-[250px] md:h-[400px] lg:h-[500px] mx-auto lg:mx-0 flex items-center justify-center"
+            className="relative lg:ml-auto w-full max-w-[500px] h-[200px] md:h-[400px] lg:h-[500px] mx-auto lg:mx-0 flex items-center justify-center"
           >
             {/* Glow background */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.15)_0%,_transparent_70%)]" />
