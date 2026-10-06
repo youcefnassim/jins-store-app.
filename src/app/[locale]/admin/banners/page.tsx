@@ -186,7 +186,7 @@ export default function AdminBannersPage() {
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-white/5"><ImageIcon className="w-8 h-8 text-white/20" /></div>
               )}
-              <div className={\`absolute inset-0 bg-gradient-to-r \${banner.color} mix-blend-multiply opacity-50\`} />
+              <div className={`absolute inset-0 bg-gradient-to-r ${banner.color} mix-blend-multiply opacity-50`} />
               
               <div className="absolute top-2 right-2 flex gap-2">
                 <button onClick={() => openEditModal(banner)} className="p-2 bg-black/50 hover:bg-blue-500 text-white rounded-lg backdrop-blur-sm transition-colors">
