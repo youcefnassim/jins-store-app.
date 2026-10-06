@@ -52,7 +52,7 @@ export function HeroCarousel() {
 
   if (loading) {
     return (
-      <div className="relative w-full max-w-7xl mx-auto h-[250px] sm:h-[350px] md:h-[420px] flex items-center justify-center mt-8 bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
+      <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center mt-8 bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -73,7 +73,7 @@ export function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto h-[250px] sm:h-[350px] md:h-[420px] flex items-center justify-center overflow-hidden group mt-8">
+    <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center overflow-hidden group mt-8">
       
       {currentBanners.map((banner, idx) => {
         const offset = getOffset(idx, currentIndex, currentBanners.length);
@@ -95,49 +95,25 @@ export function HeroCarousel() {
               if (!isActive) setCurrentIndex(idx);
             }}
             style={{ cursor: isActive ? "default" : "pointer" }}
-          >
-            {/* Background Image */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-700"
-              style={{ backgroundImage: `url(${banner.image})` }}
-            />
-            {/* Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${banner.color} mix-blend-multiply opacity-80`} />
-            <div className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
-
-            {/* Content (Only show if active for better performance and look) */}
-            <div className={`absolute inset-0 flex flex-col items-center justify-center text-center p-6 sm:p-12 z-10 transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              <motion.h2 
-                initial={false}
-                animate={{ y: isActive ? 0 : 20, opacity: isActive ? 1 : 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 drop-shadow-lg"
-              >
-                {banner.title}
-              </motion.h2>
-              <motion.p 
-                initial={false}
-                animate={{ y: isActive ? 0 : 20, opacity: isActive ? 1 : 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl drop-shadow-md hidden sm:block"
-              >
-                {banner.description}
-              </motion.p>
-              <motion.div
-                initial={false}
-                animate={{ y: isActive ? 0 : 20, opacity: isActive ? 1 : 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <Button asChild size="lg" className="bg-white text-slate-900 hover:bg-slate-100 rounded-full font-bold px-8 shadow-xl hover:shadow-2xl hover:scale-105 transition-all">
-                  <Link href={banner.link}>
-                    {t("cta")}
-                  </Link>
-                </Button>
-              </motion.div>
-            </div>
-            
-            {/* Darken inactive slides */}
-            {!isActive && <div className="absolute inset-0 bg-black/50" />}
+            <Link 
+              href={isActive ? banner.link : '#'} 
+              className="block w-full h-full bg-[#0a0c14] rounded-2xl md:rounded-3xl"
+              onClick={(e) => {
+                if (!isActive) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              {/* Image */}
+              <img 
+                src={banner.image} 
+                alt={banner.title}
+                className="w-full h-full object-cover md:object-fill rounded-2xl md:rounded-3xl"
+              />
+              
+              {/* Darken inactive slides */}
+              {!isActive && <div className="absolute inset-0 bg-black/60" />}
+            </Link>
           </motion.div>
         );
       })}
