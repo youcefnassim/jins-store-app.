@@ -13,33 +13,6 @@ export function HeroCarousel() {
   const [activeBanners, setActiveBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const defaultBanners = [
-    {
-      id: 1,
-      title: t("slide1_title"),
-      description: t("slide1_desc"),
-      image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200&h=400",
-      link: "/recharge?game=pubg-mobile",
-      color: "from-amber-500/80 to-orange-600/80"
-    },
-    {
-      id: 2,
-      title: t("slide2_title"),
-      description: t("slide2_desc"),
-      image: "https://images.unsplash.com/photo-1605901309584-818e25960b8f?auto=format&fit=crop&q=80&w=1200&h=400",
-      link: "/recharge?game=genshin-impact",
-      color: "from-indigo-500/80 to-purple-600/80"
-    },
-    {
-      id: 3,
-      title: t("slide3_title"),
-      description: t("slide3_desc"),
-      image: "https://images.unsplash.com/photo-1538481199005-c710c4e965fc?auto=format&fit=crop&q=80&w=1200&h=400",
-      link: "/recharge?game=free-fire",
-      color: "from-rose-500/80 to-red-600/80"
-    }
-  ];
-
   useEffect(() => {
     const fetchBanners = async () => {
       try {
@@ -48,10 +21,10 @@ export function HeroCarousel() {
         if (data.banners && data.banners.length > 0) {
           setActiveBanners(data.banners);
         } else {
-          setActiveBanners(defaultBanners);
+          setActiveBanners([]);
         }
       } catch (e) {
-        setActiveBanners(defaultBanners);
+        setActiveBanners([]);
       } finally {
         setLoading(false);
       }
@@ -59,7 +32,7 @@ export function HeroCarousel() {
     fetchBanners();
   }, []);
 
-  const currentBanners = activeBanners.length > 0 ? activeBanners : defaultBanners;
+  const currentBanners = activeBanners;
 
   useEffect(() => {
     if (loading) return;
@@ -83,6 +56,10 @@ export function HeroCarousel() {
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
+  }
+
+  if (currentBanners.length === 0) {
+    return null;
   }
 
   const getOffset = (idx: number, current: number, length: number) => {

@@ -26,6 +26,7 @@ export default function AdminBannersPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [formData, setFormData] = useState<Partial<Banner>>({
     title: "",
@@ -79,6 +80,34 @@ export default function AdminBannersPage() {
     setIsEditing(true);
     setFormData(banner);
     setIsOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append('file', file);
+      
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: uploadData,
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        setFormData({ ...formData, image: data.url });
+        toast.success("Image téléchargée avec succès");
+      } else {
+        throw new Error(data.error || "Erreur lors du téléchargement");
+      }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,8 +265,27 @@ export default function AdminBannersPage() {
               </div>
 
               <div className="col-span-2">
-                <label className="text-xs font-semibold text-slate-400 mb-1 block">Image URL (unsplash ou imgur)</label>
-                <Input required value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} className="bg-black/20 border-white/5 text-white" />
+                <label className="text-xs font-semibold text-slate-400 mb-2 block">Image de la bannière</label>
+                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                  {formData.image && (
+                    <div className="relative w-32 h-20 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                      <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1 w-full relative">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={isUploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                    />
+                    <div className={`flex items-center justify-center gap-2 border-2 border-dashed border-white/20 rounded-xl p-4 text-sm text-slate-400 bg-white/5 transition-colors ${isUploading ? 'opacity-50' : 'hover:border-primary hover:text-primary hover:bg-primary/5'}`}>
+                      {isUploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImageIcon className="w-5 h-5" />}
+                      {isUploading ? "Téléchargement..." : "Cliquez pour uploader une image"}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>
