@@ -100,7 +100,7 @@ export default function GamesPage() {
         </div>
 
         {/* Category Filters */}
-        {categories.length > 2 && (
+        {categories.length > 1 && (
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             {categories.map(cat => (
               <button
@@ -126,27 +126,15 @@ export default function GamesPage() {
           </div>
         ) : (
           <AnimatePresence>
-            {Object.entries(
-              filteredGames.reduce((acc, game) => {
-                const cat = game.category || "Jeux";
-                if (!acc[cat]) acc[cat] = [];
-                acc[cat].push(game);
-                return acc;
-              }, {} as Record<string, Game[]>)
-            ).map(([category, catGames]) => (
-              <div key={category} className="space-y-6">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white border-b border-black/10 dark:border-white/10 pb-2 inline-block">
-                  {category}
-                </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                  {catGames.map((game, index) => (
-                    <motion.div
-                      key={game.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {filteredGames.map((game, index) => (
+                <motion.div
+                  key={game.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: index * 0.05 }}
+                >
                       <Tilt
                         tiltMaxAngleX={10}
                         tiltMaxAngleY={10}
@@ -192,9 +180,7 @@ export default function GamesPage() {
                       </Tilt>
                     </motion.div>
                   ))}
-                </div>
-              </div>
-            ))}
+            </div>
             
             {filteredGames.length === 0 && (
               <motion.div 
