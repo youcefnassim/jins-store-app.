@@ -106,11 +106,8 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
     setIsVerifying(true);
 
     const timer = setTimeout(() => {
-      const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99", "Dz_Hero"];
-      const num = parseInt((watchedPlayerId || "").slice(-3)) || 0;
-      const verifiedNickname = mockNames[num % mockNames.length];
-      
-      setVerifiedName(verifiedNickname);
+      // Simple format validation, no fake name
+      setVerifiedName("Format Valide");
       setIsVerifying(false);
 
       if (typeof window !== "undefined") {
@@ -132,7 +129,7 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");
     if (acc.zone_id) form.setValue("zoneId", acc.zone_id);
-    setVerifiedName(acc.player_name || "DZ_Player");
+    setVerifiedName(acc.player_name || "Compte Enregistré");
     onNext({
       playerId: acc.player_id || "",
       zoneId: acc.zone_id || watchedZoneId || "",
@@ -144,9 +141,7 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
     if (!verifiedName) {
       setIsVerifying(true);
       await new Promise((resolve) => setTimeout(resolve, 500));
-      const mockNames = ["DZ_Sniper", "Faker_Wannabe", "Algiers_King", "Pro_Gamer_99"];
-      const randomName = mockNames[Math.floor(Math.random() * mockNames.length)];
-      setVerifiedName(randomName);
+      setVerifiedName("Format Valide");
       setIsVerifying(false);
     }
     onNext(values);
