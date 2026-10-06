@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, ShoppingBag, Users, Gamepad2,
-  Tag, Star, Activity, LogOut, ChevronRight, X, ExternalLink
+  Tag, Star, Activity, LogOut, ChevronRight, X, ExternalLink, Image as ImageIcon
 } from "lucide-react";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
@@ -15,6 +15,7 @@ const navItems = [
   { label: "Commandes", icon: ShoppingBag, href: "/admin/orders" },
   { label: "Utilisateurs", icon: Users, href: "/admin/users" },
   { label: "Jeux & Packs", icon: Gamepad2, href: "/admin/games" },
+  { label: "Bannières", icon: ImageIcon, href: "/admin/banners" },
   { label: "Codes Promo", icon: Tag, href: "/admin/promos" },
   { label: "Avis Clients", icon: Star, href: "/admin/reviews" },
   { label: "Logs", icon: Activity, href: "/admin/logs" },

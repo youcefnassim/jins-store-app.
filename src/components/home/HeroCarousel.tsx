@@ -10,8 +10,10 @@ import { useTranslations } from "next-intl";
 export function HeroCarousel() {
   const t = useTranslations("HeroCarousel");
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeBanners, setActiveBanners] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const banners = [
+  const defaultBanners = [
     {
       id: 1,
       title: t("slide1_title"),
@@ -39,19 +41,49 @@ export function HeroCarousel() {
   ];
 
   useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch('/api/banners');
+        const data = await res.json();
+        if (data.banners && data.banners.length > 0) {
+          setActiveBanners(data.banners);
+        } else {
+          setActiveBanners(defaultBanners);
+        }
+      } catch (e) {
+        setActiveBanners(defaultBanners);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  const currentBanners = activeBanners.length > 0 ? activeBanners : defaultBanners;
+
+  useEffect(() => {
+    if (loading) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+      setCurrentIndex((prev) => (prev === currentBanners.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(timer);
-  }, [banners.length]);
+  }, [currentBanners.length, loading]);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === currentBanners.length - 1 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? currentBanners.length - 1 : prev - 1));
   };
+
+  if (loading) {
+    return (
+      <div className="relative w-full max-w-7xl mx-auto h-[250px] sm:h-[350px] md:h-[420px] flex items-center justify-center mt-8 bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   const getOffset = (idx: number, current: number, length: number) => {
     let diff = idx - current;
@@ -66,8 +98,8 @@ export function HeroCarousel() {
   return (
     <div className="relative w-full max-w-7xl mx-auto h-[250px] sm:h-[350px] md:h-[420px] flex items-center justify-center overflow-hidden group mt-8">
       
-      {banners.map((banner, idx) => {
-        const offset = getOffset(idx, currentIndex, banners.length);
+      {currentBanners.map((banner, idx) => {
+        const offset = getOffset(idx, currentIndex, currentBanners.length);
         const isActive = offset === 0;
         const isVisible = Math.abs(offset) <= 1;
 
@@ -149,7 +181,7 @@ export function HeroCarousel() {
 
       {/* Indicators */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-        {banners.map((_, idx) => (
+        {currentBanners.map((_, idx) => (
           <button
             key={idx}
             onClick={() => setCurrentIndex(idx)}
