@@ -197,24 +197,24 @@ export default function AdminGamesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Jeux & Packs</h1>
           <p className="text-slate-400 text-sm mt-1">Catalogue dynamique des jeux et prix</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {isReorderMode ? (
-            <Button onClick={handleSaveReorder} disabled={isSavingOrder} className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20">
+            <Button onClick={handleSaveReorder} disabled={isSavingOrder} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/20">
               {isSavingOrder ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
               Sauvegarder l'ordre
             </Button>
           ) : (
-            <Button onClick={() => setIsReorderMode(true)} variant="outline" className="border-white/10 bg-black/40 text-white rounded-xl hover:bg-white/10">
+            <Button onClick={() => setIsReorderMode(true)} variant="outline" className="w-full sm:w-auto flex-1 border-white/10 bg-black/40 text-white rounded-xl hover:bg-white/10">
               <ListOrdered className="w-4 h-4 mr-2" />
               Réorganiser
             </Button>
           )}
-          <Button onClick={() => setIsAddOpen(true)} className="bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
+          <Button onClick={() => setIsAddOpen(true)} className="w-full sm:w-auto flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
             <Plus className="w-4 h-4 mr-2" />
             Ajouter un jeu
           </Button>
