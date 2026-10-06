@@ -29,8 +29,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100/50 dark:from-indigo-900/30 via-background/80 to-background/95" />
       </div>
 
+      <div className="pt-24 md:pt-32">
+        <HeroCarousel />
+      </div>
       <Hero />
-      <HeroCarousel />
       <TrustBadges />
       <ScrollReveal delay={0.1}><PaymentMethods /></ScrollReveal>
       {/* <ScrollReveal delay={0.2}><PopularPackages /></ScrollReveal> */}
