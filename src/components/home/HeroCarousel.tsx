@@ -80,6 +80,18 @@ export function HeroCarousel() {
         return (
           <motion.div
             key={banner.id}
+            drag={isActive ? "x" : false}
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(e, { offset, velocity }) => {
+              if (!isActive) return;
+              const swipe = offset.x;
+              if (swipe < -50 || velocity.x < -500) {
+                nextSlide();
+              } else if (swipe > 50 || velocity.x > 500) {
+                prevSlide();
+              }
+            }}
             animate={{
               x: `${offset * 85}%`,
               scale: isActive ? 1 : 0.85,
@@ -91,7 +103,8 @@ export function HeroCarousel() {
             onClick={() => {
               if (!isActive) setCurrentIndex(idx);
             }}
-            style={{ cursor: isActive ? "default" : "pointer" }}
+            style={{ cursor: isActive ? "grab" : "pointer" }}
+            whileDrag={{ cursor: "grabbing" }}
           >
             <Link 
               href={isActive ? banner.link : '#'} 
