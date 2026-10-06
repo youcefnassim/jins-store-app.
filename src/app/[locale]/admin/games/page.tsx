@@ -192,39 +192,58 @@ export default function AdminGamesPage() {
           <p className="text-sm">Veuillez exécuter le script SQL pour insérer les jeux par défaut.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {games.map((game) => (
-            <div key={game.id} className="bg-[#0d1020] border border-white/5 rounded-2xl overflow-hidden group">
-              <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{game.emoji}</span>
-                  <div>
-                    <h3 className="font-bold text-white">{game.name}</h3>
-                    <p className="text-xs text-slate-400">{game.packages?.length || 0} packs disponibles</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => openEditModal(game)}
-                    className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                    title="Modifier ce jeu"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(game.id, game.name)}
-                    className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                    title="Supprimer ce jeu"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="p-4 space-y-2">
-                {game.packages?.map((pkg) => (
-                  <div key={pkg.id} className="flex items-center justify-between px-4 py-2.5 bg-white/3 hover:bg-white/5 rounded-xl transition-colors">
-                    <span className="text-sm text-slate-300">{pkg.label}</span>
-                    <span className="text-sm font-bold text-primary">{pkg.price} DA</span>
+        <div className="space-y-10">
+          {Object.entries(
+            games.reduce((acc, game) => {
+              const cat = game.category || "Jeux";
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(game);
+              return acc;
+            }, {} as Record<string, Game[]>)
+          ).map(([category, catGames]) => (
+            <div key={category} className="space-y-4">
+              <h2 className="text-xl font-bold text-white border-b border-white/10 pb-2 inline-block">
+                {category}
+              </h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {catGames.map((game) => (
+                  <div key={game.id} className="bg-[#0d1020] border border-white/5 rounded-2xl overflow-hidden group">
+                    <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{game.emoji}</span>
+                        <div>
+                          <h3 className="font-bold text-white flex items-center gap-2">
+                            {game.name}
+                            <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-normal">Ordre: {game.sort_order || 0}</span>
+                          </h3>
+                          <p className="text-xs text-slate-400">{game.packages?.length || 0} packs disponibles</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => openEditModal(game)}
+                          className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                          title="Modifier ce jeu"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(game.id, game.name)}
+                          className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                          title="Supprimer ce jeu"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-2">
+                      {game.packages?.map((pkg) => (
+                        <div key={pkg.id} className="flex items-center justify-between px-4 py-2.5 bg-white/3 hover:bg-white/5 rounded-xl transition-colors">
+                          <span className="text-sm text-slate-300">{pkg.label}</span>
+                          <span className="text-sm font-bold text-primary">{pkg.price} DA</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
