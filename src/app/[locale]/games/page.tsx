@@ -17,6 +17,7 @@ interface Game {
   isAvailable: boolean;
   image_url: string | null;
   emoji: string | null;
+  category: string;
 }
 
 export default function GamesPage() {
@@ -47,7 +48,8 @@ export default function GamesPage() {
               currencyName,
               isAvailable: g.packages && g.packages.length > 0,
               image_url: g.image_url,
-              emoji: g.emoji
+              emoji: g.emoji,
+              category: g.category
             };
           });
           setAllGames(formattedGames);
@@ -92,66 +94,82 @@ export default function GamesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="space-y-12">
         {isLoading ? (
-          <div className="col-span-full py-20 flex justify-center">
+          <div className="py-20 flex justify-center">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
           </div>
         ) : (
           <AnimatePresence>
-            {filteredGames.map((game, index) => (
-              <motion.div
-                key={game.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Tilt
-                  tiltMaxAngleX={10}
-                  tiltMaxAngleY={10}
-                  scale={1.05}
-                  transitionSpeed={2000}
-                  glareEnable={true}
-                  glareMaxOpacity={0.2}
-                  glareColor="#ffffff"
-                  glarePosition="all"
-                  className="h-full"
-                  tiltEnable={game.isAvailable}
-                >
-                  <Link href={game.isAvailable ? (game.id === "mobile-legends" ? `/recharge` : `/games/${game.id}`) : "#"} className="block h-full group">
-                    <div className={`relative aspect-square rounded-3xl p-[2px] overflow-hidden transition-all duration-300 ${!game.isAvailable ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer'}`}>
-                      {/* Animated Gradient Border on Hover */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 group-hover:from-primary group-hover:via-purple-500 group-hover:to-blue-500 transition-colors duration-500 opacity-50 group-hover:opacity-100" />
-                      
-                      {/* Inner Image Container */}
-                      <div className="absolute inset-[2px] bg-[#0d1020] rounded-[22px] overflow-hidden z-10 flex flex-col">
-                        {game.image_url ? (
-                          <img src={game.image_url} alt={game.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                        ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-indigo-950">
-                            {game.emoji ? <span className="text-6xl">{game.emoji}</span> : <Gamepad2 className="w-16 h-16 text-white/20" />}
-                          </div>
-                        )}
+            {Object.entries(
+              filteredGames.reduce((acc, game) => {
+                const cat = game.category || "Jeux";
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(game);
+                return acc;
+              }, {} as Record<string, Game[]>)
+            ).map(([category, catGames]) => (
+              <div key={category} className="space-y-6">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white border-b border-black/10 dark:border-white/10 pb-2 inline-block">
+                  {category}
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                  {catGames.map((game, index) => (
+                    <motion.div
+                      key={game.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <Tilt
+                        tiltMaxAngleX={10}
+                        tiltMaxAngleY={10}
+                        scale={1.05}
+                        transitionSpeed={2000}
+                        glareEnable={true}
+                        glareMaxOpacity={0.2}
+                        glareColor="#ffffff"
+                        glarePosition="all"
+                        className="h-full"
+                        tiltEnable={game.isAvailable}
+                      >
+                        <Link href={game.isAvailable ? (game.id === "mobile-legends" ? `/recharge` : `/games/${game.id}`) : "#"} className="block h-full group">
+                          <div className={`relative aspect-square rounded-3xl p-[2px] overflow-hidden transition-all duration-300 ${!game.isAvailable ? 'opacity-50 grayscale cursor-not-allowed' : 'cursor-pointer'}`}>
+                            {/* Animated Gradient Border on Hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 group-hover:from-primary group-hover:via-purple-500 group-hover:to-blue-500 transition-colors duration-500 opacity-50 group-hover:opacity-100" />
+                            
+                            {/* Inner Image Container */}
+                            <div className="absolute inset-[2px] bg-[#0d1020] rounded-[22px] overflow-hidden z-10 flex flex-col">
+                              {game.image_url ? (
+                                <img src={game.image_url} alt={game.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                              ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-indigo-950">
+                                  {game.emoji ? <span className="text-6xl">{game.emoji}</span> : <Gamepad2 className="w-16 h-16 text-white/20" />}
+                                </div>
+                              )}
 
-                        {/* Title Overlay at bottom (Subtle gradient) */}
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-3 pt-12 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 transition-transform">
-                          <h3 className="text-white font-bold text-center text-sm sm:text-base leading-tight drop-shadow-md truncate">{game.name}</h3>
-                          <p className="text-[10px] sm:text-xs text-primary font-medium text-center opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">{game.currencyName}</p>
-                        </div>
-                        
-                        {!game.isAvailable && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-20">
-                            <span className="bg-black/80 text-white px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold tracking-widest uppercase border border-white/20">
-                              {t("coming_soon")}
-                            </span>
+                              {/* Title Overlay at bottom (Subtle gradient) */}
+                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-3 pt-12 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 transition-transform">
+                                <h3 className="text-white font-bold text-center text-sm sm:text-base leading-tight drop-shadow-md truncate">{game.name}</h3>
+                                <p className="text-[10px] sm:text-xs text-primary font-medium text-center opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">{game.currencyName}</p>
+                              </div>
+                              
+                              {!game.isAvailable && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-20">
+                                  <span className="bg-black/80 text-white px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold tracking-widest uppercase border border-white/20">
+                                    {t("coming_soon")}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                </Tilt>
-              </motion.div>
+                        </Link>
+                      </Tilt>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             ))}
             
             {filteredGames.length === 0 && (

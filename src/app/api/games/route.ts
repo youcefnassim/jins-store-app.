@@ -15,8 +15,10 @@ export async function GET() {
     // Format the response to match the frontend expectations
     const formattedGames = games.map(game => ({
       ...game,
+      category: game.category || 'Jeux',
+      sort_order: game.sort_order || 0,
       packages: game.packages.sort((a: any, b: any) => a.price - b.price) // Sort by price ascending
-    }));
+    })).sort((a, b) => a.sort_order - b.sort_order);
 
     return NextResponse.json({ games: formattedGames });
   } catch (err: any) {

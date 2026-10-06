@@ -20,6 +20,8 @@ interface Game {
   slug: string;
   emoji: string;
   image_url?: string;
+  category?: string;
+  sort_order?: number;
   packages: GamePackage[];
 }
 
@@ -30,7 +32,7 @@ export default function AdminGamesPage() {
   // Add Game State
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const [newGame, setNewGame] = useState({ name: "", slug: "", emoji: "", image_url: "" });
+  const [newGame, setNewGame] = useState({ name: "", slug: "", emoji: "", image_url: "", category: "Jeux", sort_order: 0 });
   const [newPackages, setNewPackages] = useState<GamePackage[]>([{ label: "", price: 0 }]);
 
   const fetchGames = async () => {
@@ -95,7 +97,7 @@ export default function AdminGamesPage() {
       if (res.ok) {
         toast.success("Jeu ajouté avec succès !");
         setIsAddOpen(false);
-        setNewGame({ name: "", slug: "", emoji: "", image_url: "" });
+        setNewGame({ name: "", slug: "", emoji: "", image_url: "", category: "Jeux", sort_order: 0 });
         setNewPackages([{ label: "", price: 0 }]);
         fetchGames();
       } else {
@@ -112,7 +114,7 @@ export default function AdminGamesPage() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editGameId, setEditGameId] = useState("");
-  const [editGame, setEditGame] = useState({ name: "", slug: "", emoji: "", image_url: "" });
+  const [editGame, setEditGame] = useState({ name: "", slug: "", emoji: "", image_url: "", category: "Jeux", sort_order: 0 });
   const [editPackages, setEditPackages] = useState<GamePackage[]>([{ label: "", price: 0 }]);
 
   const openEditModal = (game: Game) => {
@@ -122,6 +124,8 @@ export default function AdminGamesPage() {
       slug: game.slug,
       emoji: game.emoji || "",
       image_url: game.image_url || "",
+      category: game.category || "Jeux",
+      sort_order: game.sort_order || 0,
     });
     setEditPackages(game.packages?.length > 0 ? [...game.packages] : [{ label: "", price: 0 }]);
     setIsEditOpen(true);
@@ -263,6 +267,17 @@ export default function AdminGamesPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Catégorie</label>
+                <Input required value={editGame.category} onChange={e => setEditGame({...editGame, category: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="ex: Jeux, Cartes PSN..." />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Ordre d'affichage (0, 1, 2...)</label>
+                <Input required type="number" value={editGame.sort_order} onChange={e => setEditGame({...editGame, sort_order: parseInt(e.target.value)})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="0" />
+              </div>
+            </div>
+
             <div className="pt-6 border-t border-white/10 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -338,6 +353,17 @@ export default function AdminGamesPage() {
               <div>
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">URL de l'image</label>
                 <Input value={newGame.image_url} onChange={e => setNewGame({...newGame, image_url: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="/images/games/mlbb.jpg" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Catégorie</label>
+                <Input required value={newGame.category} onChange={e => setNewGame({...newGame, category: e.target.value})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="ex: Jeux, Cartes PSN..." />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2 block">Ordre d'affichage</label>
+                <Input required type="number" value={newGame.sort_order} onChange={e => setNewGame({...newGame, sort_order: parseInt(e.target.value)})} className="h-12 bg-black/40 border-white/10 rounded-xl text-white placeholder:text-slate-600 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50" placeholder="0" />
               </div>
             </div>
 

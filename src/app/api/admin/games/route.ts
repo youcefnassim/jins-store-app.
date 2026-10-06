@@ -16,12 +16,12 @@ export async function POST(request: NextRequest) {
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
     const adminSupabase = getAdminSupabase();
-    const { name, slug, emoji, image_url, packages } = await request.json();
+    const { name, slug, emoji, image_url, category, sort_order, packages } = await request.json();
 
     // 1. Insert Game
     const { data: game, error: gameError } = await adminSupabase
       .from('games')
-      .insert([{ name, slug, emoji, image_url }])
+      .insert([{ name, slug, emoji, image_url, category, sort_order }])
       .select()
       .single();
 
@@ -79,7 +79,7 @@ export async function PUT(request: NextRequest) {
     const auth = await checkAdminAuth(request);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
-    const { id, name, slug, emoji, image_url, packages } = await request.json();
+    const { id, name, slug, emoji, image_url, category, sort_order, packages } = await request.json();
 
     if (!id) return NextResponse.json({ error: "L'ID du jeu est requis." }, { status: 400 });
 
@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest) {
     // 1. Update Game
     const { error: gameError } = await adminSupabase
       .from('games')
-      .update({ name, slug, emoji, image_url })
+      .update({ name, slug, emoji, image_url, category, sort_order })
       .eq('id', id);
 
     if (gameError) throw new Error(gameError.message);
