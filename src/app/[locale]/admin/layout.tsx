@@ -19,6 +19,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isLoginPage = pathname?.includes("/admin/login");
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
     if (!loading && !isLoginPage) {
       if (!user) {
         router.push("/admin/login");
@@ -68,15 +74,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar with Animated Slide In/Out */}
       <AnimatePresence>
         {sidebarOpen && (
-          <motion.div
-            initial={{ x: -280, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -280, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 z-40"
-          >
-            <AdminSidebar onClose={() => setSidebarOpen(false)} />
-          </motion.div>
+          <>
+            {/* Mobile Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+            />
+            {/* Sidebar */}
+            <motion.div
+              initial={{ x: -280, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -280, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed left-0 top-0 z-40 h-full"
+            >
+              <AdminSidebar onClose={() => setSidebarOpen(false)} />
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
