@@ -49,7 +49,7 @@ export function HeroCarousel() {
 
   if (loading) {
     return (
-      <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center mt-2 md:mt-8 bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
+      <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -70,7 +70,7 @@ export function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center overflow-hidden group mt-2 md:mt-8">
+    <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center overflow-hidden group">
       
       {currentBanners.map((banner, idx) => {
         const offset = getOffset(idx, currentIndex, currentBanners.length);
