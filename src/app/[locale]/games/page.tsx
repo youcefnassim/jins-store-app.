@@ -64,23 +64,29 @@ export default function GamesPage() {
     fetchGames();
   }, []);
 
-  const filteredGames = allGames.filter(game => 
-    game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    game.currencyName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const [activeCategory, setActiveCategory] = useState<string>("Tous");
+
+  const categories = ["Tous", ...Array.from(new Set(allGames.map(g => g.category || "Jeux")))];
+
+  const filteredGames = allGames.filter(game => {
+    const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          game.currencyName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === "Tous" || (game.category || "Jeux") === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-24 min-h-screen">
-      <div className="text-center max-w-2xl mx-auto mb-12">
+      <div className="text-center max-w-3xl mx-auto mb-12">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
           {t("title")}
         </h1>
-        <p className="text-muted-foreground text-lg mb-8">
+        <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
           {t("description")}
         </p>
         
         {/* Search Bar */}
-        <div className="relative max-w-md mx-auto">
+        <div className="relative max-w-md mx-auto mb-8">
           <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -92,6 +98,25 @@ export default function GamesPage() {
             className="pl-10 rtl:pl-4 rtl:pr-10 h-14 bg-black/5 dark:bg-black/40 border-black/10 dark:border-white/10 text-slate-900 dark:text-white rounded-full focus-visible:ring-primary shadow-sm dark:shadow-[0_0_20px_rgba(0,0,0,0.5)]"
           />
         </div>
+
+        {/* Category Filters */}
+        {categories.length > 2 && (
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${
+                  activeCategory === cat 
+                    ? "bg-primary text-white scale-105 shadow-primary/25" 
+                    : "bg-white/5 border border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="space-y-12">
@@ -149,9 +174,8 @@ export default function GamesPage() {
                                 </div>
                               )}
 
-                              {/* Title Overlay at bottom (Subtle gradient) */}
                               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-3 pt-12 flex flex-col justify-end translate-y-1 group-hover:translate-y-0 transition-transform">
-                                <h3 className="text-white font-bold text-center text-sm sm:text-base leading-tight drop-shadow-md truncate">{game.name}</h3>
+                                <h3 className="text-white font-bold text-center text-sm sm:text-base leading-tight drop-shadow-md line-clamp-2 px-1">{game.name}</h3>
                                 <p className="text-[10px] sm:text-xs text-primary font-medium text-center opacity-0 group-hover:opacity-100 transition-opacity mt-0.5">{game.currencyName}</p>
                               </div>
                               
