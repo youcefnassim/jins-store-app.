@@ -42,7 +42,7 @@ export function Hero() {
                 Recharge Now
                 <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
               </Button>
-              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl border-white/10 hover:bg-white/5">
+              <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl bg-white/10 text-slate-900 dark:text-white border-white/20 hover:bg-white/20 hover:text-slate-900 dark:hover:text-white backdrop-blur-md shadow-sm transition-all">
                 <Link href="/games">
                   <Gamepad2 className="mr-2 w-5 h-5 rtl:ml-2 rtl:mr-0" />
                   {t("cta_games")}
