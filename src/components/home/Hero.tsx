@@ -11,7 +11,7 @@ export function Hero() {
   const t = useTranslations("Hero");
 
   return (
-    <section className="relative pt-8 pb-0 md:pt-16 md:pb-16 overflow-hidden">
+    <section className="relative pt-8 pb-12 md:pt-16 md:pb-16 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -z-10" />
       
