@@ -4,11 +4,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
-import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
 
 export function HeroCarousel() {
-  const t = useTranslations("HeroCarousel");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeBanners, setActiveBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,6 +92,7 @@ export function HeroCarousel() {
               if (!isActive) setCurrentIndex(idx);
             }}
             style={{ cursor: isActive ? "default" : "pointer" }}
+          >
             <Link 
               href={isActive ? banner.link : '#'} 
               className="block w-full h-full bg-[#0a0c14] rounded-2xl md:rounded-3xl"
