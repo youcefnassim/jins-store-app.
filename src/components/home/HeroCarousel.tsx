@@ -16,7 +16,7 @@ export function HeroCarousel() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch('/api/banners');
+        const res = await fetch('/api/banners', { cache: 'no-store' });
         const data = await res.json();
         if (data.banners && data.banners.length > 0) {
           setActiveBanners(data.banners);
