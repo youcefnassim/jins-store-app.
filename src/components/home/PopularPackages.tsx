@@ -9,10 +9,12 @@ import { useTranslations } from "next-intl";
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ShoppingCart, Sparkles } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { PlayerIdModal } from "@/components/cart/PlayerIdModal";
 
 export function PopularPackages() {
   const t = useTranslations("PopularPackages");
+  const { formatPrice } = useCurrencyStore();
   const popularPackages = packages.filter((p) => p.gameId === "mobile-legends" && p.active);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -177,11 +179,8 @@ export function PopularPackages() {
 
                   <CardContent className="text-center pb-5 flex-grow flex items-center justify-center">
                     <div className="flex items-baseline gap-1 bg-black/5 dark:bg-white/5 px-4 py-2 rounded-xl border border-black/5 dark:border-white/5">
-                      <span className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                        {pkg.price}
-                      </span>
-                      <span className="text-xs font-bold text-muted-foreground">
-                        {siteConfig.currency}
+                      <span className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">
+                        {formatPrice(pkg.price)}
                       </span>
                     </div>
                   </CardContent>

@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/useCartStore";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { useTranslations } from "next-intl";
 
 interface PackageSelectorProps {
@@ -31,6 +32,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
   const [cartPkg, setCartPkg] = useState<Package | null>(null);
   const [playerId, setPlayerId] = useState("");
   const { addItem } = useCartStore();
+  const { formatPrice } = useCurrencyStore();
 
   const handleAddToCart = () => {
     if (cartPkg && playerId.trim()) {
@@ -169,8 +171,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                   <h3 className="font-bold text-white text-lg leading-tight">{pkg.amount}</h3>
                   
                   <div className="mt-1 flex items-baseline gap-1 text-primary">
-                    <span className="font-bold">{pkg.price}</span>
-                    <span className="text-xs font-medium uppercase">{siteConfig.currency}</span>
+                    <span className="font-bold text-base">{formatPrice(pkg.price)}</span>
                   </div>
                 </div>
               ))}

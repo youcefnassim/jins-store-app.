@@ -1,6 +1,6 @@
 "use client";
 
-import { Gamepad2, Info, Plus, Trash2, Loader2, X, GripVertical, ListOrdered, Save } from "lucide-react";
+import { Gamepad2, Info, Plus, Trash2, Loader2, X, GripVertical, ListOrdered, Save, Coins, DollarSign, TrendingUp } from "lucide-react";
 import { Reorder, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 interface GamePackage {
   id?: string;
   label: string;
   price: number;
+  cost_usd?: number;
 }
 
 interface Game {
@@ -32,11 +34,22 @@ export default function AdminGamesPage() {
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
+  // Currency Store & Rates
+  const { rates, setRate } = useCurrencyStore();
+  const [usdRate, setUsdRate] = useState(rates.USD || 242);
+  const [eurRate, setEurRate] = useState(rates.EUR || 260);
+
+  const handleSaveRates = () => {
+    setRate('USD', usdRate);
+    setRate('EUR', eurRate);
+    toast.success("✅ Taux de change enregistrés avec succès !");
+  };
+
   // Add Game State
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [newGame, setNewGame] = useState({ name: "", slug: "", emoji: "", image_url: "", category: "Jeux", sort_order: 0 });
-  const [newPackages, setNewPackages] = useState<GamePackage[]>([{ label: "", price: 0 }]);
+  const [newPackages, setNewPackages] = useState<GamePackage[]>([{ label: "", price: 0, cost_usd: 0 }]);
 
   const fetchGames = async () => {
     try {
@@ -221,6 +234,60 @@ export default function AdminGamesPage() {
         </div>
       </div>
 
+      {/* Exchange Rates & Currency Widget */}
+      <div className="bg-[#0e1326] border border-white/10 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <Coins className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                Taux de Change & Calculateur de Marges
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Système Actif</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Fixez vos taux d'achat du Dollar ($) et de l'Euro (€) pour calculer automatiquement vos gains nets
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+              <span className="text-sm">🇺🇸 1 USD =</span>
+              <input
+                type="number"
+                value={usdRate}
+                onChange={(e) => setUsdRate(Number(e.target.value))}
+                className="w-16 bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold text-center"
+              />
+              <span className="text-xs text-slate-400 font-semibold">DZD</span>
+            </div>
+
+            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5">
+              <span className="text-sm">🇪🇺 1 EUR =</span>
+              <input
+                type="number"
+                value={eurRate}
+                onChange={(e) => setEurRate(Number(e.target.value))}
+                className="w-16 bg-black/40 border border-white/20 rounded-lg px-2 py-1 text-xs text-white font-mono font-bold text-center"
+              />
+              <span className="text-xs text-slate-400 font-semibold">DZD</span>
+            </div>
+
+            <Button
+              type="button"
+              onClick={handleSaveRates}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white rounded-xl text-xs h-9 px-4 shadow-lg shadow-primary/20"
+            >
+              <Save className="w-3.5 h-3.5 mr-1.5" />
+              Sauvegarder
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-3 text-sm text-emerald-400">
         <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
         <div>
@@ -381,23 +448,47 @@ export default function AdminGamesPage() {
               </div>
 
               <div className="space-y-4">
-                {editPackages.map((pkg, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 relative group">
-                    <div className="flex-1 w-full">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Label (ex: 86 Diamants)</label>
-                      <Input required value={pkg.label} onChange={e => handleEditPackageChange(index, 'label', e.target.value)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" />
+                {editPackages.map((pkg, index) => {
+                  const costDzd = Math.round((pkg.cost_usd || 0) * usdRate);
+                  const profitDzd = (pkg.price || 0) - costDzd;
+                  const marginPct = (pkg.price || 0) > 0 ? Math.round((profitDzd / pkg.price) * 100) : 0;
+
+                  return (
+                    <div key={index} className="p-5 rounded-2xl bg-white/5 border border-white/10 relative group space-y-3">
+                      <div className="flex flex-col sm:flex-row items-end gap-3">
+                        <div className="flex-1 w-full">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Label (ex: 86 Diamants)</label>
+                          <Input required value={pkg.label} onChange={e => handleEditPackageChange(index, 'label', e.target.value)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" />
+                        </div>
+                        <div className="w-full sm:w-36">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Coût Fournisseur ($)</label>
+                          <Input type="number" step="0.01" min="0" placeholder="ex: 0.90" value={pkg.cost_usd || ""} onChange={e => handleEditPackageChange(index, 'cost_usd', parseFloat(e.target.value) || 0)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white font-mono" />
+                        </div>
+                        <div className="w-full sm:w-36">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Prix de Vente (DA)</label>
+                          <Input required type="number" min="0" value={pkg.price} onChange={e => handleEditPackageChange(index, 'price', parseInt(e.target.value) || 0)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white font-bold text-primary font-mono" />
+                        </div>
+                        {editPackages.length > 1 && (
+                          <Button type="button" variant="ghost" onClick={() => setEditPackages(editPackages.filter((_, i) => i !== index))} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Margin feedback */}
+                      {Boolean(pkg.cost_usd && pkg.cost_usd > 0) && (
+                        <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-xs">
+                          <span className="text-slate-400">Coût estimé: <strong className="text-white font-mono">{costDzd} DA</strong></span>
+                          <span className="text-slate-500">•</span>
+                          <span className={`font-bold flex items-center gap-1 ${profitDzd >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            Gain net: {profitDzd >= 0 ? `+${profitDzd}` : profitDzd} DA ({marginPct}%)
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <div className="w-full sm:w-40">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Prix (DA)</label>
-                      <Input required type="number" min="0" value={pkg.price} onChange={e => handleEditPackageChange(index, 'price', parseInt(e.target.value))} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" />
-                    </div>
-                    {editPackages.length > 1 && (
-                      <Button type="button" variant="ghost" onClick={() => setEditPackages(editPackages.filter((_, i) => i !== index))} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -471,23 +562,47 @@ export default function AdminGamesPage() {
               </div>
 
               <div className="space-y-4">
-                {newPackages.map((pkg, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row items-end gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 relative group">
-                    <div className="flex-1 w-full">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Label (ex: 86 Diamants)</label>
-                      <Input required value={pkg.label} onChange={e => handlePackageChange(index, 'label', e.target.value)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="Nom du pack" />
+                {newPackages.map((pkg, index) => {
+                  const costDzd = Math.round((pkg.cost_usd || 0) * usdRate);
+                  const profitDzd = (pkg.price || 0) - costDzd;
+                  const marginPct = (pkg.price || 0) > 0 ? Math.round((profitDzd / pkg.price) * 100) : 0;
+
+                  return (
+                    <div key={index} className="p-5 rounded-2xl bg-white/5 border border-white/10 relative group space-y-3">
+                      <div className="flex flex-col sm:flex-row items-end gap-3">
+                        <div className="flex-1 w-full">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Label (ex: 86 Diamants)</label>
+                          <Input required value={pkg.label} onChange={e => handlePackageChange(index, 'label', e.target.value)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="Nom du pack" />
+                        </div>
+                        <div className="w-full sm:w-36">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Coût Fournisseur ($)</label>
+                          <Input type="number" step="0.01" min="0" placeholder="ex: 0.90" value={pkg.cost_usd || ""} onChange={e => handlePackageChange(index, 'cost_usd', parseFloat(e.target.value) || 0)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white font-mono" />
+                        </div>
+                        <div className="w-full sm:w-36">
+                          <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Prix de Vente (DA)</label>
+                          <Input required type="number" min="0" value={pkg.price} onChange={e => handlePackageChange(index, 'price', parseInt(e.target.value) || 0)} className="h-11 bg-black/40 border-white/10 rounded-xl text-white font-bold text-primary font-mono" placeholder="0" />
+                        </div>
+                        {newPackages.length > 1 && (
+                          <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Margin feedback */}
+                      {Boolean(pkg.cost_usd && pkg.cost_usd > 0) && (
+                        <div className="flex items-center gap-2 pt-1 border-t border-white/5 text-xs">
+                          <span className="text-slate-400">Coût estimé: <strong className="text-white font-mono">{costDzd} DA</strong></span>
+                          <span className="text-slate-500">•</span>
+                          <span className={`font-bold flex items-center gap-1 ${profitDzd >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            Gain net: {profitDzd >= 0 ? `+${profitDzd}` : profitDzd} DA ({marginPct}%)
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <div className="w-full sm:w-40">
-                      <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Prix (DA)</label>
-                      <Input required type="number" min="0" value={pkg.price} onChange={e => handlePackageChange(index, 'price', parseInt(e.target.value))} className="h-11 bg-black/40 border-white/10 rounded-xl text-white" placeholder="0" />
-                    </div>
-                    {newPackages.length > 1 && (
-                      <Button type="button" variant="ghost" onClick={() => handleRemovePackage(index)} className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-500 text-white shadow-lg opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-0 flex items-center justify-center hover:bg-red-600 hover:scale-110">
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

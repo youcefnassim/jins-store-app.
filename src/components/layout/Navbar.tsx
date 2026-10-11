@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { CartSidebar } from "@/components/cart/CartSidebar";
 import { useTranslations } from "next-intl";
@@ -178,6 +179,7 @@ export function Navbar() {
           <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
             <GlobalSearch />
             <LanguageSwitcher />
+            <CurrencySwitcher />
             <ThemeToggle />
             <div className="hidden md:block">
               <CartSidebar />
