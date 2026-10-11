@@ -40,7 +40,7 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
         playerId: playerId.trim(),
         price: cartPkg.price,
         quantity: 1,
-        name: cartPkg.amount,
+        name: String(cartPkg.amount),
         gameName: gameName,
         image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
       });

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -53,16 +52,13 @@ function TrackOrderContent() {
     setOrder(null);
 
     try {
-      const { data, error: dbError } = await supabase
-        .from("orders")
-        .select("id, game, package, player_id, zone_id, phone, payment_method, price, status, created_at, receipt_url")
-        .eq("id", idToSearch.trim())
-        .single();
+      const res = await fetch(`/api/orders/track?id=${encodeURIComponent(idToSearch.trim())}`);
+      const payload = await res.json();
 
-      if (dbError || !data) {
+      if (!res.ok || !payload.order) {
         setError(t("error_not_found"));
       } else {
-        setOrder(data as SupabaseOrder);
+        setOrder(payload.order as SupabaseOrder);
       }
     } catch {
       setError(t("error_generic"));

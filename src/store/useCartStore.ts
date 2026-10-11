@@ -6,6 +6,7 @@ export interface CartItem {
   gameId: string;
   packageId: string;
   playerId: string; // The player ID the user enters
+  zoneId?: string;
   price: number;
   quantity: number;
   name: string; // Name of the package (e.g. "660 Diamonds")

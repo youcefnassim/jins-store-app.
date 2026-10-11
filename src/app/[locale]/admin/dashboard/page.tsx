@@ -31,8 +31,8 @@ interface Stats {
   completedOrders: number;
   rejectedOrders: number;
   totalRevenue: number;
-  netProfit: number;
-  marginPercent: number;
+  netProfit: number | null;
+  marginPercent: number | null;
   paymentBreakdown: PaymentMethodStat[];
   stockAlerts: StockAlert[];
   usersCount: number;
@@ -42,7 +42,7 @@ interface Stats {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, type: "spring", stiffness: 200, damping: 20 } }),
+  visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, type: "spring" as const, stiffness: 200, damping: 20 } }),
 };
 
 export default function AdminDashboard() {
@@ -115,13 +115,19 @@ export default function AdminDashboard() {
     { label: "Complétées", value: stats.completedOrders, icon: CheckCircle2, color: "from-emerald-500 to-green-700", glow: "rgba(16,185,129,0.3)" },
     { label: "Utilisateurs", value: stats.usersCount, icon: Users, color: "from-purple-500 to-purple-700", glow: "rgba(139,92,246,0.3)" },
     { label: "Chiffre d'Affaires (DZD)", value: `${stats.totalRevenue.toLocaleString('fr-DZ')} DA`, icon: DollarSign, color: "from-primary to-purple-700", glow: "rgba(139,92,246,0.5)" },
-    { 
-      label: "Bénéfice Net Estimé", 
-      value: `${stats.netProfit.toLocaleString('fr-DZ')} DA`, 
-      subBadge: `+${stats.marginPercent}% Marge`,
-      icon: TrendingUp, 
-      color: "from-emerald-600 to-teal-700", 
-      glow: "rgba(16,185,129,0.5)" 
+    {
+      label: "Bénéfice Net",
+      value:
+        stats.netProfit == null
+          ? "N/A"
+          : `${stats.netProfit.toLocaleString("fr-DZ")} DA`,
+      subBadge:
+        stats.marginPercent == null
+          ? "Non calculé auto"
+          : `+${stats.marginPercent}% Marge`,
+      icon: TrendingUp,
+      color: "from-emerald-600 to-teal-700",
+      glow: "rgba(16,185,129,0.5)",
     },
   ] : [];
 

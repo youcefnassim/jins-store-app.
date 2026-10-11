@@ -1,103 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
-
-// Use service role key for webhook (bypasses RLS)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
-const CHARGILY_APP_SECRET = process.env.CHARGILY_APP_SECRET!;
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 /**
  * POST /api/payment/webhook
- * Receives Chargily Pay webhook and updates order status.
- * Chargily signs the body with HMAC-SHA256 using the App Secret.
+ * Chargily Pay webhook — verifies HMAC, updates order status.
+ * Points are awarded only when an admin marks the order completed
+ * (avoids double-credit with admin approve).
  */
 export async function POST(request: NextRequest) {
   try {
+    const secret = process.env.CHARGILY_APP_SECRET;
+    if (!secret) {
+      console.error('CHARGILY_APP_SECRET is not configured');
+      return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
+    }
+
     const rawBody = await request.text();
     const signature = request.headers.get('signature') || '';
 
-    // 1. Verify webhook signature
-    if (CHARGILY_APP_SECRET) {
-      const expectedSignature = crypto
-        .createHmac('sha256', CHARGILY_APP_SECRET)
-        .update(rawBody)
-        .digest('hex');
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(rawBody)
+      .digest('hex');
 
-      if (signature !== expectedSignature) {
-        console.error('Invalid Chargily webhook signature');
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
-      }
+    if (!signature || signature !== expectedSignature) {
+      console.error('Invalid Chargily webhook signature');
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const event = JSON.parse(rawBody);
-    console.log('Chargily webhook received:', event.type, event.id);
+    const admin = getSupabaseAdmin();
 
-    // 2. Handle checkout.paid event
     if (event.type === 'checkout.paid') {
       const checkout = event.data;
-      const metadata = checkout.metadata || {};
-      const orderId = metadata.order_id;
+      const orderId = checkout.metadata?.order_id;
 
       if (!orderId) {
-        console.error('No order_id in webhook metadata');
         return NextResponse.json({ received: true });
       }
 
-      // 3. Update order status to "processing" (payment confirmed, awaiting recharge)
-      const { error: updateError } = await supabase
+      const { error: updateError } = await admin
         .from('orders')
         .update({
           status: 'processing',
           receipt_url: `chargily:${checkout.id}`,
         })
-        .eq('id', orderId);
+        .eq('id', orderId)
+        .in('status', ['pending']);
 
       if (updateError) {
         console.error('Order update error:', updateError);
         return NextResponse.json({ error: 'Order update failed' }, { status: 500 });
       }
-
-      console.log(`✅ Order ${orderId} marked as processing after Chargily payment`);
-
-      // 4. Award points to user (10% of price)
-      const { data: order } = await supabase
-        .from('orders')
-        .select('user_id, points_to_award')
-        .eq('id', orderId)
-        .single();
-
-      if (order?.user_id && order.points_to_award > 0) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('points')
-          .eq('id', order.user_id)
-          .single();
-
-        if (profile) {
-          await supabase
-            .from('profiles')
-            .update({ points: (profile.points || 0) + order.points_to_award })
-            .eq('id', order.user_id);
-        }
-      }
     }
 
-    // Handle checkout.failed event
     if (event.type === 'checkout.failed') {
       const checkout = event.data;
       const orderId = checkout.metadata?.order_id;
 
       if (orderId) {
-        await supabase
+        await admin
           .from('orders')
           .update({ status: 'rejected' })
-          .eq('id', orderId);
-
-        console.log(`❌ Order ${orderId} rejected after Chargily payment failure`);
+          .eq('id', orderId)
+          .in('status', ['pending']);
       }
     }
 

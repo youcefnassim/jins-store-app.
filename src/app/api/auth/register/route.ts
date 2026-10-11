@@ -1,17 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-const supabase = createClient(
-  'https://urpgragqoaodncenylmn.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycGdyYWdxb2FvZG5jZW55bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjI3MTgsImV4cCI6MjEwNTEzODcxOH0.ObcE8IX3EHuMs-SehX5IV2fXjtsmPcyxOWahvtt6INs'
-);
+import { AUTH_COOKIE, authCookieOptions } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anonKey) {
+      return NextResponse.json({ error: 'Supabase non configuré' }, { status: 500 });
+    }
+
+    const supabase = createClient(url, anonKey);
     const { email, password, name } = await request.json();
 
-    // 1. Create user in Supabase Auth
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 });
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -24,43 +29,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    // 2. If user created, insert profile row with name + role
     if (data.user) {
       await supabase.from('profiles').upsert({
         id: data.user.id,
         email: data.user.email,
-        name: name || '',
+        full_name: name || '',
         role: 'user',
         points: 0,
       });
 
-      // 3. Auto sign-in after register
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      if (!signInError && signInData.session) {
-        const response = NextResponse.json({ user: signInData.user, session: signInData.session });
-        response.cookies.set('sb-access-token', signInData.session.access_token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          maxAge: 60 * 60 * 24 * 7, // 1 week
-          path: '/',
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!signInError && signInData.session?.access_token) {
+        const response = NextResponse.json({
+          user: { id: signInData.user.id, email: signInData.user.email },
         });
+        response.cookies.set(AUTH_COOKIE, signInData.session.access_token, authCookieOptions());
         return response;
       }
     }
 
-    const response = NextResponse.json({ user: data.user, session: data.session });
+    const response = NextResponse.json({
+      user: data.user ? { id: data.user.id, email: data.user.email } : null,
+    });
 
-    if (data.session) {
-      response.cookies.set('sb-access-token', data.session.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/',
-      });
+    if (data.session?.access_token) {
+      response.cookies.set(AUTH_COOKIE, data.session.access_token, authCookieOptions());
     }
 
     return response;
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

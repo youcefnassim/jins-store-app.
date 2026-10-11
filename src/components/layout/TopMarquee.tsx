@@ -19,7 +19,7 @@ export function TopMarquee() {
   const [items, setItems] = useState<MarqueeItem[]>(defaultItems);
 
   useEffect(() => {
-    fetch('/api/admin/marquee')
+    fetch('/api/marquee')
       .then((res) => res.json())
       .then((data) => {
         if (data.items && Array.isArray(data.items) && data.items.length > 0) {

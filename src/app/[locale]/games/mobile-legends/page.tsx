@@ -3,7 +3,7 @@
 import { packages } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Info } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
 import { useTranslations } from "next-intl";

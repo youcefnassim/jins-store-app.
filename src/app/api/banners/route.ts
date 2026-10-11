@@ -1,17 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+import { getSupabaseAnon } from '@/lib/supabase/server';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Cache for 60 seconds
 
-const getSupabase = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient(url, key);
-};
-
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const supabase = getSupabase();
+    const supabase = getSupabaseAnon();
     
     const { data: banners, error } = await supabase
       .from('banners')
@@ -20,19 +14,15 @@ export async function GET(request: NextRequest) {
       
     if (error) {
       if (error.code === '42P01' || (error.message && error.message.toLowerCase().includes('schema cache'))) {
-        // relation "banners" does not exist -> return empty array
         return NextResponse.json({ banners: [] });
       }
-      throw error;
+      console.error('Banners fetch error:', error);
+      return NextResponse.json({ banners: [] });
     }
 
-    return NextResponse.json({ banners }, {
-      headers: {
-        'Cache-Control': 'no-store, max-age=0, must-revalidate',
-        'Pragma': 'no-cache'
-      }
-    });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ banners: banners || [] });
+  } catch (err: unknown) {
+    console.error('Unexpected banners error:', err);
+    return NextResponse.json({ banners: [] });
   }
 }

@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getRequestUser, getSupabaseAdmin } from '@/lib/supabase/server';
 
 const CHARGILY_API_KEY = process.env.CHARGILY_API_KEY!;
-// Explicit mode: set CHARGILY_MODE=test or CHARGILY_MODE=live
 const CHARGILY_BASE_URL = process.env.CHARGILY_MODE === 'live'
   ? 'https://pay.chargily.net/api/v2'
   : 'https://pay.chargily.net/test/api/v2';
@@ -15,24 +9,38 @@ const CHARGILY_BASE_URL = process.env.CHARGILY_MODE === 'live'
 /**
  * POST /api/payment/checkout
  * Creates a Chargily Pay V2 checkout session and returns the payment URL.
- * Body: { userId, playerId, zoneId, packageId, packageName, price, gameSlug }
+ * Body: { playerId, zoneId, packageId, packageName, gameSlug, phone, locale }
  */
+import { checkRateLimit } from '@/lib/rateLimit';
+
 export async function POST(request: NextRequest) {
+  // Rate limiting: max 10 checkout attempts per 5 minutes per IP
+  const rateLimitResponse = checkRateLimit(request, {
+    limit: 10,
+    windowMs: 5 * 60 * 1000,
+    keyPrefix: 'payment_checkout',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
+
   try {
+    const user = await getRequestUser(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+    }
+
     const body = await request.json();
     const {
-      userId,
       playerId,
       zoneId,
       packageId,
       packageName,
-      price,
       gameSlug = 'mobile-legends',
       phone,
-      locale = 'ar',
+      locale = 'fr',
+      promoCode: promoCodeRaw,
     } = body;
 
-    if (!userId || !playerId || !price || !packageName) {
+    if (!playerId || !packageId) {
       return NextResponse.json({ error: 'Données manquantes' }, { status: 400 });
     }
 
@@ -40,22 +48,68 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Chargily API key non configurée' }, { status: 500 });
     }
 
+    const admin = getSupabaseAdmin();
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://jins-store-app-neon.vercel.app';
+    const safeLocale = ['fr', 'ar', 'en'].includes(locale) ? locale : 'fr';
 
-    // 1. Pre-create the order in Supabase with status "pending_payment"
-    const { data: order, error: orderError } = await supabase
+    const { data: pkg, error: pkgError } = await admin
+      .from('game_packages')
+      .select('id, label, price, active')
+      .eq('id', packageId)
+      .single();
+
+    if (pkgError || !pkg || pkg.active === false) {
+      return NextResponse.json({ error: 'Package invalide' }, { status: 400 });
+    }
+
+    let price = Number(pkg.price);
+    let promoCode: string | null = null;
+
+    if (promoCodeRaw) {
+      const code = String(promoCodeRaw).toUpperCase().trim();
+      const { data: promo } = await admin
+        .from('promo_codes')
+        .select('id, code, discount_percentage, current_uses, max_uses, active')
+        .eq('code', code)
+        .single();
+
+      if (
+        promo &&
+        promo.active &&
+        promo.current_uses < promo.max_uses &&
+        promo.discount_percentage > 0
+      ) {
+        const { data: updatedPromo } = await admin
+          .from('promo_codes')
+          .update({ current_uses: promo.current_uses + 1 })
+          .eq('id', promo.id)
+          .eq('current_uses', promo.current_uses)
+          .select('id');
+
+        if (updatedPromo && updatedPromo.length > 0) {
+          price = Math.round(price * (1 - promo.discount_percentage / 100));
+          promoCode = promo.code;
+        }
+      }
+    }
+
+    const pointsToAward = Math.floor(price * 0.1);
+
+    const { data: order, error: orderError } = await admin
       .from('orders')
       .insert({
-        user_id: userId,
+        user_id: user.id,
         game: gameSlug,
-        package: packageName,
+        package: pkg.label || packageName,
         player_id: playerId,
         zone_id: zoneId || null,
         phone: phone || null,
         payment_method: 'chargily',
         price: String(price),
-        points_to_award: Math.floor(price * 0.1),
+        points_to_award: pointsToAward,
+        points_awarded: false,
         receipt_url: '',
+        promo_code: promoCode,
         status: 'pending',
       })
       .select()
@@ -66,28 +120,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Impossible de créer la commande' }, { status: 500 });
     }
 
-    // 2. Create Chargily checkout session
     const checkoutPayload = {
       amount: price,
       currency: 'dzd',
-      payment_method: 'edahabia', // supports CIB gEDAHABIA + Dahabia
-      success_url: `${appUrl}/fr/order/success?id=${order.id}&method=chargily`,
-      failure_url: `${appUrl}/fr/recharge?error=payment_failed&order=${order.id}`,
+      payment_method: 'edahabia',
+      success_url: `${appUrl}/${safeLocale}/order/success?id=${order.id}&method=chargily`,
+      failure_url: `${appUrl}/${safeLocale}/recharge?error=payment_failed&order=${order.id}`,
       webhook_endpoint: `${appUrl}/api/payment/webhook`,
-      description: `Recharge ${packageName} - ${gameSlug}`,
-      locale: locale,
+      description: `Recharge ${pkg.label || packageName} - ${gameSlug}`,
+      locale: safeLocale === 'ar' ? 'ar' : 'fr',
       metadata: {
         order_id: order.id,
-        user_id: userId,
+        user_id: user.id,
         player_id: playerId,
-        package: packageName,
+        package: pkg.label || packageName,
       },
     };
 
     const chargilyResponse = await fetch(`${CHARGILY_BASE_URL}/checkouts`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${CHARGILY_API_KEY}`,
+        Authorization: `Bearer ${CHARGILY_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(checkoutPayload),
@@ -97,16 +150,14 @@ export async function POST(request: NextRequest) {
 
     if (!chargilyResponse.ok) {
       console.error('Chargily error:', chargilyData);
-      // Clean up the pending order
-      await supabase.from('orders').delete().eq('id', order.id);
+      await admin.from('orders').delete().eq('id', order.id);
       return NextResponse.json(
         { error: chargilyData.message || 'Erreur Chargily Pay' },
         { status: 500 }
       );
     }
 
-    // 3. Save Chargily checkout ID to order for webhook tracking
-    await supabase
+    await admin
       .from('orders')
       .update({ receipt_url: `chargily:${chargilyData.id}` })
       .eq('id', order.id);

@@ -1,62 +1,46 @@
-import { supabase } from "./client";
-
 export interface CreateOrderParams {
-  userId: string;
+  userId?: string;
   game: string;
   packageId: string;
   packageName: string;
   playerId: string;
-  price: string;
-  pointsToAward: number;
+  zoneId?: string;
+  phone?: string;
+  paymentMethod?: string;
+  promoCode?: string;
   receiptFile: File;
 }
 
+/**
+ * Creates an order by delegating to the secure server API route (/api/orders/create).
+ * This ensures all price calculations, rate limiting, and receipts are validated server-side.
+ */
 export async function createOrder(params: CreateOrderParams) {
   try {
-    // 1. Upload the receipt file to Supabase Storage
-    const timestamp = Date.now();
-    const fileExtension = params.receiptFile.name.split('.').pop();
-    const fileName = `${params.userId}/${timestamp}.${fileExtension}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('receipts')
-      .upload(fileName, params.receiptFile, {
-        cacheControl: '3600',
-        upsert: false
-      });
+    const formData = new FormData();
+    formData.append('game', params.game);
+    formData.append('packageId', params.packageId);
+    formData.append('packageName', params.packageName);
+    formData.append('playerId', params.playerId);
+    if (params.zoneId) formData.append('zoneId', params.zoneId);
+    if (params.phone) formData.append('phone', params.phone);
+    if (params.paymentMethod) formData.append('paymentMethod', params.paymentMethod);
+    if (params.promoCode) formData.append('promoCode', params.promoCode);
+    formData.append('receiptFile', params.receiptFile);
 
-    if (uploadError) {
-      throw new Error("Failed to upload image to Supabase: " + uploadError.message);
+    const res = await fetch('/api/orders/create', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Échec de la commande');
     }
 
-    // Get the public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('receipts')
-      .getPublicUrl(fileName);
-
-    // 2. Create the order document in PostgreSQL
-    const { data: orderData, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        user_id: params.userId,
-        game: params.game,
-        package: params.packageName,
-        player_id: params.playerId,
-        price: params.price,
-        points_to_award: params.pointsToAward,
-        receipt_url: publicUrl,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (orderError) {
-      throw new Error("Failed to create order: " + orderError.message);
-    }
-    
-    return { success: true, orderId: orderData.id };
+    return { success: true, orderId: data.orderId };
   } catch (error: any) {
-    console.error("Error creating order: ", error);
-    throw new Error(error.message || "Failed to create order");
+    console.error('Error in createOrder helper:', error);
+    throw new Error(error.message || 'Échec de création de la commande');
   }
 }

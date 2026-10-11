@@ -1,27 +1,32 @@
 import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
+import { getSupabaseAnon } from '@/lib/supabase/server';
+
+export const revalidate = 60; // Cache for 60 seconds
 
 // GET all games and their packages
 export async function GET() {
   try {
-    const { data: games, error: gamesError } = await supabaseServer
+    const supabase = getSupabaseAnon();
+    const { data: games, error: gamesError } = await supabase
       .from('games')
       .select('*, packages:game_packages(*)');
 
     if (gamesError) {
-      return NextResponse.json({ error: gamesError.message }, { status: 400 });
+      console.error('Games fetch error:', gamesError);
+      return NextResponse.json({ error: 'Impossible de charger les jeux' }, { status: 400 });
     }
 
     // Format the response to match the frontend expectations
-    const formattedGames = games.map(game => ({
+    const formattedGames = (games || []).map(game => ({
       ...game,
       category: game.category || 'Jeux',
       sort_order: game.sort_order || 0,
-      packages: game.packages.sort((a: any, b: any) => a.price - b.price) // Sort by price ascending
-    })).sort((a, b) => a.sort_order - b.sort_order);
+      packages: (game.packages || []).sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
+    })).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
     return NextResponse.json({ games: formattedGames });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('Unexpected games API error:', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

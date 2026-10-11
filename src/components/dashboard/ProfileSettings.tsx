@@ -25,7 +25,7 @@ export function ProfileSettings() {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ name })
+        .update({ full_name: name })
         .eq("id", user.id);
 
       if (error) throw error;

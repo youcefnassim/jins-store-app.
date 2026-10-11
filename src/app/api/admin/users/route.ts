@@ -1,36 +1,85 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { checkAdminAuth, getSupabaseAdmin, mapProfile } from '@/lib/supabase/server';
+import { logAdminAction } from '@/lib/supabase/audit';
 
-const supabase = createClient(
-  'https://urpgragqoaodncenylmn.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycGdyYWdxb2FvZG5jZW55bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjI3MTgsImV4cCI6MjEwNTEzODcxOH0.ObcE8IX3EHuMs-SehX5IV2fXjtsmPcyxOWahvtt6INs'
-);
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const { data, error } = await supabase
+    const auth = await checkAdminAuth(request);
+    if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
+
+    const admin = getSupabaseAdmin();
+    const { data, error } = await admin
       .from('profiles')
-      .select('id, username, email, role, points, created_at')
+      .select('id, full_name, email, role, points, created_at')
       .order('created_at', { ascending: false });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ users: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    if (error) {
+      console.error('Error fetching admin users:', error);
+      return NextResponse.json({ error: 'Impossible de charger les utilisateurs' }, { status: 500 });
+    }
+
+    const users = (data || []).map((row) => {
+      const mapped = mapProfile(row)!;
+      return {
+        id: row.id,
+        username: mapped.name,
+        name: mapped.name,
+        email: mapped.email,
+        role: mapped.role,
+        points: mapped.points,
+        created_at: row.created_at,
+      };
+    });
+
+    return NextResponse.json({ users });
+  } catch (err: unknown) {
+    console.error('Unexpected admin users GET error:', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
 
-export async function PATCH(request: Request) {
+export async function PATCH(request: NextRequest) {
   try {
-    const { userId, role } = await request.json();
-    const { error } = await supabase
+    const auth = await checkAdminAuth(request);
+    if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
+
+    const body = await request.json();
+    const { userId, role } = body;
+    if (!userId || !['user', 'admin'].includes(role)) {
+      return NextResponse.json({ error: 'Paramètres invalides' }, { status: 400 });
+    }
+
+    // Prevent accidental self-demotion lockout
+    if (auth.user?.id === userId && role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Action interdite : vous ne pouvez pas révoquer votre propre rôle administrateur.' },
+        { status: 400 }
+      );
+    }
+
+    const admin = getSupabaseAdmin();
+    const { error } = await admin
       .from('profiles')
       .update({ role })
       .eq('id', userId);
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      console.error('Error updating user role:', error);
+      return NextResponse.json({ error: 'Échec de la modification du rôle' }, { status: 500 });
+    }
+
+    await logAdminAction({
+      adminId: auth.user!.id,
+      adminEmail: auth.user!.email || 'admin',
+      action: 'UPDATE_USER_ROLE',
+      targetType: 'profiles',
+      targetId: userId,
+      details: { newRole: role },
+    });
+
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('Unexpected admin users PATCH error:', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

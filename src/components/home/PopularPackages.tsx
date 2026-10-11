@@ -66,6 +66,7 @@ export function PopularPackages() {
         gameName: "Mobile Legends",
         name: `${selectedPkgForCart.amount} Diamonds`,
         price: selectedPkgForCart.price,
+        quantity: 1,
         playerId,
         zoneId,
         image: "/logo.jpg",

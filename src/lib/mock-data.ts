@@ -10,7 +10,7 @@ export type Game = {
 export type Package = {
   id: string;
   gameId: string;
-  amount: number;
+  amount: number | string;
   price: number;
   currency: string;
   popular?: boolean;

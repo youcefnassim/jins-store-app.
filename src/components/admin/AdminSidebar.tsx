@@ -34,8 +34,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
 
   const handleLogout = async () => {
     try {
-      const { createClient } = await import("@/lib/supabase/client");
-      const supabase = createClient();
+      const { supabase } = await import("@/lib/supabase/client");
       await supabase.auth.signOut();
       
       // Call the API to clear the HTTP-only cookie

@@ -1,40 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkAdminAuth } from '@/lib/supabase/server';
-import { createClient } from '@supabase/supabase-js';
-
-const getAdminSupabase = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  return createClient(url, serviceKey);
-};
+import { checkAdminAuth, getSupabaseAdmin } from '@/lib/supabase/server';
+import { logAdminAction } from '@/lib/supabase/audit';
 
 export async function POST(request: NextRequest) {
   try {
     const auth = await checkAdminAuth(request);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
-    const { orderedGames } = await request.json();
-
+    const body = await request.json();
+    const orderedGames = body.orderedGames;
     if (!orderedGames || !Array.isArray(orderedGames)) {
-      return NextResponse.json({ error: "Format invalide." }, { status: 400 });
+      return NextResponse.json({ error: 'Format invalide.' }, { status: 400 });
     }
 
-    const adminSupabase = getAdminSupabase();
-
-    // Use a loop to update since Supabase doesn't easily support bulk update of different values via JS client unless upserting
+    const admin = getSupabaseAdmin();
     for (const game of orderedGames) {
-      const { error } = await adminSupabase
+      if (!game.id || typeof game.sort_order !== 'number') continue;
+      const { error } = await admin
         .from('games')
         .update({ sort_order: game.sort_order })
         .eq('id', game.id);
-      
+
       if (error) {
-        console.error("Error updating sort_order:", error);
+        console.error('Error updating game sort_order:', error);
       }
     }
 
+    await logAdminAction({
+      adminId: auth.user!.id,
+      adminEmail: auth.user!.email || 'admin',
+      action: 'REORDER_GAMES',
+      targetType: 'games',
+      details: { count: orderedGames.length },
+    });
+
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('Unexpected games reorder error:', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

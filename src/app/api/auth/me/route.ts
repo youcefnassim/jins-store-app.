@@ -1,53 +1,52 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-
-const supabaseUrl = 'https://urpgragqoaodncenylmn.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycGdyYWdxb2FvZG5jZW55bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjI3MTgsImV4cCI6MjEwNTEzODcxOH0.ObcE8IX3EHuMs-SehX5IV2fXjtsmPcyxOWahvtt6INs';
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { AUTH_COOKIE, getSupabaseAnon, mapProfile } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('sb-access-token')?.value;
+    const token = request.cookies.get(AUTH_COOKIE)?.value;
     if (!token) {
       return NextResponse.json({ user: null, profile: null });
     }
 
+    const supabase = getSupabaseAnon();
     const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    // Stale or expired token: delete cookie so state stays clean (Fixes S7)
     if (error || !user) {
-      return NextResponse.json({ user: null, profile: null, debug_error: error });
+      const response = NextResponse.json({ user: null, profile: null });
+      response.cookies.delete(AUTH_COOKIE);
+      return response;
     }
 
-    let { data: profile } = await supabase
+    const { data: profileRow } = await supabase
       .from('profiles')
-      .select('role, points, name, email')
+      .select('role, points, full_name, email')
       .eq('id', user.id)
       .single();
 
-    const isAdminEmail = user.email === 'youcefnassim60@gmail.com' || user.email === 'contact@jins-store.com' || user.email?.includes('admin');
+    let profile = mapProfile(profileRow);
 
-    if (!profile || (isAdminEmail && profile?.role !== 'admin')) {
-      const newRole = isAdminEmail ? 'admin' : (profile?.role || 'user');
-      const { data: updatedProfile } = await supabase
+    if (!profile) {
+      const { data: created } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
           email: user.email || '',
-          role: newRole,
-          points: profile?.points || 0,
+          full_name: user.user_metadata?.full_name || '',
+          role: 'user',
+          points: 0,
         })
-        .select()
+        .select('role, points, full_name, email')
         .single();
-
-      if (updatedProfile) {
-        profile = updatedProfile;
-      } else {
-        profile = { role: newRole, points: 0, email: user.email, name: '' };
-      }
+      profile = mapProfile(created);
     }
 
-    return NextResponse.json({ user, profile });
-  } catch (err: any) {
-    return NextResponse.json({ user: null, profile: null, catch_error: err.message });
+    return NextResponse.json({
+      user: { id: user.id, email: user.email },
+      profile,
+    });
+  } catch (err: unknown) {
+    console.error('Error fetching current user:', err);
+    return NextResponse.json({ user: null, profile: null });
   }
 }

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 
 interface LogEntry {
   id: string;
-  type: "order_created" | "order_approved" | "order_rejected";
+  type: "order_created" | "order_approved" | "order_rejected" | "admin_action";
   message: string;
   time: string;
   timestamp: number;
@@ -16,6 +16,7 @@ const typeConfig = {
   order_created: { icon: ShoppingBag, color: "text-blue-400 bg-blue-500/10", label: "Nouvelle commande" },
   order_approved: { icon: CheckCircle2, color: "text-emerald-400 bg-emerald-500/10", label: "Commande approuvée" },
   order_rejected: { icon: XCircle, color: "text-red-400 bg-red-500/10", label: "Commande rejetée" },
+  admin_action: { icon: Activity, color: "text-purple-400 bg-purple-500/10", label: "Action Administrateur" },
 };
 
 const formatTime = (dateStr: string) => {
@@ -30,7 +31,30 @@ export default function AdminLogsPage() {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      // Fetch recent orders
+      const generatedLogs: LogEntry[] = [];
+
+      // 1. Fetch server audit logs from /api/admin/logs
+      try {
+        const auditRes = await fetch('/api/admin/logs');
+        if (auditRes.ok) {
+          const auditData = await auditRes.json();
+          if (Array.isArray(auditData.logs)) {
+            auditData.logs.forEach((log: any) => {
+              generatedLogs.push({
+                id: log.id,
+                type: 'admin_action',
+                message: `[${log.action}] par ${log.admin_email} sur ${log.target_type}`,
+                time: formatTime(log.created_at),
+                timestamp: new Date(log.created_at).getTime(),
+              });
+            });
+          }
+        }
+      } catch {
+        // Fallback gracefully
+      }
+
+      // 2. Fetch recent orders
       const { data: orders, error } = await supabase
         .from('orders')
         .select('id, game, status, created_at, profiles(email, name)')
@@ -38,8 +62,6 @@ export default function AdminLogsPage() {
         .limit(30);
         
       if (orders && !error) {
-        const generatedLogs: LogEntry[] = [];
-        
         orders.forEach((order: any) => {
           const userName = order.profiles?.name || order.profiles?.email?.split('@')[0] || "Un client";
           
@@ -71,11 +93,11 @@ export default function AdminLogsPage() {
             });
           }
         });
-        
-        // Sort by timestamp desc
-        generatedLogs.sort((a, b) => b.timestamp - a.timestamp);
-        setLogs(generatedLogs.slice(0, 50));
       }
+
+      // Sort by timestamp desc
+      generatedLogs.sort((a, b) => b.timestamp - a.timestamp);
+      setLogs(generatedLogs.slice(0, 50));
     } catch(err) {
       console.error(err);
     } finally {

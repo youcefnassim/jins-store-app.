@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export type OrderData = {
   playerId: string;
@@ -35,6 +35,7 @@ const STEPS = [
 
 export function RechargeStepper() {
   const t = useTranslations("RechargeForm");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -107,17 +108,7 @@ export function RechargeStepper() {
     setIsSubmitting(true);
     
     try {
-      const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
-      const price = parseInt(priceStr) || 0;
-      let finalPrice = price;
-      if (orderData.promoDiscount) {
-        finalPrice = Math.round(price * (1 - orderData.promoDiscount / 100));
-      }
-      
-      const pointsToAward = Math.floor(finalPrice * 0.1);
-
       const formData = new FormData();
-      formData.append('userId', user.id);
       formData.append('game', 'Mobile Legends');
       formData.append('packageId', orderData.package.id);
       formData.append('packageName', String(orderData.package.amount));
@@ -125,9 +116,7 @@ export function RechargeStepper() {
       if (orderData.zoneId) formData.append('zoneId', orderData.zoneId);
       if (orderData.phone) formData.append('phone', orderData.phone);
       formData.append('paymentMethod', orderData.paymentMethod?.name ?? '');
-      formData.append('price', String(finalPrice));
       if (orderData.promoCode) formData.append('promoCode', orderData.promoCode);
-      formData.append('pointsToAward', String(pointsToAward));
       formData.append('receiptFile', file);
 
       const res = await fetch('/api/orders/create', {
@@ -166,24 +155,18 @@ export function RechargeStepper() {
 
     setIsSubmitting(true);
     try {
-      const priceStr = String(orderData.package.price).replace(/[^0-9]/g, '');
-      const price = parseInt(priceStr) || 0;
-      const finalPrice = orderData.promoDiscount
-        ? Math.round(price * (1 - orderData.promoDiscount / 100))
-        : price;
-
       const res = await fetch('/api/payment/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.id,
           playerId: orderData.playerId,
           zoneId: orderData.zoneId,
           packageId: orderData.package.id,
           packageName: String(orderData.package.amount),
-          price: finalPrice,
           phone: orderData.phone,
           gameSlug: 'mobile-legends',
+          locale,
+          promoCode: orderData.promoCode || undefined,
         }),
       });
 

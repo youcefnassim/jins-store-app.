@@ -1,34 +1,46 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
-
-const supabaseUrl = 'https://urpgragqoaodncenylmn.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVycGdyYWdxb2FvZG5jZW55bG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1NjI3MTgsImV4cCI6MjEwNTEzODcxOH0.ObcE8IX3EHuMs-SehX5IV2fXjtsmPcyxOWahvtt6INs';
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { AUTH_COOKIE, authCookieOptions, getSupabaseAnon } from '@/lib/supabase/server';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
-  try {
-    const { email, password } = await request.json();
+  // 1. Rate Limiting: Max 5 login attempts per 15 minutes per IP (Fixes S1)
+  const rateLimitResponse = checkRateLimit(request, {
+    limit: 5,
+    windowMs: 15 * 60 * 1000,
+    keyPrefix: 'auth_login',
+  });
+  if (rateLimitResponse) return rateLimitResponse;
 
+  try {
+    const body = await request.json();
+    const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    const password = typeof body.password === 'string' ? body.password : '';
+
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email et mot de passe requis' }, { status: 400 });
+    }
+
+    const supabase = getSupabaseAnon();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: 'Identifiants incorrects ou compte introuvable' }, { status: 401 });
     }
 
-    const response = NextResponse.json({ user: data.user, session: data.session });
+    // Never return raw tokens in the JSON body
+    const response = NextResponse.json({
+      user: data.user
+        ? { id: data.user.id, email: data.user.email }
+        : null,
+    });
 
-    if (data.session) {
-      response.cookies.set('sb-access-token', data.session.access_token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24 * 7, // 1 week
-        path: '/',
-      });
+    if (data.session?.access_token) {
+      response.cookies.set(AUTH_COOKIE, data.session.access_token, authCookieOptions());
     }
 
     return response;
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+  } catch (err: unknown) {
+    console.error('Login error:', err);
+    return NextResponse.json({ error: 'Erreur lors de la connexion' }, { status: 500 });
   }
 }

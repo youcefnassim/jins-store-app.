@@ -29,8 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!user) {
         router.push("/admin/login");
       } else {
-        const isAdmin = profile?.role === "admin" || user.email === "youcefnassim60@gmail.com" || user.email === "contact@jins-store.com" || user.email?.includes("admin");
-        if (!isAdmin) {
+        if (profile?.role !== "admin") {
           router.push("/dashboard");
         }
       }

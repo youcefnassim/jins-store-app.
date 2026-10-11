@@ -54,7 +54,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await fetch('/api/auth/logout', { method: 'POST' });
     setUser(null);
     setProfile(null);
-    window.location.href = '/en/auth/login';
+    const match = typeof window !== 'undefined' ? window.location.pathname.match(/^\/(fr|ar|en)/) : null;
+    const currentLocale = match ? match[1] : 'fr';
+    window.location.href = `/${currentLocale}/auth/login`;
   };
 
   return (
