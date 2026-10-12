@@ -32,7 +32,9 @@ function AdminLoginForm() {
       if (!res.ok) throw new Error(data.error || "Erreur de connexion");
 
       toast.success("Bienvenue dans le panneau d'administration !");
-      window.location.href = "/admin/dashboard";
+      const match = typeof window !== 'undefined' ? window.location.pathname.match(/^\/(fr|ar|en)/) : null;
+      const currentLocale = match ? match[1] : 'fr';
+      window.location.href = `/${currentLocale}/admin/dashboard`;
     } catch (error: any) {
       toast.error(error.message || "Erreur de connexion");
       setLoading(false);
@@ -90,7 +92,7 @@ function AdminLoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-primary/50 transition-colors"
-                placeholder="admin@votresite.com"
+                placeholder="votre-email@gmail.com"
               />
             </div>
           </div>
