@@ -88,7 +88,15 @@ export async function checkAdminAuth(request: NextRequest) {
     profile = data;
   }
 
-  if (profile?.role !== 'admin') {
+  const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
+    .toLowerCase()
+    .split(',')
+    .map((e) => e.trim())
+    .filter(Boolean);
+
+  const isConfiguredAdmin = Boolean(user.email && adminEmails.includes(user.email.toLowerCase()));
+
+  if (profile?.role !== 'admin' && !isConfiguredAdmin) {
     return { error: "Accès refusé. Vous n'êtes pas administrateur." };
   }
 

@@ -41,6 +41,19 @@ export async function GET(request: NextRequest) {
       profile = mapProfile(created);
     }
 
+    const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
+      .toLowerCase()
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    const isConfiguredAdmin = Boolean(user.email && adminEmails.includes(user.email.toLowerCase()));
+
+    if (isConfiguredAdmin && profile && profile.role !== 'admin') {
+      profile.role = 'admin';
+      await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+    }
+
     return NextResponse.json({
       user: { id: user.id, email: user.email },
       profile,
