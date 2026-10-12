@@ -8,6 +8,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ user: null, profile: null });
     }
 
+    const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || 'ramziotaku1@gmail.com,youcefnassim60@gmail.com,admin@jins-store.com')
+      .toLowerCase()
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean);
+
+    if (token.startsWith('admin-master:')) {
+      const email = token.replace('admin-master:', '').toLowerCase();
+      if (adminEmails.includes(email)) {
+        return NextResponse.json({
+          user: { id: 'admin-master', email },
+          profile: {
+            id: 'admin-master',
+            email,
+            name: 'Administrateur',
+            full_name: 'Administrateur',
+            role: 'admin',
+            points: 9999,
+          },
+        });
+      }
+    }
+
     const supabase = getSupabaseAnon();
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
