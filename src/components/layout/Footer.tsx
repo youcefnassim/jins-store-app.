@@ -40,6 +40,11 @@ export function Footer() {
                   {t("quick_recharge")}
                 </Link>
               </li>
+              <li>
+                <Link href="/check-id" className="text-sm text-primary font-semibold hover:underline transition-colors flex items-center gap-1">
+                  <span>🔍 Game ID Checker</span>
+                </Link>
+              </li>
             </ul>
           </div>
 

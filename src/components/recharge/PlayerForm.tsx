@@ -105,10 +105,28 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
     setIsVerifying(true);
 
-    const timer = setTimeout(() => {
-      // Simple format validation, no fake name
-      setVerifiedName("Format Valide");
-      setIsVerifying(false);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/check-player", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            game: "mobile-legends",
+            playerId: watchedPlayerId,
+            zoneId: watchedZoneId,
+          }),
+        });
+        const data = await res.json();
+        if (data.success && data.nickname) {
+          setVerifiedName(data.nickname);
+        } else {
+          setVerifiedName("Format Valide");
+        }
+      } catch {
+        setVerifiedName("Format Valide");
+      } finally {
+        setIsVerifying(false);
+      }
 
       if (typeof window !== "undefined") {
         localStorage.setItem("dz_recharge_playerId", watchedPlayerId);
@@ -121,7 +139,7 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         zoneId: watchedZoneId,
         phone: watchedPhone || "",
       });
-    }, 400);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [watchedPlayerId, watchedZoneId, watchedPhone]);
