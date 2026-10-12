@@ -92,12 +92,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || 'ramziotaku1@gmail.com,youcefnassim60@gmail.com,admin@jins-store.com')
-      .toLowerCase()
-      .split(',')
-      .map((e) => e.trim())
-      .filter(Boolean);
-
     const isConfiguredAdmin = Boolean(user.email && adminEmails.includes(user.email.toLowerCase()));
 
     if (isConfiguredAdmin && profile && profile.role !== 'admin') {
