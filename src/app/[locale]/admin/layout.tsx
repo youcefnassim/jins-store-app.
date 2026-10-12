@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.push("/admin/login");
       } else {
         if (profile?.role !== "admin") {
-          router.push("/dashboard");
+          router.push("/admin/login?error=not_admin");
         }
       }
     }
@@ -39,12 +39,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Global Keyboard listener for Cmd + K / Ctrl + K
   useEffect(() => {
     if (isLoginPage) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
+    function handleKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setSearchOpen((prev) => !prev);
       }
-    };
+    }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isLoginPage]);

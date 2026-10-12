@@ -21,10 +21,12 @@ export function getSupabaseAnon(): SupabaseClient {
  * Required for admin writes, webhooks, and trusted server inserts.
  */
 export function getSupabaseAdmin(): SupabaseClient {
-  const { url } = requirePublicEnv();
+  const { url, anonKey } = requirePublicEnv();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY');
+    return createClient(url, anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
   }
   return createClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },

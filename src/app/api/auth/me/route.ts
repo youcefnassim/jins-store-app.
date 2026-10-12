@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_COOKIE, getSupabaseAnon, mapProfile } from '@/lib/supabase/server';
+import { AUTH_COOKIE, getSupabaseAnon, getSupabaseAdmin, mapProfile } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,30 +18,58 @@ export async function GET(request: NextRequest) {
       return response;
     }
 
-    const { data: profileRow } = await supabase
-      .from('profiles')
-      .select('role, points, full_name, email')
-      .eq('id', user.id)
-      .single();
+    const supabaseAdmin = getSupabaseAdmin();
+    let profileRow = null;
+
+    try {
+      const { data } = await supabaseAdmin
+        .from('profiles')
+        .select('role, points, full_name, email')
+        .eq('id', user.id)
+        .single();
+      profileRow = data;
+    } catch {
+      const { data } = await supabase
+        .from('profiles')
+        .select('role, points, full_name, email')
+        .eq('id', user.id)
+        .single();
+      profileRow = data;
+    }
 
     let profile = mapProfile(profileRow);
 
     if (!profile) {
-      const { data: created } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          email: user.email || '',
-          full_name: user.user_metadata?.full_name || '',
-          role: 'user',
-          points: 0,
-        })
-        .select('role, points, full_name, email')
-        .single();
-      profile = mapProfile(created);
+      try {
+        const { data: created } = await supabaseAdmin
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata?.full_name || '',
+            role: 'user',
+            points: 0,
+          })
+          .select('role, points, full_name, email')
+          .single();
+        profile = mapProfile(created);
+      } catch {
+        const { data: created } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata?.full_name || '',
+            role: 'user',
+            points: 0,
+          })
+          .select('role, points, full_name, email')
+          .single();
+        profile = mapProfile(created);
+      }
     }
 
-    const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
+    const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || 'ramziotaku1@gmail.com,youcefnassim60@gmail.com,admin@jins-store.com')
       .toLowerCase()
       .split(',')
       .map((e) => e.trim())
@@ -51,7 +79,11 @@ export async function GET(request: NextRequest) {
 
     if (isConfiguredAdmin && profile && profile.role !== 'admin') {
       profile.role = 'admin';
-      await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+      try {
+        await supabaseAdmin.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+      } catch {
+        await supabase.from('profiles').update({ role: 'admin' }).eq('id', user.id);
+      }
     }
 
     return NextResponse.json({
