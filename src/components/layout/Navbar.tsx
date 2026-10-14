@@ -2,7 +2,7 @@
 
 import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
-import { Menu, X, Smartphone, Search, Gamepad2, HelpCircle, Phone, ChevronRight, User, LogIn } from "lucide-react";
+import { Menu, X, Smartphone, Search, Gamepad2, HelpCircle, Phone, ChevronRight, User, LogIn, UserCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { usePathname } from "@/i18n/routing";
@@ -48,6 +48,7 @@ export function Navbar() {
     { name: t("home"), href: "/", icon: Search },
     { name: t("games"), href: "/games", icon: Gamepad2 },
     { name: t("recharge"), href: "/recharge", icon: Smartphone },
+    { name: t("checker"), href: "/check-id", icon: UserCheck },
     { name: t("track"), href: "/track", icon: Search },
     { name: t("faq"), href: "/faq", icon: HelpCircle },
     { name: t("contact"), href: "/contact", icon: Phone },

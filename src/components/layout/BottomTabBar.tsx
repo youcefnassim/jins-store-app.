@@ -1,29 +1,30 @@
 "use client";
 
 import { Link, usePathname } from "@/i18n/routing";
-import { Home, Gamepad2, Search, User, ShoppingCart } from "lucide-react";
+import { Home, Gamepad2, UserCheck, User, ShoppingCart } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CartSidebar } from "@/components/cart/CartSidebar";
 import { useCartStore } from "@/store/useCartStore";
 
 export function BottomTabBar() {
   const pathname = usePathname();
-  const t = useTranslations("Navigation"); // Assuming Navigation translations exist
+  const t = useTranslations("Navbar");
+  const tCart = useTranslations("Cart");
   const { getItemCount } = useCartStore();
   const totalItems = getItemCount();
 
   const tabs = [
-    { name: "Accueil", icon: Home, href: "/" },
-    { name: "Jeux", icon: Gamepad2, href: "/games" },
-    { name: "Suivi", icon: Search, href: "/track" },
-    { name: "Panier", icon: ShoppingCart, href: "#", isCart: true },
-    { name: "Profil", icon: User, href: "/dashboard" },
+    { name: t("home"), icon: Home, href: "/" },
+    { name: t("games"), icon: Gamepad2, href: "/games" },
+    { name: t("checker"), icon: UserCheck, href: "/check-id" },
+    { name: tCart("title"), icon: ShoppingCart, href: "#", isCart: true },
+    { name: t("dashboard"), icon: User, href: "/dashboard" },
   ];
 
   // Helper to check if a tab is active.
   const isActive = (href: string) => {
     if (href === "#") return false;
-    if (href === "/" && (pathname === "/" || pathname === "/fr" || pathname === "/ar")) return true;
+    if (href === "/" && (pathname === "/" || pathname === "/fr" || pathname === "/ar" || pathname === "/en")) return true;
     if (href !== "/" && pathname.includes(href)) return true;
     return false;
   };
