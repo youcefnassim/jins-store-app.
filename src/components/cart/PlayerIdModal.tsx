@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface PlayerIdModalProps {
   isOpen: boolean;
@@ -15,6 +17,8 @@ interface PlayerIdModalProps {
 }
 
 export function PlayerIdModal({ isOpen, onClose, onConfirm, gameName = "Game" }: PlayerIdModalProps) {
+  const t = useTranslations("PackageSelector");
+  const tForm = useTranslations("RechargeForm");
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
 
@@ -22,6 +26,10 @@ export function PlayerIdModal({ isOpen, onClose, onConfirm, gameName = "Game" }:
     e.preventDefault();
     if (playerId.trim()) {
       onConfirm(playerId.trim(), zoneId.trim() || undefined);
+      toast.success("✅ Ajouté au panier avec succès !", {
+        description: `${gameName} — ID: ${playerId.trim()}`,
+        duration: 3000,
+      });
       setPlayerId("");
       setZoneId("");
       onClose();
@@ -34,14 +42,14 @@ export function PlayerIdModal({ isOpen, onClose, onConfirm, gameName = "Game" }:
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            Entrer l'ID Joueur ({gameName})
+            {t("add_to_cart_title")} ({gameName})
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
             <Label htmlFor="playerId" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              ID Joueur (Player ID) *
+              {tForm("player_id")} *
             </Label>
             <Input
               id="playerId"
@@ -55,7 +63,7 @@ export function PlayerIdModal({ isOpen, onClose, onConfirm, gameName = "Game" }:
 
           <div className="space-y-2">
             <Label htmlFor="zoneId" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Zone ID (Optionnel)
+              {tForm("zone_id")} (Optionnel)
             </Label>
             <Input
               id="zoneId"
@@ -68,14 +76,14 @@ export function PlayerIdModal({ isOpen, onClose, onConfirm, gameName = "Game" }:
 
           <DialogFooter className="pt-4 flex gap-2">
             <Button type="button" variant="outline" onClick={onClose} className="rounded-xl flex-1">
-              Annuler
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
               disabled={!playerId.trim()}
               className="rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold flex-1"
             >
-              Ajouter au panier
+              {t("add_to_cart_title")}
             </Button>
           </DialogFooter>
         </form>

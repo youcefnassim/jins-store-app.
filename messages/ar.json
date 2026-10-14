@@ -385,5 +385,15 @@
     "tx_ref_placeholder": "مثال: TRX123456789",
     "submitting": "جاري الإرسال...",
     "submit_order": "تأكيد وإرسال الطلب"
+  },
+  "Cart": {
+    "title": "سلتي",
+    "empty_title": "سلتك فارغة",
+    "empty_desc": "أضف باقات إلى سلتك للمتابعة نحو الدفع المجمع.",
+    "continue_shopping": "متابعة التسوق",
+    "total": "المجموع",
+    "items": "عناصر",
+    "checkout": "إتمام الشراء",
+    "added_success": "تمت الإضافة إلى السلة بنجاح!"
   }
 }

@@ -28,9 +28,9 @@ export function WhyChooseUs() {
   ];
 
   return (
-    <section className="py-20">
+    <section className="py-10">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-8">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
             {t("title")}
           </h2>

@@ -21,7 +21,7 @@ interface CurrencyState {
   currentCurrency: Currency;
   rates: {
     DZD: number;
-    EUR: number; // e.g. 1 EUR = 260 DZD
+    EUR: number; // e.g. 1 EUR = 275 DZD
     USD: number; // e.g. 1 USD = 242 DZD
   };
   setCurrency: (currency: Currency) => void;
@@ -41,7 +41,7 @@ export const useCurrencyStore = create<CurrencyState>()(
       currentCurrency: 'DZD',
       rates: {
         DZD: 1,
-        EUR: 260, // 1 EUR = 260 DZD
+        EUR: 275, // 1 EUR = 275 DZD
         USD: 242, // 1 USD = 242 DZD
       },
 

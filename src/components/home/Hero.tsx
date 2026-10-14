@@ -11,7 +11,7 @@ export function Hero() {
   const t = useTranslations("Hero");
 
   return (
-    <section className="relative pt-8 pb-12 md:pt-16 md:pb-16 overflow-hidden">
+    <section className="relative pt-6 pb-8 md:pt-12 md:pb-12 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -z-10" />
       
@@ -39,7 +39,7 @@ export function Hero() {
             
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-4 w-full sm:w-auto">
               <Button size="lg" className="bg-primary hover:bg-primary/90 h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl" onClick={() => { const el = document.getElementById('offers'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }}>
-                Recharge Now
+                {t("cta_recharge")}
                 <ArrowRight className="ml-2 w-5 h-5 rtl:mr-2 rtl:ml-0 rtl:rotate-180" />
               </Button>
               <Button asChild variant="outline" size="lg" className="h-14 px-8 text-base font-semibold w-full sm:w-auto rounded-xl bg-transparent border-slate-300 dark:border-white/20 text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-all shadow-sm">

@@ -13,6 +13,7 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
   const { items, removeItem, updateQuantity, getTotalPrice, getItemCount } = useCartStore();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations("Cart");
 
   useEffect(() => {
     setMounted(true);
@@ -41,7 +42,7 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
         <SheetHeader className="p-6 pr-16 border-b border-slate-200 dark:border-white/10 text-left">
           <SheetTitle className="flex items-center gap-2 text-xl font-bold">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            Mon Panier
+            {t("title")}
           </SheetTitle>
         </SheetHeader>
 
@@ -49,12 +50,12 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full p-6 text-center opacity-70">
               <ShoppingCart className="w-16 h-16 text-slate-300 dark:text-slate-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Votre panier est vide</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("empty_title")}</h3>
               <p className="text-sm text-muted-foreground">
-                Ajoutez des forfaits à votre panier pour procéder au paiement groupé.
+                {t("empty_desc")}
               </p>
               <Button onClick={() => setIsOpen(false)} className="mt-6" variant="outline">
-                Continuer mes achats
+                {t("continue_shopping")}
               </Button>
             </div>
           ) : (
@@ -105,14 +106,14 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
         {items.length > 0 && (
           <div className="p-6 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-slate-600 dark:text-slate-400">Total ({totalItems} articles)</span>
+              <span className="text-slate-600 dark:text-slate-400">{t("total")} ({totalItems} {t("items")})</span>
               <span className="text-xl font-bold text-slate-900 dark:text-white">
                 {getTotalPrice().toLocaleString()} DZD
               </span>
             </div>
             <Button asChild className="w-full h-12 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold text-base">
               <Link href="/checkout" onClick={() => setIsOpen(false)}>
-                Passer à la caisse
+                {t("checkout")}
               </Link>
             </Button>
           </div>

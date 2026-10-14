@@ -78,7 +78,7 @@ export function PopularPackages() {
   };
 
   return (
-    <section id="offers" className="py-16 md:py-24 relative overflow-hidden">
+    <section id="offers" className="py-10 md:py-16 relative overflow-hidden">
       {/* Background glow effects */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -89,7 +89,7 @@ export function PopularPackages() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-500 text-xs font-bold mb-3 border border-cyan-500/20">
               <Sparkles className="w-3.5 h-3.5" />
-              Offres Exclusives MLBB
+              {t("title")}
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3 text-slate-900 dark:text-white">
               {t("title")}
@@ -166,8 +166,8 @@ export function PopularPackages() {
                   )}
 
                   <CardHeader className="pb-3 pt-7 items-center text-center">
-                    <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all duration-500 border border-cyan-500/30">
-                      <div className="w-9 h-9 bg-gradient-to-tr from-cyan-400 to-blue-500 rotate-45 rounded-sm shadow-[0_0_25px_rgba(34,211,238,0.8)]" />
+                    <div className="text-4xl mb-2 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-500 select-none">
+                      💎
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white group-hover:text-cyan-500 transition-colors">
                       {pkg.amount}

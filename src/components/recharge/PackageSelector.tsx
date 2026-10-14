@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 interface PackageSelectorProps {
   selectedPackage?: Package;
@@ -45,6 +46,10 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
         name: String(cartPkg.amount),
         gameName: gameName,
         image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
+      });
+      toast.success("✅ Ajouté au panier avec succès !", {
+        description: `${gameName} — ${cartPkg.amount} — ID: ${playerId.trim()}`,
+        duration: 3000,
       });
       setCartPkg(null);
       setPlayerId("");
@@ -164,8 +169,8 @@ export function PackageSelector({ selectedPackage, onSelect, onNext, onBack, gam
                     <ShoppingCart className="w-4 h-4" />
                   </div>
                   
-                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/30 rounded-full flex items-center justify-center mb-1 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all">
-                    <div className="w-6 h-6 bg-gradient-to-tr from-cyan-400 to-blue-500 rotate-45 rounded-sm shadow-[0_0_15px_rgba(34,211,238,0.8)]" />
+                  <div className="text-3xl mb-1 group-hover:scale-110 transition-all select-none">
+                    💎
                   </div>
                   
                   <h3 className="font-bold text-white text-lg leading-tight">{pkg.amount}</h3>

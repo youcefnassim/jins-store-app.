@@ -385,5 +385,15 @@
     "tx_ref_placeholder": "ex: TRX123456789",
     "submitting": "Envoi en cours...",
     "submit_order": "Valider la Commande"
+  },
+  "Cart": {
+    "title": "Mon Panier",
+    "empty_title": "Votre panier est vide",
+    "empty_desc": "Ajoutez des forfaits à votre panier pour procéder au paiement groupé.",
+    "continue_shopping": "Continuer mes achats",
+    "total": "Total",
+    "items": "articles",
+    "checkout": "Passer à la caisse",
+    "added_success": "Ajouté au panier avec succès !"
   }
 }

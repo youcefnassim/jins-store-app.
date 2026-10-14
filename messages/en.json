@@ -385,5 +385,15 @@
     "tx_ref_placeholder": "e.g. TRX123456789",
     "submitting": "Submitting...",
     "submit_order": "Submit Order"
+  },
+  "Cart": {
+    "title": "My Cart",
+    "empty_title": "Your cart is empty",
+    "empty_desc": "Add packages to your cart to proceed with a grouped payment.",
+    "continue_shopping": "Continue Shopping",
+    "total": "Total",
+    "items": "items",
+    "checkout": "Proceed to Checkout",
+    "added_success": "Added to cart successfully!"
   }
 }

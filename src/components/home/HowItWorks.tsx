@@ -33,9 +33,9 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="py-20 bg-black/20 border-y border-white/5">
+    <section className="py-12 bg-black/20 border-y border-white/5">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
             {t("title")}
           </h2>
