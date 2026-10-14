@@ -5,11 +5,12 @@ import { PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Smartphone, Info, Copy, Check, QrCode } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
@@ -52,11 +53,37 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
 
   const getIcon = (id: string) => {
     switch (id) {
-      case "baridimob": return <Smartphone className="w-6 h-6 text-[#facc15]" />;
-      case "ccp": return <Landmark className="w-6 h-6 text-[#60a5fa]" />;
-      case "binance": return <Wallet className="w-6 h-6 text-[#f59e0b]" />;
-      case "flexy": return <CreditCard className="w-6 h-6 text-[#34d399]" />;
-      default: return <Wallet className="w-6 h-6 text-primary" />;
+      case "baridimob":
+        return (
+          <div className="relative w-8 h-8 flex items-center justify-center">
+            <Image
+              src="/images/payments/baridimob.png"
+              alt="BaridiMob"
+              width={32}
+              height={32}
+              className="object-contain"
+            />
+          </div>
+        );
+      case "ccp":
+        return <Landmark className="w-6 h-6 text-[#60a5fa]" />;
+      case "redotpay":
+      case "binance":
+        return (
+          <div className="relative w-7 h-7 flex items-center justify-center overflow-hidden rounded-lg shadow-sm">
+            <Image
+              src="/images/payments/redotpay.png"
+              alt="RedotPay"
+              width={28}
+              height={28}
+              className="object-contain rounded-lg"
+            />
+          </div>
+        );
+      case "flexy":
+        return <CreditCard className="w-6 h-6 text-[#34d399]" />;
+      default:
+        return <Wallet className="w-6 h-6 text-primary" />;
     }
   };
 
@@ -67,8 +94,9 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
         return { label: "RIP Number", value: "00799999000000000012", showQr: true };
       case "ccp":
         return { label: "CCP Account", value: "12345678 Clé 99 (MOCK NAME)", showQr: false };
+      case "redotpay":
       case "binance":
-        return { label: "Binance Pay ID", value: "123456789", showQr: true };
+        return { label: "RedotPay ID", value: "123456789", showQr: true };
       case "flexy":
         return { label: "Phone Number", value: "0550000000", showQr: false };
       default:
@@ -77,10 +105,11 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
   };
 
   // Dynamic currency logic
-  const displayAmount = selectedPayment?.id === "binance" 
-    ? (amount / 240).toFixed(2) // Mock conversion rate: 1 USDT = 240 DZD
+  const isRedotPay = selectedPayment?.id === "redotpay" || selectedPayment?.id === "binance";
+  const displayAmount = isRedotPay 
+    ? (amount / 240).toFixed(2) // Conversion rate: 1 USD = 240 DZD
     : amount;
-  const displayCurrency = selectedPayment?.id === "binance" ? "USDT" : siteConfig.currency;
+  const displayCurrency = isRedotPay ? "USD" : siteConfig.currency;
 
   const handleApplyPromo = async () => {
     if (!promoInput.trim()) return;

@@ -111,10 +111,10 @@ export const paymentMethods: PaymentMethod[] = [
     active: true,
   },
   {
-    id: "binance",
-    name: "Binance Pay",
-    description: "Pay with crypto (USDT)",
-    instructions: "Send the exact equivalent amount in USDT to Binance ID: 123456789. Save a screenshot of the completed transaction.",
+    id: "redotpay",
+    name: "RedotPay",
+    description: "Pay with RedotPay (USD / Crypto)",
+    instructions: "Send the exact amount in USD/USDT to RedotPay ID: 123456789. Save a screenshot of the completed transaction.",
     active: true,
   },
   {

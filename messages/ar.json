@@ -45,9 +45,13 @@
         "name": "تحويل CCP",
         "description": "ادفع عبر بريد الجزائر CCP"
       },
+      "redotpay": {
+        "name": "RedotPay",
+        "description": "ادفع بالدولار أو العملات الرقمية عبر RedotPay"
+      },
       "binance": {
-        "name": "Binance Pay",
-        "description": "ادفع بالعملات الرقمية (USDT)"
+        "name": "RedotPay",
+        "description": "ادفع بالدولار أو العملات الرقمية عبر RedotPay"
       },
       "flexy": {
         "name": "فليكسي",
@@ -77,7 +81,7 @@
       },
       "3": {
         "title": "اختر الدفع",
-        "description": "اختر بريدي موب، CCP، أو Binance."
+        "description": "اختر بريدي موب، CCP، أو RedotPay."
       },
       "4": {
         "title": "أرسل الإثبات",
@@ -103,7 +107,7 @@
       },
       "3": {
         "title": "طرق دفع متعددة",
-        "description": "ادفع بسهولة عبر بريدي موب، CCP، Binance، أو فليكسي."
+        "description": "ادفع بسهولة عبر بريدي موب، CCP، RedotPay، أو فليكسي."
       },
       "4": {
         "title": "دعم مخصص",

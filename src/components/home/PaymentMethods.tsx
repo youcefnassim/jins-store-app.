@@ -1,25 +1,51 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { paymentMethods } from "@/lib/mock-data";
-import { Wallet, Landmark, CreditCard, Smartphone } from "lucide-react";
+import { Landmark, CreditCard, Wallet } from "lucide-react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 export function PaymentMethods() {
   const t = useTranslations("PaymentMethods");
 
   const getIcon = (id: string) => {
     switch (id) {
-      case "baridimob": return <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 text-[#facc15]" />;
-      case "ccp": return <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-[#60a5fa]" />;
-      case "binance": return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-[#f59e0b]" />;
-      case "flexy": return <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399]" />;
-      default: return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />;
+      case "baridimob":
+        return (
+          <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center">
+            <Image
+              src="/images/payments/baridimob.png"
+              alt="BaridiMob"
+              width={44}
+              height={44}
+              className="object-contain"
+            />
+          </div>
+        );
+      case "ccp":
+        return <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-[#60a5fa]" />;
+      case "redotpay":
+        return (
+          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-md">
+            <Image
+              src="/images/payments/redotpay.png"
+              alt="RedotPay"
+              width={40}
+              height={40}
+              className="object-contain rounded-xl"
+            />
+          </div>
+        );
+      case "flexy":
+        return <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399]" />;
+      default:
+        return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />;
     }
   };
 
   return (
-    <section className="py-20 bg-black/20 border-y border-white/5">
+    <section className="py-12 bg-black/20 border-y border-white/5">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-8">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-slate-900 dark:text-white">
             {t("title")}
           </h2>

@@ -45,9 +45,13 @@
         "name": "CCP Transfer",
         "description": "Pay via Algérie Poste CCP"
       },
+      "redotpay": {
+        "name": "RedotPay",
+        "description": "Pay with USD / Crypto via RedotPay"
+      },
       "binance": {
-        "name": "Binance Pay",
-        "description": "Pay with crypto (USDT)"
+        "name": "RedotPay",
+        "description": "Pay with USD / Crypto via RedotPay"
       },
       "flexy": {
         "name": "Flexy",
@@ -77,7 +81,7 @@
       },
       "3": {
         "title": "Select Payment",
-        "description": "Choose BaridiMob, CCP, or Binance."
+        "description": "Choose BaridiMob, CCP, or RedotPay."
       },
       "4": {
         "title": "Send Proof",
@@ -103,7 +107,7 @@
       },
       "3": {
         "title": "Multiple Payments",
-        "description": "Pay conveniently via BaridiMob, CCP, Binance, or Flexy."
+        "description": "Pay conveniently via BaridiMob, CCP, RedotPay, or Flexy."
       },
       "4": {
         "title": "Dedicated Support",
