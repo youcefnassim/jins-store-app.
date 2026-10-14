@@ -37,32 +37,19 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
             <span className="font-medium text-white">Mobile Legends</span>
           </div>
           
-          {data.playerId && (
-            <div className="flex justify-between items-center text-xs sm:text-sm">
-              <span className="text-muted-foreground">{t("player")}</span>
-              <span className="font-mono text-white">
-                {data.playerId} <span className="text-muted-foreground">({data.zoneId})</span>
-              </span>
-            </div>
-          )}
+          <div className="flex justify-between items-center text-xs sm:text-sm">
+            <span className="text-muted-foreground">{t("player")}</span>
+            <span className={data.playerId ? "font-mono text-white text-xs" : "text-muted-foreground text-xs"}>
+              {data.playerId ? `${data.playerId} (${data.zoneId || "-"})` : "—"}
+            </span>
+          </div>
           
-          {data.package && (
-            <div className="flex justify-between items-center text-xs sm:text-sm">
-              <span className="text-muted-foreground">{t("package")}</span>
-              <span className="font-semibold text-primary">
-                {data.package.amount}
-              </span>
-            </div>
-          )}
-
-          {data.package && (
-            <div className="flex justify-between items-center text-xs sm:text-sm">
-              <span className="text-muted-foreground">{t("quantity")}</span>
-              <span className="font-bold text-white px-2 py-0.5 rounded bg-white/10 text-xs">
-                x{quantity}
-              </span>
-            </div>
-          )}
+          <div className="flex justify-between items-center text-xs sm:text-sm">
+            <span className="text-muted-foreground">{t("package")}</span>
+            <span className={data.package ? "font-semibold text-primary text-xs" : "text-muted-foreground text-xs"}>
+              {data.package ? `${data.package.amount} (x${quantity})` : "En attente"}
+            </span>
+          </div>
 
           {data.paymentMethod && (
             <div className="flex justify-between items-center text-xs sm:text-sm">

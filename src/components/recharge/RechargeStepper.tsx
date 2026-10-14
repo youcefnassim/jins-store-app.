@@ -405,7 +405,7 @@ export function RechargeStepper() {
       </div>
 
       {/* Sticky Order Summary */}
-      <div className="w-full lg:w-1/3 lg:sticky lg:top-24">
+      <div className={cn("w-full lg:w-1/3 lg:sticky lg:top-24", !orderData.package && "hidden lg:block")}>
         <OrderSummary data={orderData} step={currentStep} />
       </div>
       
