@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Package } from "@/lib/mock-data";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowDown, ShoppingCart, Minus, Plus } from "lucide-react";
+import { ArrowLeft, ArrowDown, ShoppingCart, Minus, Plus, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ interface PackageSelectorProps {
   onSelect: (pkg: Package) => void;
   onNext: () => void;
   onBack: () => void;
+  onCollapse?: () => void;
   gameName?: string;
 }
 
@@ -31,6 +32,7 @@ export function PackageSelector({
   onSelect, 
   onNext, 
   onBack, 
+  onCollapse,
   gameName = "Mobile Legends" 
 }: PackageSelectorProps) {
   const t = useTranslations("PackageSelector");
@@ -134,14 +136,29 @@ export function PackageSelector({
       <div className="absolute top-1/2 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2" />
       
       <CardHeader className="py-3.5 px-4 sm:px-6">
-        <div className="flex items-center gap-2.5">
-          <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shrink-0">2</span>
-          <div>
-            <CardTitle className="text-lg sm:text-xl text-white leading-tight">{t("select_package")}</CardTitle>
-            <CardDescription className="text-xs text-muted-foreground mt-0.5">
-              {t("choose_package")}
-            </CardDescription>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shrink-0">2</span>
+            <div>
+              <CardTitle className="text-lg sm:text-xl text-white leading-tight">{t("select_package")}</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground mt-0.5">
+                {t("choose_package")}
+              </CardDescription>
+            </div>
           </div>
+          {onCollapse && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={onCollapse}
+              className="text-xs text-muted-foreground hover:text-white h-7 px-2 sm:px-2.5 rounded-lg flex items-center gap-1 hover:bg-white/10"
+              title="Masquer les forfaits"
+            >
+              <ChevronUp className="w-3.5 h-3.5" />
+              <span className="text-[11px] font-medium hidden sm:inline">Masquer</span>
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">

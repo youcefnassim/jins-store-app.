@@ -369,7 +369,10 @@
     "enter_player_id": "Veuillez entrer votre ID de joueur pour le forfait {amount}.",
     "cancel": "Annuler",
     "quantity": "Quantité",
-    "total": "Total"
+    "total": "Total",
+    "show_packages": "Afficher les forfaits",
+    "hide_packages": "Masquer",
+    "fill_to_unlock": "Remplissez vos identifiants ci-dessus ou cliquez pour afficher les forfaits"
   },
   "PaymentSelector": {
     "select_payment": "Sélectionner le Mode de Paiement",

@@ -369,7 +369,10 @@
     "enter_player_id": "يرجى إدخال معرف اللاعب للباقة {amount}.",
     "cancel": "إلغاء",
     "quantity": "الكمية",
-    "total": "الإجمالي"
+    "total": "الإجمالي",
+    "show_packages": "عرض الباقات",
+    "hide_packages": "إخفاء",
+    "fill_to_unlock": "أدخل بياناتك أعلاه أو اضغط لعرض الباقات"
   },
   "PaymentSelector": {
     "select_payment": "اختر طريقة الدفع",

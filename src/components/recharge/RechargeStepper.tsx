@@ -9,7 +9,8 @@ import { PaymentSelector } from "./PaymentSelector";
 import { ProofUpload } from "./ProofUpload";
 import { OrderSummary } from "./OrderSummary";
 import { Package, PaymentMethod } from "@/lib/mock-data";
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
@@ -36,12 +37,14 @@ const STEPS = [
 
 export function RechargeStepper() {
   const t = useTranslations("RechargeForm");
+  const tPkg = useTranslations("PackageSelector");
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [packagesUnlocked, setPackagesUnlocked] = useState(false);
   
   const [orderData, setOrderData] = useState<OrderData>({
     playerId: "",
@@ -56,6 +59,8 @@ export function RechargeStepper() {
   useEffect(() => {
     const packageId = searchParams.get("package");
     if (!packageId) return;
+
+    setPackagesUnlocked(true);
 
     const loadPackage = async () => {
       try {
@@ -256,18 +261,82 @@ export function RechargeStepper() {
               data={orderData} 
               onNext={(data) => {
                 setOrderData(prev => ({ ...prev, ...data }));
+                if (data.playerId?.trim() && data.zoneId?.trim()) {
+                  setPackagesUnlocked(true);
+                  setTimeout(() => {
+                    document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 150);
+                }
               }} 
             />
             
-            <PackageSelector 
-              selectedPackage={orderData.package}
-              quantity={orderData.quantity || 1}
-              onQuantityChange={(qty) => setOrderData(prev => ({ ...prev, quantity: qty }))}
-              onSelect={(pkg) => setOrderData(prev => ({ ...prev, package: pkg }))}
-              onNext={handleNextToPayment}
-              onBack={() => router.back()}
-              gameName={searchParams.get("game") || "Mobile Legends"}
-            />
+            <AnimatePresence mode="wait">
+              {packagesUnlocked ? (
+                <motion.div
+                  key="package-section-open"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <PackageSelector 
+                    selectedPackage={orderData.package}
+                    quantity={orderData.quantity || 1}
+                    onQuantityChange={(qty) => setOrderData(prev => ({ ...prev, quantity: qty }))}
+                    onSelect={(pkg) => setOrderData(prev => ({ ...prev, package: pkg }))}
+                    onNext={handleNextToPayment}
+                    onBack={() => router.back()}
+                    onCollapse={() => setPackagesUnlocked(false)}
+                    gameName={searchParams.get("game") || "Mobile Legends"}
+                  />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="package-section-collapsed"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => {
+                    setPackagesUnlocked(true);
+                    setTimeout(() => {
+                      document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 150);
+                  }}
+                  className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-slate-900/60 hover:bg-slate-900/90 hover:border-primary/40 transition-all cursor-pointer flex items-center justify-between group shadow-sm select-none"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-primary/20 text-white/60 group-hover:text-primary flex items-center justify-center text-xs font-bold shrink-0 transition-colors">
+                      2
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-white/90 group-hover:text-white">
+                          {tPkg("select_package")}
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                          {orderData.package ? `${orderData.package.amount}` : "Caché (espace réduit)"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {orderData.package 
+                          ? "Cliquez pour modifier le forfait ou changer la quantité" 
+                          : tPkg("fill_to_unlock")}
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-primary group-hover:text-primary-foreground font-semibold h-8 px-3 rounded-lg flex items-center gap-1.5 shrink-0"
+                  >
+                    <span>{tPkg("show_packages")}</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 

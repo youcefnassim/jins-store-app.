@@ -369,7 +369,10 @@
     "enter_player_id": "Please enter your Player ID for package {amount}.",
     "cancel": "Cancel",
     "quantity": "Quantity",
-    "total": "Total"
+    "total": "Total",
+    "show_packages": "Show packages",
+    "hide_packages": "Hide",
+    "fill_to_unlock": "Fill your IDs above or click to view packages"
   },
   "PaymentSelector": {
     "select_payment": "Select Payment Method",
