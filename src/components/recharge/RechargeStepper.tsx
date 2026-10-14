@@ -314,9 +314,11 @@ export function RechargeStepper() {
                         <span className="text-sm font-semibold text-white/90 group-hover:text-white">
                           {tPkg("select_package")}
                         </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                          {orderData.package ? `${orderData.package.amount}` : "Caché (espace réduit)"}
-                        </span>
+                        {orderData.package && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                            {orderData.package.amount}
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5">
                         {orderData.package 
