@@ -47,15 +47,7 @@ export function HeroCarousel() {
     setCurrentIndex((prev) => (prev === 0 ? currentBanners.length - 1 : prev - 1));
   };
 
-  if (loading) {
-    return (
-      <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center bg-black/5 dark:bg-white/5 rounded-3xl animate-pulse">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (currentBanners.length === 0) {
+  if (loading || currentBanners.length === 0) {
     return null;
   }
 
@@ -70,7 +62,8 @@ export function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center overflow-hidden group">
+    <div className="pt-2 sm:pt-3 px-3 sm:px-4">
+      <div className="relative w-full max-w-7xl mx-auto h-[180px] sm:h-[260px] md:h-[340px] lg:h-[400px] flex items-center justify-center overflow-hidden group">
       
       {currentBanners.map((banner, idx) => {
         const offset = getOffset(idx, currentIndex, currentBanners.length);
@@ -153,6 +146,7 @@ export function HeroCarousel() {
           />
         ))}
       </div>
+    </div>
     </div>
   );
 }

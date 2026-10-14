@@ -41,7 +41,7 @@ export function TopMarquee() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white text-xs font-bold py-1.5 overflow-hidden relative z-40 flex shadow-sm">
+    <div className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 text-white text-xs font-bold py-1 overflow-hidden relative z-40 flex shadow-sm">
       <div className="flex w-max animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused]">
         {[...Array(3)].map((_, loopIdx) => (
           <div key={loopIdx} className="flex items-center gap-8 mx-4 whitespace-nowrap">

@@ -58,10 +58,10 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "sticky top-0 md:top-4 w-full md:max-w-6xl xl:max-w-7xl md:mx-auto z-50 transition-all duration-500 rounded-none md:rounded-full px-3 md:px-6",
+          "sticky top-0 md:top-2 w-full md:max-w-6xl xl:max-w-7xl md:mx-auto z-50 transition-all duration-500 rounded-none md:rounded-full px-3 md:px-6",
           isScrolled
-            ? "bg-background/80 dark:bg-black/60 backdrop-blur-xl border-b md:border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.2)] py-2"
-            : "bg-background/40 dark:bg-black/30 backdrop-blur-md md:border border-white/10 py-3"
+            ? "bg-background/80 dark:bg-black/60 backdrop-blur-xl border-b md:border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.2)] py-1.5 sm:py-2"
+            : "bg-background/40 dark:bg-black/30 backdrop-blur-md md:border border-white/10 py-2 sm:py-2.5"
         )}
       >
         <div className="w-full flex items-center justify-between gap-2 sm:gap-4">

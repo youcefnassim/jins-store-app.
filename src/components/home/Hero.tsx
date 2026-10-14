@@ -11,7 +11,7 @@ export function Hero() {
   const t = useTranslations("Hero");
 
   return (
-    <section className="relative pt-6 pb-8 md:pt-12 md:pb-12 overflow-hidden">
+    <section className="relative pt-2 pb-6 md:pt-4 md:pb-8 overflow-hidden">
       {/* Background decorations */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 rounded-full blur-[120px] -z-10" />
       
@@ -22,7 +22,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col items-center gap-6"
+            className="flex flex-col items-center gap-4 sm:gap-5"
           >
             <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 px-4 py-1.5 rounded-full text-sm font-medium">
               {t("badge")}
