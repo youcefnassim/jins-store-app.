@@ -17,7 +17,9 @@
     "contact": "Contact",
     "menu": "Menu",
     "signin": "Sign In",
-    "dashboard": "Dashboard",
+    "dashboard": "Profile",
+    "profile": "Profile",
+    "cart": "Cart",
     "recharge_now": "Recharge Now"
   },
   "Footer": {

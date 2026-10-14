@@ -17,7 +17,9 @@
     "contact": "Contact",
     "menu": "Menu",
     "signin": "Connexion",
-    "dashboard": "Tableau de Bord",
+    "dashboard": "Profil",
+    "profile": "Profil",
+    "cart": "Panier",
     "recharge_now": "Recharger"
   },
   "Footer": {
@@ -392,7 +394,7 @@
     "submit_order": "Valider la Commande"
   },
   "Cart": {
-    "title": "Mon Panier",
+    "title": "Panier",
     "empty_title": "Votre panier est vide",
     "empty_desc": "Ajoutez des forfaits à votre panier pour procéder au paiement groupé.",
     "continue_shopping": "Continuer mes achats",

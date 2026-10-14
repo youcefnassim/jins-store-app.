@@ -17,7 +17,9 @@
     "contact": "اتصل بنا",
     "menu": "القائمة",
     "signin": "تسجيل الدخول",
-    "dashboard": "لوحة التحكم",
+    "dashboard": "حسابي",
+    "profile": "حسابي",
+    "cart": "السلة",
     "recharge_now": "اشحن الآن"
   },
   "Footer": {

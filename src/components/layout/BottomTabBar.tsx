@@ -9,7 +9,6 @@ import { useCartStore } from "@/store/useCartStore";
 export function BottomTabBar() {
   const pathname = usePathname();
   const t = useTranslations("Navbar");
-  const tCart = useTranslations("Cart");
   const { getItemCount } = useCartStore();
   const totalItems = getItemCount();
 
@@ -17,39 +16,40 @@ export function BottomTabBar() {
     { name: t("home"), icon: Home, href: "/" },
     { name: t("games"), icon: Gamepad2, href: "/games" },
     { name: t("checker"), icon: UserCheck, href: "/check-id" },
-    { name: tCart("title"), icon: ShoppingCart, href: "#", isCart: true },
-    { name: t("dashboard"), icon: User, href: "/dashboard" },
+    { name: t("cart"), icon: ShoppingCart, href: "#", isCart: true },
+    { name: t("profile"), icon: User, href: "/dashboard" },
   ];
 
   // Helper to check if a tab is active.
   const isActive = (href: string) => {
     if (href === "#") return false;
     if (href === "/" && (pathname === "/" || pathname === "/fr" || pathname === "/ar" || pathname === "/en")) return true;
+    if (href === "/dashboard" && (pathname.includes("/dashboard") || pathname.includes("/auth"))) return true;
     if (href !== "/" && pathname.includes(href)) return true;
     return false;
   };
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/80 dark:bg-[#0a0e17]/80 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-      <div className="grid grid-cols-5 h-16">
+    <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/90 dark:bg-[#0a0e17]/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.15)]">
+      <div className="grid grid-cols-5 h-14 sm:h-16">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           
           const tabContent = (
             <>
               {active && (
-                <div className="absolute top-0 w-8 h-1 bg-gradient-to-r from-primary to-purple-600 rounded-b-full shadow-[0_0_10px_rgba(139,92,246,0.5)]" />
+                <div className="absolute top-0 w-8 h-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-b-full shadow-[0_0_10px_rgba(139,92,246,0.6)]" />
               )}
 
-              <div className={`p-1.5 rounded-xl transition-all duration-300 ${active ? 'bg-primary/10 text-primary' : 'text-slate-500 dark:text-slate-400 group-hover:text-primary group-hover:bg-primary/5'} relative`}>
-                <tab.icon className={`w-6 h-6 transition-transform duration-300 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
+              <div className={`p-1 rounded-xl transition-all duration-300 ${active ? 'bg-primary/10 text-primary' : 'text-slate-500 dark:text-slate-400 group-hover:text-primary group-hover:bg-primary/5'} relative`}>
+                <tab.icon className={`w-5 h-5 transition-transform duration-300 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
                 {tab.isCart && totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-sm border border-white dark:border-[#0a0e17]">
+                  <span className="absolute -top-1 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-sm border border-white dark:border-[#0a0e17]">
                     {totalItems}
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] font-medium transition-colors ${active ? 'text-primary' : 'text-slate-500 dark:text-slate-400'}`}>
+              <span className={`text-[10px] font-medium tracking-tight truncate max-w-[62px] px-0.5 text-center leading-none transition-colors ${active ? 'text-primary font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
             </>
