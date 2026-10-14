@@ -120,8 +120,8 @@ export const paymentMethods: PaymentMethod[] = [
   {
     id: "flexy",
     name: "Flexy",
-    description: "Pay using mobile credit (Mobilis, Djezzy, Ooredoo)",
-    instructions: "Send the flexy to 0550000000. Wait for the confirmation SMS and take a screenshot, or just input the number you sent from.",
+    description: "Pay using mobile credit (Mobilis, Djezzy, Ooredoo +20%)",
+    instructions: "Send the flexy (+20% fees) to 0550000000. Wait for the confirmation SMS and take a screenshot, or just input the number you sent from.",
     active: true,
   },
 ];

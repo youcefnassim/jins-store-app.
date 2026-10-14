@@ -81,7 +81,17 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
           </div>
         );
       case "flexy":
-        return <CreditCard className="w-6 h-6 text-[#34d399]" />;
+        return (
+          <div className="relative w-7 h-7 flex items-center justify-center overflow-hidden rounded-lg shadow-sm">
+            <Image
+              src="/images/payments/flexy.png"
+              alt="Flexy"
+              width={28}
+              height={28}
+              className="object-contain rounded-lg"
+            />
+          </div>
+        );
       default:
         return <Wallet className="w-6 h-6 text-primary" />;
     }
@@ -98,7 +108,7 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
       case "binance":
         return { label: "RedotPay ID", value: "123456789", showQr: true };
       case "flexy":
-        return { label: "Phone Number", value: "0550000000", showQr: false };
+        return { label: "Phone Number (Flexy +20%)", value: "0550000000", showQr: false };
       default:
         return null;
     }
@@ -106,8 +116,11 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
 
   // Dynamic currency logic
   const isRedotPay = selectedPayment?.id === "redotpay" || selectedPayment?.id === "binance";
+  const isFlexy = selectedPayment?.id === "flexy";
   const displayAmount = isRedotPay 
     ? (amount / 240).toFixed(2) // Conversion rate: 1 USD = 240 DZD
+    : isFlexy
+    ? Math.round(amount * 1.2) // +20% fee for Flexy
     : amount;
   const displayCurrency = isRedotPay ? "USD" : siteConfig.currency;
 

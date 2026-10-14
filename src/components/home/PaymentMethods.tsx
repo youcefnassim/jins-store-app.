@@ -36,7 +36,17 @@ export function PaymentMethods() {
           </div>
         );
       case "flexy":
-        return <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-[#34d399]" />;
+        return (
+          <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center overflow-hidden rounded-xl shadow-md">
+            <Image
+              src="/images/payments/flexy.png"
+              alt="Flexy"
+              width={44}
+              height={44}
+              className="object-contain rounded-xl"
+            />
+          </div>
+        );
       default:
         return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />;
     }
