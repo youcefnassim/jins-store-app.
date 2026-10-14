@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { HelpCircle, Loader2, CheckCircle2, UserCheck } from "lucide-react";
+import { HelpCircle, Loader2, CheckCircle2, UserCheck, ArrowDown } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -153,43 +153,54 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
       zoneId: acc.zone_id || watchedZoneId || "",
       phone: watchedPhone || "",
     });
+    setTimeout(() => {
+      document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
   };
 
   async function onSubmit(values: PlayerFormValues) {
     if (!verifiedName) {
       setIsVerifying(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       setVerifiedName("Format Valide");
       setIsVerifying(false);
     }
     onNext(values);
+    setTimeout(() => {
+      document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
   }
 
   return (
-    <Card className="glass-card border-white/10 relative overflow-hidden">
+    <Card id="player-info-section" className="glass-card border-white/10 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2" />
       
-      <CardHeader>
-        <CardTitle className="text-2xl text-slate-900 dark:text-white">{t("player_info_title")}</CardTitle>
-        <CardDescription className="text-slate-500 dark:text-muted-foreground">
-          {t("player_info_desc")}
-        </CardDescription>
+      <CardHeader className="py-4 px-4 sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shrink-0">1</span>
+          <div>
+            <CardTitle className="text-lg sm:text-xl text-slate-900 dark:text-white leading-tight">{t("player_info_title")}</CardTitle>
+            <CardDescription className="text-xs text-slate-500 dark:text-muted-foreground mt-0.5">
+              {t("player_info_desc")}
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
         {user && savedAccounts.length > 0 && (
-          <div className="mb-6">
-            <p className="text-sm font-medium text-slate-700 dark:text-white/80 mb-3">Ou choisir un compte enregistré :</p>
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10">
+          <div className="mb-4">
+            <p className="text-xs font-medium text-slate-700 dark:text-white/80 mb-2">Comptes enregistrés :</p>
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10">
               {savedAccounts.map((acc) => (
                 <button
                   key={acc.id}
                   type="button"
                   onClick={() => handleSelectAccount(acc)}
-                  className="flex flex-col items-start bg-black/5 dark:bg-black/20 hover:bg-primary/20 border border-slate-200 dark:border-white/5 hover:border-primary/50 p-3 rounded-xl transition-all min-w-[140px] text-left shrink-0 group"
+                  className="flex flex-col items-start bg-black/5 dark:bg-black/20 hover:bg-primary/20 border border-slate-200 dark:border-white/5 hover:border-primary/50 px-3 py-2 rounded-xl transition-all min-w-[130px] text-left shrink-0 group"
                 >
-                  <span className="text-xs text-primary font-bold">{acc.game}</span>
-                  <span className="text-sm font-mono text-slate-900 dark:text-white group-hover:text-primary-foreground">{acc.player_id}</span>
-                  {acc.player_name && <span className="text-xs text-muted-foreground">{acc.player_name}</span>}
+                  <span className="text-[10px] text-primary font-bold">{acc.game}</span>
+                  <span className="text-xs font-mono text-slate-900 dark:text-white group-hover:text-primary-foreground">{acc.player_id}</span>
+                  {acc.player_name && <span className="text-[10px] text-muted-foreground truncate max-w-[110px]">{acc.player_name}</span>}
                 </button>
               ))}
             </div>
@@ -197,26 +208,26 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <FormField
                 control={form.control}
                 name="playerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-white/80">{t("player_id")}</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">{t("player_id")}</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                        <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" {...field} />
                         {isVerifying && (
-                          <div className="absolute right-3 top-3.5 rtl:right-auto rtl:left-3">
-                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          <div className="absolute right-3 top-2.5 rtl:right-auto rtl:left-3">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
                           </div>
                         )}
                       </div>
                     </FormControl>
-                    <FormMessage className="text-destructive" />
+                    <FormMessage className="text-destructive text-xs" />
                   </FormItem>
                 )}
               />
@@ -225,18 +236,18 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                 name="zoneId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12 font-mono" {...field} />
+                        <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" {...field} />
                         {isVerifying && (
-                          <div className="absolute right-3 top-3.5 rtl:right-auto rtl:left-3">
-                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          <div className="absolute right-3 top-2.5 rtl:right-auto rtl:left-3">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
                           </div>
                         )}
                       </div>
                     </FormControl>
-                    <FormMessage className="text-destructive" />
+                    <FormMessage className="text-destructive text-xs" />
                   </FormItem>
                 )}
               />
@@ -248,18 +259,18 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   initial={{ opacity: 0, height: 0, y: -10 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -10 }}
-                  className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between"
+                  className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle2 className="w-6 h-6 text-emerald-500 dark:text-emerald-400" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-emerald-600 dark:text-emerald-400/80 font-bold uppercase tracking-wider">{t("account_verified")}</p>
-                      <p className="text-slate-900 dark:text-white font-bold text-lg">{verifiedName}</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400/80 font-bold uppercase tracking-wider">{t("account_verified")}</p>
+                      <p className="text-slate-900 dark:text-white font-bold text-sm">{verifiedName}</p>
                     </div>
                   </div>
-                  <UserCheck className="w-5 h-5 text-emerald-500 opacity-60" />
+                  <UserCheck className="w-4 h-4 text-emerald-500 opacity-60" />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -269,21 +280,21 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-700 dark:text-white/80">
+                  <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">
                     {t("phone")}
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. 0550000000" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-12" {...field} />
+                    <Input placeholder="e.g. 0550000000" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 text-sm" {...field} />
                   </FormControl>
-                  <p className="text-xs text-slate-500 dark:text-muted-foreground mt-1">{t("phone_desc")}</p>
-                  <FormMessage className="text-destructive" />
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground">{t("phone_desc")}</p>
+                  <FormMessage className="text-destructive text-xs" />
                 </FormItem>
               )}
             />
 
-            <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-4">
-              <Link href="/games/mobile-legends" target="_blank" className="text-sm text-primary hover:underline flex items-center gap-1 order-2 sm:order-1 font-medium">
-                <HelpCircle className="w-4 h-4" />
+            <div className="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3">
+              <Link href="/games/mobile-legends" target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1 order-2 sm:order-1 font-medium">
+                <HelpCircle className="w-3.5 h-3.5" />
                 {t("where_id")}
               </Link>
               
@@ -291,7 +302,7 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                 type="submit" 
                 disabled={isVerifying}
                 className={cn(
-                  "font-bold h-12 px-8 w-full sm:w-auto order-1 sm:order-2 rounded-xl transition-all shadow-lg",
+                  "font-bold h-11 px-6 w-full sm:w-auto order-1 sm:order-2 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-sm",
                   verifiedName 
                     ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25"
                     : "bg-primary hover:bg-primary/90 text-white shadow-primary/25"
@@ -299,17 +310,19 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
               >
                 {isVerifying ? (
                   <>
-                    <Loader2 className="mr-2 w-5 h-5 animate-spin" />
-                    {t("verifying")}
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>{t("verifying")}</span>
                   </>
                 ) : verifiedName ? (
                   <>
-                    <CheckCircle2 className="mr-2 w-5 h-5" />
-                    {t("account_verified")}
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Choisir mon forfait</span>
+                    <ArrowDown className="w-4 h-4 animate-bounce" />
                   </>
                 ) : (
                   <>
-                    {t("verify_id")}
+                    <span>Continuer vers les forfaits</span>
+                    <ArrowDown className="w-4 h-4" />
                   </>
                 )}
               </Button>

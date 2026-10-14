@@ -38,7 +38,10 @@ export async function POST(request: NextRequest) {
       phone,
       locale = 'fr',
       promoCode: promoCodeRaw,
+      quantity: rawQuantity,
     } = body;
+
+    const quantity = Math.max(1, Math.min(99, Number(rawQuantity) || 1));
 
     if (!playerId || !packageId) {
       return NextResponse.json({ error: 'Données manquantes' }, { status: 400 });
@@ -62,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Package invalide' }, { status: 400 });
     }
 
-    let price = Number(pkg.price);
+    let price = Number(pkg.price) * quantity;
     let promoCode: string | null = null;
 
     if (promoCodeRaw) {
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         game: gameSlug,
-        package: pkg.label || packageName,
+        package: quantity > 1 ? `${pkg.label || packageName} (x${quantity})` : (pkg.label || packageName),
         player_id: playerId,
         zone_id: zoneId || null,
         phone: phone || null,

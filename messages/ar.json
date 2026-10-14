@@ -354,6 +354,7 @@
     "game": "اللعبة",
     "player": "اللاعب",
     "package": "الباقة",
+    "quantity": "الكمية",
     "payment_method": "طريقة الدفع",
     "total_amount": "المبلغ الإجمالي"
   },
@@ -366,7 +367,9 @@
     "buy_now": "شراء مباشر",
     "add_to_cart_title": "إضافة إلى السلة",
     "enter_player_id": "يرجى إدخال معرف اللاعب للباقة {amount}.",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "quantity": "الكمية",
+    "total": "الإجمالي"
   },
   "PaymentSelector": {
     "select_payment": "اختر طريقة الدفع",

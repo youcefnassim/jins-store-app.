@@ -9,7 +9,7 @@ import { PaymentSelector } from "./PaymentSelector";
 import { ProofUpload } from "./ProofUpload";
 import { OrderSummary } from "./OrderSummary";
 import { Package, PaymentMethod } from "@/lib/mock-data";
-import { Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/supabase/AuthContext";
@@ -20,6 +20,7 @@ export type OrderData = {
   playerId: string;
   zoneId: string;
   phone: string;
+  quantity?: number;
   package?: Package;
   paymentMethod?: PaymentMethod;
   proofUrl?: string;
@@ -46,6 +47,7 @@ export function RechargeStepper() {
     playerId: "",
     zoneId: "",
     phone: "",
+    quantity: 1,
   });
 
   const { user } = useAuth();
@@ -79,7 +81,8 @@ export function RechargeStepper() {
 
   const handleNextToPayment = () => {
     if (!orderData.playerId.trim()) {
-      toast.error("Veuillez saisir votre ID de joueur.");
+      toast.error("Veuillez d'abord saisir votre ID de joueur.");
+      document.getElementById("player-info-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
     if (!orderData.package) {
@@ -87,10 +90,26 @@ export function RechargeStepper() {
       return;
     }
     setCurrentStep(2);
+    setTimeout(() => {
+      document.getElementById("payment-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
   };
 
   const handleBack = () => {
     setCurrentStep(1);
+    setTimeout(() => {
+      document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+  };
+
+  const getBaseTotalPrice = () => {
+    const unitPrice = parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g, '')) || 0;
+    return unitPrice * (orderData.quantity || 1);
+  };
+
+  const getFinalTotalPrice = () => {
+    const base = getBaseTotalPrice();
+    return orderData.promoDiscount ? Math.round(base * (1 - orderData.promoDiscount / 100)) : base;
   };
 
   const handleSubmit = async (file: File, transactionRef: string) => {
@@ -108,10 +127,12 @@ export function RechargeStepper() {
     setIsSubmitting(true);
     
     try {
+      const qty = orderData.quantity || 1;
       const formData = new FormData();
       formData.append('game', 'Mobile Legends');
       formData.append('packageId', orderData.package.id);
       formData.append('packageName', String(orderData.package.amount));
+      formData.append('quantity', String(qty));
       formData.append('playerId', orderData.playerId);
       if (orderData.zoneId) formData.append('zoneId', orderData.zoneId);
       if (orderData.phone) formData.append('phone', orderData.phone);
@@ -124,7 +145,6 @@ export function RechargeStepper() {
         body: formData,
       });
       const data = await res.json();
-
 
       if (!res.ok) throw new Error(data.error || 'Échec de la création de la commande');
       
@@ -155,6 +175,7 @@ export function RechargeStepper() {
 
     setIsSubmitting(true);
     try {
+      const qty = orderData.quantity || 1;
       const res = await fetch('/api/payment/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -163,6 +184,7 @@ export function RechargeStepper() {
           zoneId: orderData.zoneId,
           packageId: orderData.package.id,
           packageName: String(orderData.package.amount),
+          quantity: qty,
           phone: orderData.phone,
           gameSlug: 'mobile-legends',
           locale,
@@ -183,19 +205,19 @@ export function RechargeStepper() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
       
       {/* Main Steps Form */}
-      <div className="w-full lg:w-2/3 flex flex-col gap-6">
+      <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
         
         {/* Progress Indicator (2 Steps) */}
-        <div className="glass-card rounded-xl p-4 md:p-6 border border-slate-200/60 dark:border-white/10 shadow-sm">
-          <div className="grid grid-cols-2 gap-4 relative">
+        <div className="glass-card rounded-xl p-3 sm:p-4 border border-slate-200/60 dark:border-white/10 shadow-sm">
+          <div className="grid grid-cols-2 gap-3 relative">
             {STEPS.map((step) => (
               <div 
                 key={step.id} 
                 className={cn(
-                  "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                  "flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer",
                   currentStep === step.id 
                     ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
                     : currentStep > step.id
@@ -209,7 +231,7 @@ export function RechargeStepper() {
               >
                 <div 
                   className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                    "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
                     currentStep > step.id
                       ? "bg-emerald-500 text-white"
                       : currentStep === step.id
@@ -219,7 +241,7 @@ export function RechargeStepper() {
                 >
                   {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
                 </div>
-                <span className="text-xs md:text-sm font-semibold">
+                <span className="text-xs sm:text-sm font-semibold truncate">
                   {t(step.key as any)}
                 </span>
               </div>
@@ -229,7 +251,7 @@ export function RechargeStepper() {
 
         {/* Step 1: Joueur & Forfait (Combined Essential Step 1) */}
         {currentStep === 1 && (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <PlayerForm 
               data={orderData} 
               onNext={(data) => {
@@ -239,55 +261,46 @@ export function RechargeStepper() {
             
             <PackageSelector 
               selectedPackage={orderData.package}
+              quantity={orderData.quantity || 1}
+              onQuantityChange={(qty) => setOrderData(prev => ({ ...prev, quantity: qty }))}
               onSelect={(pkg) => setOrderData(prev => ({ ...prev, package: pkg }))}
               onNext={handleNextToPayment}
               onBack={() => router.back()}
               gameName={searchParams.get("game") || "Mobile Legends"}
             />
-
-            <div className="flex justify-end pt-4">
-              <Button
-                onClick={handleNextToPayment}
-                disabled={!orderData.playerId.trim() || !orderData.package}
-                size="lg"
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-primary/25"
-              >
-                <span>{t("continue_payment")}</span>
-                <ArrowRight className="w-4 h-4 ml-2 rtl:rotate-180 rtl:mr-2 rtl:ml-0" />
-              </Button>
-            </div>
           </div>
         )}
 
         {/* Step 2: Paiement & Preuve (Combined Essential Step 2) */}
         {currentStep === 2 && (
-          <div className="space-y-6">
+          <div id="payment-selector-section" className="space-y-4 sm:space-y-6 scroll-mt-20">
             {/* ── Chargily Pay Card (Automatic Payment) ───────── */}
-            <div className="relative rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent p-6 overflow-hidden">
-              {/* Glow */}
+            <div className="relative rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent p-5 sm:p-6 overflow-hidden">
               <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
               
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
-                  <span className="text-2xl">⚡</span>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
+                  <span className="text-xl sm:text-2xl">⚡</span>
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-white text-lg">Chargily Pay</h3>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="font-bold text-white text-base sm:text-lg">Chargily Pay</h3>
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Automatique</span>
                     <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Mode Test</span>
                   </div>
-                  <p className="text-sm text-white/60 mb-4">Paiement sécurisé par carte <strong className="text-white/80">CIB</strong> ou <strong className="text-white/80">DAHABIA</strong>. Confirmation instantanée — aucun reçu requis.</p>
+                  <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
+                    Paiement sécurisé par carte <strong className="text-white/80">CIB</strong> ou <strong className="text-white/80">EDAHABIA</strong>. Confirmation instantanée — aucun reçu requis.
+                  </p>
                   
                   <Button
                     onClick={handleChargilyCheckout}
                     disabled={isSubmitting || !orderData.playerId.trim() || !orderData.package}
-                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-bold h-12 px-8 rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50"
+                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-bold h-11 sm:h-12 px-6 sm:px-8 rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50 text-sm"
                   >
                     {isSubmitting ? (
                       <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />Redirection...</>
                     ) : (
-                      <>⚡ Payer maintenant — {orderData.promoDiscount ? Math.round(parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g,'')) * (1 - orderData.promoDiscount/100)) : parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g,''))} DZD</>
+                      <>⚡ Payer maintenant — {getFinalTotalPrice()} DZD</>
                     )}
                   </Button>
                 </div>
@@ -297,7 +310,7 @@ export function RechargeStepper() {
             {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-white/10" />
-              <span className="text-xs text-white/40 uppercase tracking-widest font-semibold">ou paiement manuel</span>
+              <span className="text-[11px] text-white/40 uppercase tracking-widest font-semibold">ou paiement manuel</span>
               <div className="flex-1 h-px bg-white/10" />
             </div>
 
@@ -306,11 +319,7 @@ export function RechargeStepper() {
               onSelect={(method) => setOrderData(prev => ({ ...prev, paymentMethod: method }))}
               onNext={() => {}}
               onBack={handleBack}
-              amount={
-                orderData.promoDiscount 
-                ? Math.round(parseInt(String(orderData.package?.price).replace(/[^0-9]/g, '')) * (1 - orderData.promoDiscount / 100))
-                : parseInt(String(orderData.package?.price).replace(/[^0-9]/g, '')) || 0
-              }
+              amount={getFinalTotalPrice()}
               promoCode={orderData.promoCode}
               onPromoApply={(code, discount) => setOrderData(prev => ({ ...prev, promoCode: code, promoDiscount: discount }))}
             />

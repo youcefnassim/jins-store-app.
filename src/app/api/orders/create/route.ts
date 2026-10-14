@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
     const paymentMethod = (formData.get('paymentMethod') as string) || null;
     const promoCodeRaw = (formData.get('promoCode') as string) || null;
     const receiptFile = formData.get('receiptFile') as File | null;
+    const rawQuantity = formData.get('quantity');
+    const quantity = Math.max(1, Math.min(99, Number(rawQuantity) || 1));
 
     if (!receiptFile) {
       return NextResponse.json({ error: 'Reçu de paiement requis' }, { status: 400 });
@@ -67,7 +69,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forfait indisponible ou invalide' }, { status: 400 });
     }
 
-    let price = Number(pkg.price);
+    let price = Number(pkg.price) * quantity;
     let promoCode: string | null = null;
 
     // 4. Promo code validation & atomic concurrency update (Fixes B5)
@@ -130,10 +132,12 @@ export async function POST(request: NextRequest) {
     // Generate public URL (or storage path)
     const { data: { publicUrl } } = admin.storage.from('receipts').getPublicUrl(fileName);
 
+    const packageTitle = quantity > 1 ? `${pkg.label || packageName} (x${quantity})` : (pkg.label || packageName);
+
     const orderPayload: Record<string, unknown> = {
       user_id: user.id,
       game: gameName,
-      package: pkg.label || packageName,
+      package: packageTitle,
       player_id: playerId.trim(),
       price: String(price),
       points_to_award: pointsToAward,
@@ -166,7 +170,7 @@ export async function POST(request: NextRequest) {
     sendDiscordOrderNotification({
       orderId: orderData.id,
       game: gameName,
-      package: pkg.label || packageName,
+      package: packageTitle,
       playerId: playerId.trim(),
       price: `${price} DZD`,
       paymentMethod: paymentMethod || 'BaridiMob / CCP',

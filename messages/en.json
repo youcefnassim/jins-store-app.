@@ -354,6 +354,7 @@
     "game": "Game",
     "player": "Player",
     "package": "Package",
+    "quantity": "Quantity",
     "payment_method": "Payment Method",
     "total_amount": "Total Amount"
   },
@@ -366,7 +367,9 @@
     "buy_now": "Buy Directly",
     "add_to_cart_title": "Add to Cart",
     "enter_player_id": "Please enter your Player ID for package {amount}.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "quantity": "Quantity",
+    "total": "Total"
   },
   "PaymentSelector": {
     "select_payment": "Select Payment Method",

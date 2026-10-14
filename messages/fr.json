@@ -354,6 +354,7 @@
     "game": "Jeu",
     "player": "Joueur",
     "package": "Forfait",
+    "quantity": "Quantité",
     "payment_method": "Mode de Paiement",
     "total_amount": "Montant Total"
   },
@@ -366,7 +367,9 @@
     "buy_now": "Acheter directement",
     "add_to_cart_title": "Ajouter au panier",
     "enter_player_id": "Veuillez entrer votre ID de joueur pour le forfait {amount}.",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "quantity": "Quantité",
+    "total": "Total"
   },
   "PaymentSelector": {
     "select_payment": "Sélectionner le Mode de Paiement",
