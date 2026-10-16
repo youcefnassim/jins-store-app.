@@ -1,51 +1,72 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { paymentMethods } from "@/lib/mock-data";
-import { Landmark, CreditCard, Wallet } from "lucide-react";
+import { Landmark, CreditCard, Wallet, Smartphone } from "lucide-react";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 export function PaymentMethods() {
   const t = useTranslations("PaymentMethods");
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  const handleImgError = (id: string) => {
+    setImgErrors(prev => ({ ...prev, [id]: true }));
+  };
 
   const getIcon = (id: string) => {
+    const hasError = imgErrors[id];
+
     switch (id) {
       case "baridimob":
-        return (
-          <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center">
-            <Image
-              src="/images/payments/baridimob.png"
-              alt="BaridiMob"
-              width={44}
-              height={44}
-              className="object-contain"
-            />
+        return !hasError ? (
+          <img
+            src="/images/payments/baridimob.png"
+            alt="BaridiMob"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <div className="w-full h-full rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            BM
           </div>
         );
       case "ccp":
-        return <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-[#60a5fa]" />;
+        return !hasError ? (
+          <img
+            src="/images/payments/ccp.png"
+            alt="Algérie Poste CCP"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <Landmark className="w-6 h-6 sm:w-8 sm:h-8 text-[#60a5fa]" />
+        );
       case "redotpay":
-        return (
-          <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden rounded-xl shadow-md">
-            <Image
-              src="/images/payments/redotpay.png"
-              alt="RedotPay"
-              width={40}
-              height={40}
-              className="object-contain rounded-xl"
-            />
-          </div>
+        return !hasError ? (
+          <img
+            src="/images/payments/redotpay.png"
+            alt="RedotPay"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <CreditCard className="w-6 h-6 sm:w-8 sm:h-8 text-rose-400" />
         );
       case "flexy":
-        return (
-          <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center overflow-hidden rounded-xl shadow-md">
-            <Image
-              src="/images/payments/flexy.png"
-              alt="Flexy"
-              width={44}
-              height={44}
-              className="object-contain rounded-xl"
-            />
-          </div>
+        return !hasError ? (
+          <img
+            src="/images/payments/flexy.png"
+            alt="Flexy"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400" />
         );
       default:
         return <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />;
@@ -68,7 +89,7 @@ export function PaymentMethods() {
           {paymentMethods.map((method) => (
             <Card key={method.id} className="glass-card hover:-translate-y-1 transition-transform duration-300">
               <CardContent className="p-4 sm:p-6 flex flex-col items-center text-center gap-2 sm:gap-4">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center p-2 border border-white/10 shadow-inner">
                   {getIcon(method.id)}
                 </div>
                 <div className="w-full">

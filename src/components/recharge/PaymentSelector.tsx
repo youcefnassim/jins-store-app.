@@ -5,12 +5,11 @@ import { PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, QrCode } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, QrCode, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
-import Image from "next/image";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
@@ -22,12 +21,21 @@ interface PaymentSelectorProps {
   onPromoApply?: (code: string, discount: number) => void;
 }
 
-export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amount, promoCode, onPromoApply }: PaymentSelectorProps) {
+export function PaymentSelector({ 
+  selectedPayment, 
+  onSelect, 
+  onNext, 
+  onBack, 
+  amount, 
+  promoCode, 
+  onPromoApply 
+}: PaymentSelectorProps) {
   const t = useTranslations("PaymentSelector");
   const tPkg = useTranslations("PackageSelector");
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
 
   const [promoInput, setPromoInput] = useState(promoCode || "");
   const [promoLoading, setPromoLoading] = useState(false);
@@ -51,64 +59,117 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
     setTimeout(() => setCopiedText(null), 2000);
   };
 
-  const getIcon = (id: string) => {
+  const handleImgError = (id: string) => {
+    setImgErrors(prev => ({ ...prev, [id]: true }));
+  };
+
+  const getMethodIcon = (id: string) => {
+    const hasError = imgErrors[id];
+
     switch (id) {
       case "baridimob":
-        return (
-          <div className="relative w-8 h-8 flex items-center justify-center">
-            <Image
-              src="/images/payments/baridimob.png"
-              alt="BaridiMob"
-              width={32}
-              height={32}
-              className="object-contain"
-            />
+        return !hasError ? (
+          <img
+            src="/images/payments/baridimob.png"
+            alt="BaridiMob"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <div className="w-full h-full rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+            BM
           </div>
         );
+
       case "ccp":
-        return <Landmark className="w-6 h-6 text-[#60a5fa]" />;
+        return !hasError ? (
+          <img
+            src="/images/payments/ccp.png"
+            alt="Algérie Poste CCP"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <Landmark className="w-6 h-6 text-[#60a5fa]" />
+        );
+
       case "redotpay":
       case "binance":
-        return (
-          <div className="relative w-7 h-7 flex items-center justify-center overflow-hidden rounded-lg shadow-sm">
-            <Image
-              src="/images/payments/redotpay.png"
-              alt="RedotPay"
-              width={28}
-              height={28}
-              className="object-contain rounded-lg"
-            />
-          </div>
+        return !hasError ? (
+          <img
+            src="/images/payments/redotpay.png"
+            alt="RedotPay"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <CreditCard className="w-6 h-6 text-rose-400" />
         );
+
       case "flexy":
-        return (
-          <div className="relative w-7 h-7 flex items-center justify-center overflow-hidden rounded-lg shadow-sm">
-            <Image
-              src="/images/payments/flexy.png"
-              alt="Flexy"
-              width={28}
-              height={28}
-              className="object-contain rounded-lg"
-            />
-          </div>
+        return !hasError ? (
+          <img
+            src="/images/payments/flexy.png"
+            alt="Flexy"
+            onError={() => handleImgError(id)}
+            className="w-full h-full object-contain rounded-xl"
+            loading="eager"
+          />
+        ) : (
+          <Smartphone className="w-6 h-6 text-amber-400" />
         );
+
       default:
         return <Wallet className="w-6 h-6 text-primary" />;
     }
   };
 
-  // Mock account details for copy-to-clipboard functionality
+  const getMethodBadge = (id: string) => {
+    switch (id) {
+      case "baridimob":
+        return (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            Instantané • 0%
+          </span>
+        );
+      case "ccp":
+        return (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/30">
+            Algérie Poste
+          </span>
+        );
+      case "redotpay":
+      case "binance":
+        return (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30">
+            Crypto / USD
+          </span>
+        );
+      case "flexy":
+        return (
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            +20% Frais
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
   const getAccountDetails = (id: string) => {
     switch (id) {
       case "baridimob":
-        return { label: "RIP Number", value: "00799999000000000012", showQr: true };
+        return { label: "Numéro RIP (BaridiMob)", value: "00799999000000000012", showQr: true };
       case "ccp":
-        return { label: "CCP Account", value: "12345678 Clé 99 (MOCK NAME)", showQr: false };
+        return { label: "Compte CCP & Clé", value: "12345678 Clé 99 (MOCK NAME)", showQr: false };
       case "redotpay":
       case "binance":
-        return { label: "RedotPay ID", value: "123456789", showQr: true };
+        return { label: "ID Compte RedotPay", value: "123456789", showQr: true };
       case "flexy":
-        return { label: "Phone Number (Flexy +20%)", value: "0550000000", showQr: false };
+        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: "0550000000", showQr: false };
       default:
         return null;
     }
@@ -157,165 +218,242 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
       {/* Decorative gradient */}
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10 translate-x-1/2 translate-y-1/2" />
       
-      <CardHeader>
-        <CardTitle className="text-2xl text-white">{t("select_payment")}</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          {t("choose_payment_desc")}
-        </CardDescription>
+      <CardHeader className="py-3.5 px-4 sm:px-6">
+        <div className="flex items-center gap-2.5">
+          <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shrink-0">
+            3
+          </span>
+          <div>
+            <CardTitle className="text-lg sm:text-xl text-white leading-tight">
+              {t("select_payment")}
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">
+              {t("choose_payment_desc")}
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-16">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {methods.map((method) => (
-                <div
-                  key={method.id}
-                  onClick={() => onSelect(method)}
-                  className={cn(
-                    "cursor-pointer rounded-xl border p-4 transition-all duration-200 flex items-start gap-4",
-                    selectedPayment?.id === method.id
-                      ? "border-primary bg-primary/10 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
-                      : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60"
-                  )}
-                >
-                  <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                    {getIcon(method.id)}
+          <div className="space-y-4 sm:space-y-5">
+            
+            {/* Payment Methods Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {methods.map((method) => {
+                const isSelected = selectedPayment?.id === method.id;
+                return (
+                  <div
+                    key={method.id}
+                    onClick={() => onSelect(method)}
+                    className={cn(
+                      "relative cursor-pointer rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 flex items-center justify-between gap-3 group select-none overflow-hidden",
+                      isSelected
+                        ? "border-primary bg-gradient-to-r from-primary/20 via-purple-900/15 to-black/40 shadow-[0_0_20px_rgba(139,92,246,0.35)] ring-1 ring-primary/60 scale-[1.01]"
+                        : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60 hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {/* Icon Container */}
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 p-1.5 border transition-all duration-200 shadow-md",
+                        method.id === "baridimob" 
+                          ? "bg-emerald-950/40 border-emerald-500/30 group-hover:border-emerald-500/60"
+                          : method.id === "ccp"
+                          ? "bg-blue-950/40 border-blue-500/30 group-hover:border-blue-500/60"
+                          : method.id === "redotpay"
+                          ? "bg-rose-950/40 border-rose-500/30 group-hover:border-rose-500/60"
+                          : "bg-purple-950/40 border-purple-500/30 group-hover:border-purple-500/60"
+                      )}>
+                        {getMethodIcon(method.id)}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                          <h3 className="font-bold text-white text-sm sm:text-base leading-tight group-hover:text-primary transition-colors truncate">
+                            {method.name}
+                          </h3>
+                          {getMethodBadge(method.id)}
+                        </div>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 leading-tight">
+                          {method.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Radio Checkmark */}
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all",
+                      isSelected
+                        ? "bg-primary border-primary text-white shadow-[0_0_8px_rgba(168,85,247,0.5)]"
+                        : "border-white/20 bg-white/5 group-hover:border-white/40"
+                    )}>
+                      {isSelected && (
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-white mb-1">{method.name}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{method.description}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
+            {/* Selected Method Details & Instructions */}
             <AnimatePresence mode="wait">
               {selectedPayment && (
                 <motion.div 
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mt-6 p-6 rounded-xl bg-blue-500/10 border border-blue-500/20 overflow-hidden"
+                  transition={{ duration: 0.25 }}
+                  className="p-4 sm:p-5 rounded-xl bg-blue-500/10 border border-blue-500/25 overflow-hidden space-y-4"
                 >
-                  <div className="flex gap-3 mb-4">
-                    <Info className="w-6 h-6 text-blue-400 shrink-0" />
+                  <div className="flex gap-3">
+                    <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="font-bold text-blue-100 text-lg mb-1">{t("instructions")}</h4>
-                      <p className="text-blue-200/80 text-sm leading-relaxed">
+                      <h4 className="font-bold text-blue-100 text-sm sm:text-base mb-1">
+                        {t("instructions")}
+                      </h4>
+                      <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
                         {selectedPayment.instructions}
                       </p>
                     </div>
                   </div>
                   
-                  {/* Click to Copy & QR Code Section */}
+                  {/* Copy Account Box & QR Code */}
                   {getAccountDetails(selectedPayment.id) && (
-                    <div className="mt-4 flex flex-col sm:flex-row gap-4 bg-black/40 rounded-lg p-4 border border-white/5 items-center">
-                      
-                      {/* Copy Box */}
-                      <div className="flex-1 w-full">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium tracking-wide uppercase">
+                    <div className="flex flex-col sm:flex-row gap-3 bg-black/50 rounded-xl p-3 sm:p-4 border border-white/10 items-stretch sm:items-center">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] text-muted-foreground mb-1 font-semibold uppercase tracking-wider">
                           {getAccountDetails(selectedPayment.id)?.label}
                         </p>
                         <div className="flex items-center gap-2">
-                          <code className="bg-black/50 text-white px-3 py-2 rounded-md font-mono text-sm border border-white/10 flex-1">
+                          <code className="bg-black/60 text-white px-3 py-2 rounded-lg font-mono text-xs sm:text-sm border border-white/10 flex-1 truncate select-all">
                             {getAccountDetails(selectedPayment.id)?.value}
                           </code>
                           <Button 
+                            type="button"
                             variant="secondary" 
-                            size="icon"
+                            size="sm"
                             onClick={() => handleCopy(getAccountDetails(selectedPayment.id)?.value || "")}
-                            className={copiedText === getAccountDetails(selectedPayment.id)?.value ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:text-emerald-300" : ""}
+                            className={cn(
+                              "h-9 px-3 shrink-0 rounded-lg transition-all font-semibold text-xs flex items-center gap-1.5",
+                              copiedText === getAccountDetails(selectedPayment.id)?.value 
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
+                                : "bg-white/10 hover:bg-white/20 text-white"
+                            )}
                           >
                             {copiedText === getAccountDetails(selectedPayment.id)?.value ? (
-                              <Check className="w-4 h-4" />
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>Copié !</span>
+                              </>
                             ) : (
-                              <Copy className="w-4 h-4" />
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Copier</span>
+                              </>
                             )}
                           </Button>
                         </div>
                       </div>
 
-                      {/* Mock QR Code */}
+                      {/* QR Code */}
                       {getAccountDetails(selectedPayment.id)?.showQr && (
-                        <div className="flex flex-col items-center justify-center shrink-0 bg-white p-2 rounded-lg cursor-pointer hover:scale-105 transition-transform" title="Scan to pay">
-                          <QrCode className="w-16 h-16 text-black" />
-                          <span className="text-[10px] text-black font-bold mt-1 tracking-tighter">{t("scan_to_pay")}</span>
+                        <div className="flex sm:flex-col items-center justify-center shrink-0 bg-white p-2 rounded-lg gap-2 cursor-pointer hover:scale-105 transition-transform" title="Scanner pour payer">
+                          <QrCode className="w-12 h-12 text-black" />
+                          <span className="text-[9px] text-black font-extrabold uppercase tracking-tight">
+                            {t("scan_to_pay")}
+                          </span>
                         </div>
                       )}
                     </div>
                   )}
                   
-                  
-                  {/* PROMO CODE SECTION */}
-                  <div className="mt-4 rounded-xl border border-white/10 bg-black/20 overflow-hidden">
-                    <div className="px-4 pt-4 pb-2">
-                      <label className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
-                        <span className="text-primary">%</span>
-                        {t("promo_title")}
-                      </label>
-                      <div className="flex gap-2">
-                        <input 
-                          type="text" 
-                          placeholder={t("promo_placeholder")}
-                          value={promoInput}
-                          onChange={(e) => {
-                            setPromoInput(e.target.value.toUpperCase());
-                            setPromoError("");
-                            setPromoSuccess(false);
-                            if (onPromoApply) onPromoApply("", 0);
-                          }}
-                          className="flex-1 bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary uppercase placeholder:normal-case placeholder:text-white/30 transition-colors"
-                        />
-                        <Button 
-                          onClick={handleApplyPromo}
-                          disabled={!promoInput.trim() || promoLoading || promoSuccess}
-                          variant={promoSuccess ? "default" : "secondary"}
-                          className={promoSuccess ? "bg-emerald-500 hover:bg-emerald-600 text-white px-5" : "px-5"}
-                        >
-                          {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : promoSuccess ? <Check className="w-4 h-4" /> : t("promo_apply")}
-                        </Button>
-                      </div>
+                  {/* Promo Code Input */}
+                  <div className="rounded-xl border border-white/10 bg-black/30 p-3 sm:p-3.5 space-y-2">
+                    <label className="text-[11px] font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="text-primary font-black">%</span>
+                      {t("promo_title")}
+                    </label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder={t("promo_placeholder")}
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value.toUpperCase());
+                          setPromoError("");
+                          setPromoSuccess(false);
+                          if (onPromoApply) onPromoApply("", 0);
+                        }}
+                        className="flex-1 bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-primary uppercase placeholder:normal-case placeholder:text-white/30 font-mono transition-colors"
+                      />
+                      <Button 
+                        type="button"
+                        onClick={handleApplyPromo}
+                        disabled={!promoInput.trim() || promoLoading || promoSuccess}
+                        size="sm"
+                        variant={promoSuccess ? "default" : "secondary"}
+                        className={cn(
+                          "h-9 px-4 rounded-lg font-bold text-xs shrink-0",
+                          promoSuccess && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                        )}
+                      >
+                        {promoLoading ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : promoSuccess ? (
+                          <Check className="w-3.5 h-3.5" />
+                        ) : (
+                          t("promo_apply")
+                        )}
+                      </Button>
                     </div>
                     {promoError && (
-                      <div className="px-4 pb-3">
-                        <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1.5">
-                          <span className="inline-block w-1 h-1 rounded-full bg-red-400"></span>
-                          {t("promo_error")}
-                        </p>
-                      </div>
+                      <p className="text-red-400 text-[11px] flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-red-400" />
+                        {t("promo_error")}
+                      </p>
                     )}
                     {promoSuccess && (
-                      <div className="px-4 pb-3">
-                        <p className="text-emerald-400 text-xs mt-1.5 flex items-center gap-1.5">
-                          <Check className="w-3 h-3" />
-                          {t("promo_success")}
-                        </p>
-                      </div>
+                      <p className="text-emerald-400 text-[11px] flex items-center gap-1">
+                        <Check className="w-3 h-3" />
+                        {t("promo_success")}
+                      </p>
                     )}
                   </div>
 
-                  <div className="bg-gradient-to-r from-primary/20 via-purple-500/10 to-transparent rounded-xl p-5 mt-4 flex justify-between items-center border border-primary/30 shadow-[0_0_20px_rgba(139,92,246,0.15)]">
+                  {/* Amount To Send Preview */}
+                  <div className="bg-gradient-to-r from-primary/25 via-purple-600/15 to-transparent rounded-xl p-4 flex justify-between items-center border border-primary/35 shadow-lg">
                     <div>
-                      <p className="text-xs text-white/50 uppercase tracking-widest mb-1">{t("amount_to_send")}</p>
-                      <span className="text-3xl font-black text-white tracking-wider">
-                        {displayAmount} <span className="text-base font-semibold text-primary">{displayCurrency}</span>
+                      <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest font-semibold mb-0.5">
+                        {t("amount_to_send")}
+                      </p>
+                      <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        {displayAmount} <span className="text-sm sm:text-base font-bold text-primary">{displayCurrency}</span>
                       </span>
                     </div>
-                    <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                      <Wallet className="w-6 h-6 text-primary" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shadow-inner">
+                      <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                     </div>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="flex items-center justify-between pt-4 border-t border-white/5">
-              <Button type="button" variant="ghost" onClick={onBack} className="text-white/70 hover:text-white hover:bg-white/5">
-                <ArrowLeft className="mr-2 w-4 h-4 rtl:rotate-180 rtl:ml-2 rtl:mr-0" />
+            {/* Bottom Actions */}
+            <div className="flex items-center justify-between pt-3 border-t border-white/5">
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="sm" 
+                onClick={onBack} 
+                className="text-white/70 hover:text-white hover:bg-white/5 h-9 px-3 text-xs sm:text-sm"
+              >
+                <ArrowLeft className="mr-1.5 w-4 h-4 rtl:rotate-180 rtl:ml-1.5 rtl:mr-0" />
                 {tPkg("back")}
               </Button>
               
@@ -323,10 +461,10 @@ export function PaymentSelector({ selectedPayment, onSelect, onNext, onBack, amo
                 type="button" 
                 onClick={onNext} 
                 disabled={!selectedPayment}
-                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-12 px-8 rounded-full shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all"
+                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-10 sm:h-11 px-6 sm:px-8 rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 text-xs sm:text-sm disabled:opacity-50"
               >
-                {t("i_have_paid")}
-                <ArrowRight className="ml-2 w-4 h-4 rtl:rotate-180 rtl:mr-2 rtl:ml-0" />
+                <span>{t("i_have_paid")}</span>
+                <ArrowRight className="w-4 h-4 rtl:rotate-180" />
               </Button>
             </div>
           </div>
