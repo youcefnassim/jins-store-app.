@@ -107,14 +107,25 @@ export function RechargeStepper() {
     }, 150);
   };
 
+  const isFlexySelected = orderData.paymentMethod?.id === 'flexy' || 
+    (orderData.paymentMethod?.name || '').toLowerCase().includes('flexy');
+
   const getBaseTotalPrice = () => {
     const unitPrice = parseInt(String(orderData.package?.price || 0).replace(/[^0-9]/g, '')) || 0;
     return unitPrice * (orderData.quantity || 1);
   };
 
-  const getFinalTotalPrice = () => {
+  const getDiscountedPrice = () => {
     const base = getBaseTotalPrice();
     return orderData.promoDiscount ? Math.round(base * (1 - orderData.promoDiscount / 100)) : base;
+  };
+
+  const getFinalTotalPrice = () => {
+    const discounted = getDiscountedPrice();
+    if (isFlexySelected) {
+      return Math.round(discounted * 1.20);
+    }
+    return discounted;
   };
 
   const handleSubmit = async (file: File, transactionRef: string) => {
@@ -390,7 +401,7 @@ export function RechargeStepper() {
               onSelect={(method) => setOrderData(prev => ({ ...prev, paymentMethod: method }))}
               onNext={() => {}}
               onBack={handleBack}
-              amount={getFinalTotalPrice()}
+              amount={getDiscountedPrice()}
               promoCode={orderData.promoCode}
               onPromoApply={(code, discount) => setOrderData(prev => ({ ...prev, promoCode: code, promoDiscount: discount }))}
             />

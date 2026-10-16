@@ -19,9 +19,14 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
     ? parseInt(String(data.package.price).replace(/[^0-9]/g, '')) || 0 
     : 0;
   const baseTotal = unitPrice * quantity;
-  const finalTotal = data.promoDiscount 
+  const discountedTotal = data.promoDiscount 
     ? Math.round(baseTotal * (1 - data.promoDiscount / 100)) 
     : baseTotal;
+
+  const isFlexy = data.paymentMethod?.id === 'flexy' || 
+    (data.paymentMethod?.name || '').toLowerCase().includes('flexy');
+  const flexyFee = isFlexy ? Math.round(discountedTotal * 0.20) : 0;
+  const finalTotal = discountedTotal + flexyFee;
 
   return (
     <Card className="glass-card border-white/10 shadow-xl overflow-hidden">
@@ -54,9 +59,16 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
           {data.paymentMethod && (
             <div className="flex justify-between items-center text-xs sm:text-sm">
               <span className="text-muted-foreground">{t("payment_method")}</span>
-              <span className="font-medium text-white">
-                {data.paymentMethod.name}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-medium text-white">
+                  {data.paymentMethod.name}
+                </span>
+                {isFlexy && (
+                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 rounded">
+                    +20%
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -73,21 +85,26 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
                 </div>
               ) : null}
 
+              {isFlexy && (
+                <div className="flex justify-between items-center text-amber-400 text-xs sm:text-sm font-medium">
+                  <span>Frais Flexy (+20%)</span>
+                  <span>+{flexyFee.toLocaleString()} DZD</span>
+                </div>
+              )}
+
               <div className="flex justify-between items-end mt-1">
-                <span className="text-white/80 font-medium text-xs sm:text-sm">{t("total_amount")}</span>
+                <span className="text-white/80 font-medium text-xs sm:text-sm">
+                  {isFlexy ? "Total à payer (Flexy)" : t("total_amount")}
+                </span>
                 <div className="text-right">
-                  {data.promoDiscount ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-xs text-slate-400 line-through mb-0.5">{baseTotal} DZD</span>
-                      <span className="text-xl sm:text-2xl font-bold text-white block leading-none mb-1">
-                        {finalTotal}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-xl sm:text-2xl font-bold text-white block leading-none mb-1">
-                      {baseTotal}
+                  <div className="flex flex-col items-end">
+                    {(data.promoDiscount || isFlexy) && (
+                      <span className="text-xs text-slate-400 line-through mb-0.5">{baseTotal.toLocaleString()} DZD</span>
+                    )}
+                    <span className="text-xl sm:text-2xl font-bold text-white block leading-none mb-1 font-mono">
+                      {finalTotal.toLocaleString()}
                     </span>
-                  )}
+                  </div>
                   <span className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wider">
                     {siteConfig.currency}
                   </span>

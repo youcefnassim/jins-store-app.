@@ -22,6 +22,9 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const totalPrice = getTotalPrice();
+  const isFlexy = paymentMethod?.id === "flexy" || (paymentMethod?.name || "").toLowerCase().includes("flexy");
+  const flexyFee = isFlexy ? Math.round(totalPrice * 0.20) : 0;
+  const finalPayPrice = totalPrice + flexyFee;
 
   if (items.length === 0) {
     return (
@@ -50,7 +53,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
     
     try {
-      const pointsToAward = Math.floor(totalPrice * 0.1);
+      const pointsToAward = Math.floor(finalPayPrice * 0.1);
 
       // Submit global order
       const formData = new FormData();
@@ -61,7 +64,7 @@ export default function CheckoutPage() {
       // Encode cart items to save them in DB if needed (or just list them in player ID field as a hack for now)
       const itemsList = items.map(i => `${i.gameName}: ${i.name}${i.playerId ? ` (ID: ${i.playerId}${i.zoneId ? `/${i.zoneId}` : ''})` : ''} x${i.quantity}`).join(' | ');
       formData.append('playerId', itemsList);
-      formData.append('price', String(totalPrice));
+      formData.append('price', String(finalPayPrice));
       formData.append('pointsToAward', String(pointsToAward));
       formData.append('receiptFile', file);
 
@@ -121,7 +124,8 @@ export default function CheckoutPage() {
                 <CardContent>
                   <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mb-6">
                     <p className="text-sm font-medium">
-                      Veuillez envoyer le montant total de <span className="font-bold text-primary">{totalPrice.toLocaleString()} DZD</span> vers notre compte {paymentMethod?.name}.
+                      Veuillez envoyer le montant total de <span className="font-bold text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span> vers notre compte {paymentMethod?.name}.
+                      {isFlexy && <span className="block text-xs text-amber-400 mt-1 font-semibold">Inclut +20% de frais Flexy (+{flexyFee.toLocaleString()} DZD)</span>}
                     </p>
                   </div>
                   <ProofUpload 
@@ -146,7 +150,7 @@ export default function CheckoutPage() {
                       <div>
                         <p className="font-semibold">{item.quantity}x {item.name}</p>
                         <p className="text-xs text-muted-foreground">{item.gameName}</p>
-                        <p className="text-xs font-mono text-primary">ID: {item.playerId}</p>
+                        {item.playerId && <p className="text-xs font-mono text-primary">ID: {item.playerId}</p>}
                       </div>
                       <span className="font-medium whitespace-nowrap ml-2">
                         {(item.price * item.quantity).toLocaleString()} DZD
@@ -155,10 +159,16 @@ export default function CheckoutPage() {
                   ))}
                 </div>
                 
-                <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-4 border-t border-white/10 space-y-1.5">
+                  {isFlexy && (
+                    <div className="flex justify-between items-center text-xs text-amber-400">
+                      <span>Frais Flexy (+20%)</span>
+                      <span className="font-mono">+{flexyFee.toLocaleString()} DZD</span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-primary">{totalPrice.toLocaleString()} DZD</span>
+                    <span>Total {isFlexy ? "(Flexy)" : ""}</span>
+                    <span className="text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span>
                   </div>
                 </div>
               </CardContent>

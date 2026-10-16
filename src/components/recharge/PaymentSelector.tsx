@@ -278,6 +278,11 @@ export function PaymentSelector({
                             {method.name}
                           </h3>
                           {getMethodBadge(method.id)}
+                          {method.id === "flexy" && amount > 0 && (
+                            <span className="text-[11px] font-bold font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                              {Math.round(amount * 1.2).toLocaleString()} DZD
+                            </span>
+                          )}
                         </div>
                         <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 leading-tight">
                           {method.description}
@@ -417,17 +422,27 @@ export function PaymentSelector({
                   </div>
 
                   {/* Amount To Send Preview */}
-                  <div className="bg-gradient-to-r from-primary/25 via-purple-600/15 to-transparent rounded-xl p-4 flex justify-between items-center border border-primary/35 shadow-lg">
-                    <div>
-                      <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest font-semibold mb-0.5">
-                        {t("amount_to_send")}
-                      </p>
-                      <span className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                        {displayAmount} <span className="text-sm sm:text-base font-bold text-primary">{displayCurrency}</span>
-                      </span>
-                    </div>
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shadow-inner">
-                      <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <div className="bg-gradient-to-r from-primary/25 via-purple-600/15 to-transparent rounded-xl p-4 border border-primary/35 shadow-lg space-y-2">
+                    {isFlexy && (
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10 flex-wrap gap-1">
+                        <span className="text-white/70">Prix normal : {amount.toLocaleString()} DZD</span>
+                        <span className="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                          +20% Frais Flexy (+{Math.round(amount * 0.2).toLocaleString()} DZD)
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest font-semibold mb-0.5">
+                          {isFlexy ? "Montant Flexy à envoyer (+20%) :" : t("amount_to_send")}
+                        </p>
+                        <span className="text-2xl sm:text-3xl font-black text-white tracking-tight font-mono">
+                          {displayAmount} <span className="text-sm sm:text-base font-bold text-primary">{displayCurrency}</span>
+                        </span>
+                      </div>
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shadow-inner shrink-0">
+                        <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
