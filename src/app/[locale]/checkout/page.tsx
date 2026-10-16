@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useCartStore } from "@/store/useCartStore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +20,16 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<"payment" | "proof">("payment");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
+
+  useEffect(() => {
+    fetch("/api/settings/flexy")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.flexyPhone) setFlexyPhone(data.flexyPhone);
+      })
+      .catch(() => {});
+  }, []);
 
   const totalPrice = getTotalPrice();
   const isFlexy = paymentMethod?.id === "flexy" || (paymentMethod?.name || "").toLowerCase().includes("flexy");
@@ -125,7 +135,11 @@ export default function CheckoutPage() {
                   <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mb-6">
                     <p className="text-sm font-medium">
                       Veuillez envoyer le montant total de <span className="font-bold text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span> vers notre compte {paymentMethod?.name}.
-                      {isFlexy && <span className="block text-xs text-amber-400 mt-1 font-semibold">Inclut +20% de frais Flexy (+{flexyFee.toLocaleString()} DZD)</span>}
+                      {isFlexy && (
+                        <span className="block text-xs text-amber-400 mt-1 font-semibold">
+                          Numéro Flexy récepteur : <span className="font-mono underline">{flexyPhone}</span> (Inclut +20% de frais : +{flexyFee.toLocaleString()} DZD)
+                        </span>
+                      )}
                     </p>
                   </div>
                   <ProofUpload 

@@ -41,6 +41,7 @@ export function PaymentSelector({
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoError, setPromoError] = useState("");
   const [promoSuccess, setPromoSuccess] = useState(!!promoCode);
+  const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
 
   useEffect(() => {
     let isMounted = true;
@@ -50,6 +51,16 @@ export function PaymentSelector({
         setLoading(false);
       }
     });
+
+    fetch("/api/settings/flexy")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data.flexyPhone) {
+          setFlexyPhone(data.flexyPhone);
+        }
+      })
+      .catch(() => {});
+
     return () => { isMounted = false; };
   }, []);
 
@@ -169,7 +180,7 @@ export function PaymentSelector({
       case "binance":
         return { label: "ID Compte RedotPay", value: "123456789" };
       case "flexy":
-        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: "0550000000" };
+        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: flexyPhone };
       default:
         return null;
     }
@@ -323,7 +334,9 @@ export function PaymentSelector({
                         {t("instructions")}
                       </h4>
                       <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
-                        {selectedPayment.instructions}
+                        {selectedPayment.id === 'flexy'
+                          ? `Envoyez le flexy (+20% de frais) au ${flexyPhone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`
+                          : selectedPayment.instructions}
                       </p>
                     </div>
                   </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calculator, Smartphone, Copy, Check, Percent, ArrowRightLeft, Sparkles, MessageSquare, PhoneCall } from "lucide-react";
+import { Calculator, Smartphone, Copy, Check, Percent, ArrowRightLeft, Sparkles, MessageSquare, PhoneCall, Save, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,41 @@ export function FlexyCalculator() {
   const [feePercent, setFeePercent] = useState<number>(20);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
+  const [isSavingPhone, setIsSavingPhone] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/settings/flexy')
+      .then(res => res.json())
+      .then(data => {
+        if (data.flexyPhone) setFlexyPhone(data.flexyPhone);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSavePhone = async () => {
+    if (!flexyPhone.trim()) {
+      toast.error("Veuillez saisir un numéro valide");
+      return;
+    }
+    setIsSavingPhone(true);
+    try {
+      const res = await fetch('/api/admin/settings/flexy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ flexyPhone: flexyPhone.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`Numéro Flexy (${flexyPhone.trim()}) enregistré et actif sur le site !`);
+      } else {
+        toast.error(data.error || "Erreur lors de la mise à jour");
+      }
+    } catch {
+      toast.error("Erreur de connexion");
+    } finally {
+      setIsSavingPhone(false);
+    }
+  };
 
   const numericValue = typeof basePrice === "number" ? basePrice : parseFloat(basePrice) || 0;
 
@@ -185,16 +220,35 @@ export function FlexyCalculator() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">
-                Numéro Flexy récepteur :
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Numéro Flexy récepteur :</span>
+                <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-wider">Actif sur le site</span>
               </label>
-              <input
-                type="text"
-                value={flexyPhone}
-                onChange={(e) => setFlexyPhone(e.target.value)}
-                placeholder="0550000000"
-                className="w-full h-9 px-3 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-amber-500"
-              />
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={flexyPhone}
+                  onChange={(e) => setFlexyPhone(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSavePhone();
+                    }
+                  }}
+                  placeholder="Ex: 0550123456"
+                  className="flex-1 h-9 px-3 bg-slate-50 dark:bg-black/40 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-amber-500"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleSavePhone}
+                  disabled={isSavingPhone}
+                  className="h-9 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shrink-0 flex items-center gap-1 shadow-sm transition-all"
+                >
+                  {isSavingPhone ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  <span>{isSavingPhone ? "..." : "Enregistrer"}</span>
+                </Button>
+              </div>
             </div>
           </div>
 
