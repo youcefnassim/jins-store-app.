@@ -17,10 +17,10 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const playerSchema = z.object({
-  playerId: z.string().min(5, "Player ID is too short").max(15, "Player ID is too long").regex(/^\d+$/, "Player ID must contain only numbers"),
-  zoneId: z.string().min(3, "Zone ID is too short").max(5, "Zone ID is too long").regex(/^\d+$/, "Zone ID must contain only numbers"),
+  playerId: z.string().min(5, "L'ID Joueur est trop court").max(15, "L'ID Joueur est trop long").regex(/^\d+$/, "L'ID Joueur doit contenir uniquement des chiffres"),
+  zoneId: z.string().optional(),
   phone: z.string().optional().refine((val) => !val || /^(05|06|07)\d{8}$/.test(val), {
-    message: "Must be a valid Algerian phone number (e.g. 0550000000)",
+    message: "Numéro de téléphone algérien invalide (ex. 0550000000)",
   }),
 });
 
@@ -29,13 +29,15 @@ type PlayerFormValues = z.infer<typeof playerSchema>;
 interface PlayerFormProps {
   data: {
     playerId: string;
-    zoneId: string;
-    phone: string;
+    zoneId?: string;
+    phone?: string;
   };
-  onNext: (data: PlayerFormValues) => void;
+  gameSlug?: string;
+  onNext: (data: { playerId: string; zoneId?: string; phone?: string }) => void;
 }
 
-export function PlayerForm({ data, onNext }: PlayerFormProps) {
+export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
+  const isMlbb = !gameSlug || gameSlug === "mobile-legends" || gameSlug === "mlbb";
   const t = useTranslations("RechargeForm");
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifiedName, setVerifiedName] = useState<string | null>(null);
@@ -95,7 +97,7 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
   useEffect(() => {
     const isPlayerValid = /^\d{5,15}$/.test(watchedPlayerId || "");
-    const isZoneValid = /^\d{3,5}$/.test(watchedZoneId || "");
+    const isZoneValid = isMlbb ? /^\d{3,5}$/.test(watchedZoneId || "") : true;
 
     if (!isPlayerValid || !isZoneValid) {
       setVerifiedName(null);
@@ -111,9 +113,9 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            game: "mobile-legends",
+            game: gameSlug || "mobile-legends",
             playerId: watchedPlayerId,
-            zoneId: watchedZoneId,
+            zoneId: isMlbb ? watchedZoneId : undefined,
           }),
         });
         const data = await res.json();
@@ -130,19 +132,19 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
 
       if (typeof window !== "undefined") {
         localStorage.setItem("dz_recharge_playerId", watchedPlayerId);
-        localStorage.setItem("dz_recharge_zoneId", watchedZoneId);
+        if (watchedZoneId) localStorage.setItem("dz_recharge_zoneId", watchedZoneId);
         if (watchedPhone) localStorage.setItem("dz_recharge_phone", watchedPhone);
       }
 
       onNext({
         playerId: watchedPlayerId,
-        zoneId: watchedZoneId,
+        zoneId: watchedZoneId || "",
         phone: watchedPhone || "",
       });
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [watchedPlayerId, watchedZoneId, watchedPhone]);
+  }, [watchedPlayerId, watchedZoneId, watchedPhone, isMlbb, gameSlug]);
 
   const handleSelectAccount = (acc: any) => {
     form.setValue("playerId", acc.player_id || "");
@@ -159,13 +161,22 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
   };
 
   async function onSubmit(values: PlayerFormValues) {
+    if (isMlbb && (!values.zoneId || values.zoneId.length < 3)) {
+      form.setError("zoneId", { message: "L'ID de Zone (3-5 chiffres) est requis pour Mobile Legends" });
+      return;
+    }
+
     if (!verifiedName) {
       setIsVerifying(true);
       await new Promise((resolve) => setTimeout(resolve, 300));
       setVerifiedName("Format Valide");
       setIsVerifying(false);
     }
-    onNext(values);
+    onNext({
+      playerId: values.playerId,
+      zoneId: values.zoneId || "",
+      phone: values.phone || "",
+    });
     setTimeout(() => {
       document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 150);
@@ -210,16 +221,22 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+            <div className={cn("grid gap-3 sm:gap-4", isMlbb ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1")}>
               <FormField
                 control={form.control}
                 name="playerId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">{t("player_id")}</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">
+                      {isMlbb ? t("player_id") : "ID Joueur (UID)"}
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input placeholder="123456789" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" {...field} />
+                        <Input 
+                          placeholder={isMlbb ? "123456789" : "ex: 123456789 (UID)"} 
+                          className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" 
+                          {...field} 
+                        />
                         {isVerifying && (
                           <div className="absolute right-3 top-2.5 rtl:right-auto rtl:left-3">
                             <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -231,26 +248,28 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="zoneId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" {...field} />
-                        {isVerifying && (
-                          <div className="absolute right-3 top-2.5 rtl:right-auto rtl:left-3">
-                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                          </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage className="text-destructive text-xs" />
-                  </FormItem>
-                )}
-              />
+              {isMlbb && (
+                <FormField
+                  control={form.control}
+                  name="zoneId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">{t("zone_id")}</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input placeholder="1234" className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" {...field} />
+                          {isVerifying && (
+                            <div className="absolute right-3 top-2.5 rtl:right-auto rtl:left-3">
+                              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage className="text-destructive text-xs" />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
 
             <AnimatePresence>
@@ -293,7 +312,11 @@ export function PlayerForm({ data, onNext }: PlayerFormProps) {
             />
 
             <div className="flex flex-col sm:flex-row items-center justify-between pt-2 gap-3">
-              <Link href="/games/mobile-legends" target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1 order-2 sm:order-1 font-medium">
+              <Link 
+                href={isMlbb ? "/games/mobile-legends" : `/games/${gameSlug || "free-fire"}`} 
+                target="_blank" 
+                className="text-xs text-primary hover:underline flex items-center gap-1 order-2 sm:order-1 font-medium"
+              >
                 <HelpCircle className="w-3.5 h-3.5" />
                 {t("where_id")}
               </Link>

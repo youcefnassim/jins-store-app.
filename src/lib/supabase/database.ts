@@ -10,6 +10,7 @@ export type DbGame = {
   slug: string;
   emoji: string;
   image_url: string | null;
+  category?: string;
   created_at: string;
 };
 

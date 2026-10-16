@@ -14,6 +14,7 @@ const getGameImage = (gameId?: string, image?: string) => {
   if (gameId?.includes("mobile-legends") || gameId === "mlbb") return "/images/games/mobile-legends.png";
   if (gameId?.includes("pubg")) return "/images/games/pubg-mobile.png";
   if (gameId?.includes("valorant")) return "/images/games/valorant.png";
+  if (gameId?.includes("free") || gameId?.includes("fire")) return "/images/games/free-fire.png";
   return "/images/games/mobile-legends.png";
 };
 

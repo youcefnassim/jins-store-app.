@@ -12,16 +12,24 @@ import { getGameBySlug } from "@/lib/supabase/database";
 
 export default async function RechargePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams?: Promise<{ game?: string; package?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const t = await getTranslations({ locale, namespace: "Recharge" });
+  const sParams = searchParams ? await searchParams : {};
+  const gameSlug = sParams.game || "mobile-legends";
   
-  // Try to fetch Mobile Legends game data to show its image
-  const game = await getGameBySlug("mobile-legends");
+  // Fetch requested game data to show its image and title
+  const game = (await getGameBySlug(gameSlug)) || (await getGameBySlug("mobile-legends"));
+  const gameTitle = game?.name ? `Recharger ${game.name}` : t("title");
+  const gameDesc = game?.name 
+    ? `Sélectionnez votre forfait de crédits pour ${game.name} et recevez votre recharge rapidement.` 
+    : t("description");
 
   return (
     <div className="container mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-2 md:pb-4">
@@ -31,7 +39,7 @@ export default async function RechargePage({
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0c14] via-transparent to-transparent z-10" />
             <img 
               src={game.image_url} 
-              alt="Mobile Legends" 
+              alt={game.name || "Game Banner"} 
               className="w-full h-full object-cover object-center"
             />
           </div>
@@ -39,10 +47,10 @@ export default async function RechargePage({
         
         <div className="mb-4 sm:mb-6 text-center md:text-left rtl:md:text-right">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-1.5 flex items-center justify-center md:justify-start gap-2.5">
-            {t("title")}
+            {gameTitle}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            {t("description")}
+            {gameDesc}
           </p>
         </div>
         

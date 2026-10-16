@@ -45,6 +45,8 @@ export function PackageSelector({
       ? "/images/games/pubg-mobile.png" 
       : gameName.toLowerCase().includes("valorant") 
       ? "/images/games/valorant.png" 
+      : (gameName.toLowerCase().includes("free") || gameName.toLowerCase().includes("fire"))
+      ? "/images/games/free-fire.png"
       : "/images/games/mobile-legends.png";
 
     addItem({
@@ -71,12 +73,19 @@ export function PackageSelector({
         const slugMap: Record<string, string> = {
           "Mobile Legends": "mobile-legends",
           "Mobile Legends: Bang Bang": "mobile-legends",
+          "mobile-legends": "mobile-legends",
           "MLBB": "mobile-legends",
+          "mlbb": "mobile-legends",
           "Free Fire": "free-fire",
+          "free-fire": "free-fire",
+          "freefire": "free-fire",
           "PUBG Mobile": "pubg-mobile",
+          "pubg-mobile": "pubg-mobile",
+          "pubg": "pubg-mobile",
           "Valorant": "valorant",
+          "valorant": "valorant",
         };
-        const slug = slugMap[gameName] ?? "mobile-legends";
+        const slug = slugMap[gameName] || slugMap[gameName.toLowerCase()] || (gameName ? gameName.toLowerCase().replace(/\s+/g, '-') : "mobile-legends");
 
         const { getPackagesByGame } = await import("@/lib/supabase/database");
         const dbPackages = await getPackagesByGame(slug);

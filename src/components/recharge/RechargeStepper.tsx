@@ -62,6 +62,8 @@ export function RechargeStepper() {
 
     setPackagesUnlocked(true);
 
+    const gameSlug = searchParams.get("game") || "mobile-legends";
+
     const loadPackage = async () => {
       try {
         const { getPackageById } = await import("@/lib/supabase/database");
@@ -69,7 +71,7 @@ export function RechargeStepper() {
         if (dbPkg) {
           const pkg: Package = {
             id: dbPkg.id,
-            gameId: "mobile-legends",
+            gameId: gameSlug,
             amount: dbPkg.label,
             price: dbPkg.price,
             currency: "DZD",
@@ -91,7 +93,7 @@ export function RechargeStepper() {
       return;
     }
     if (!orderData.package) {
-      toast.error("Veuillez sélectionner un forfait de diamants.");
+      toast.error("Veuillez sélectionner un forfait.");
       return;
     }
     setCurrentStep(2);
@@ -270,9 +272,16 @@ export function RechargeStepper() {
           <div className="space-y-4 sm:space-y-6">
             <PlayerForm 
               data={orderData} 
+              gameSlug={searchParams.get("game") || "mobile-legends"}
               onNext={(data) => {
                 setOrderData(prev => ({ ...prev, ...data }));
-                if (data.playerId?.trim() && data.zoneId?.trim()) {
+                const currentSlug = searchParams.get("game") || "mobile-legends";
+                const isMlbb = currentSlug === "mobile-legends" || currentSlug === "mlbb";
+                const isFormComplete = isMlbb 
+                  ? (!!data.playerId?.trim() && !!data.zoneId?.trim()) 
+                  : !!data.playerId?.trim();
+
+                if (isFormComplete) {
                   setPackagesUnlocked(true);
                   setTimeout(() => {
                     document.getElementById("package-selector-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
