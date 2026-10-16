@@ -53,7 +53,7 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <body
-        className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col relative`}
+        className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col relative overflow-x-hidden w-full max-w-full`}
       >
         <ThemeProvider
           attribute="class"
