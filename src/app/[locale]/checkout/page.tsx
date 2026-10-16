@@ -59,7 +59,7 @@ export default function CheckoutPage() {
       formData.append('packageId', 'cart-' + Date.now());
       formData.append('packageName', `${items.length} items from Cart`);
       // Encode cart items to save them in DB if needed (or just list them in player ID field as a hack for now)
-      const itemsList = items.map(i => `${i.gameName}: ${i.name} (ID: ${i.playerId}) x${i.quantity}`).join(' | ');
+      const itemsList = items.map(i => `${i.gameName}: ${i.name}${i.playerId ? ` (ID: ${i.playerId}${i.zoneId ? `/${i.zoneId}` : ''})` : ''} x${i.quantity}`).join(' | ');
       formData.append('playerId', itemsList);
       formData.append('price', String(totalPrice));
       formData.append('pointsToAward', String(pointsToAward));

@@ -44,7 +44,7 @@ export function BottomTabBar() {
               <div className={`p-1 rounded-xl transition-all duration-300 ${active ? 'bg-primary/10 text-primary' : 'text-slate-500 dark:text-slate-400 group-hover:text-primary group-hover:bg-primary/5'} relative`}>
                 <tab.icon className={`w-5 h-5 transition-transform duration-300 ${active ? 'scale-110' : ''}`} strokeWidth={active ? 2.5 : 2} />
                 {tab.isCart && totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white shadow-sm border border-white dark:border-[#0a0e17]">
+                  <span className="absolute -top-1.5 -right-2 flex min-w-[18px] h-4.5 px-1 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-primary text-[10px] font-black text-white shadow-sm border border-white dark:border-[#0a0e17] animate-in zoom-in-75 duration-200">
                     {totalItems}
                   </span>
                 )}

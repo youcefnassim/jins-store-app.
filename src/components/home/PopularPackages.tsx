@@ -10,7 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight, ShoppingCart, Sparkles } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
-import { PlayerIdModal } from "@/components/cart/PlayerIdModal";
+import { toast } from "sonner";
 
 export function PopularPackages() {
   const t = useTranslations("PopularPackages");
@@ -18,7 +18,6 @@ export function PopularPackages() {
   const popularPackages = packages.filter((p) => p.gameId === "mobile-legends" && p.active);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [selectedPkgForCart, setSelectedPkgForCart] = useState<Package | null>(null);
   const { addItem } = useCartStore();
 
   // Scroll left or right helper
@@ -60,21 +59,20 @@ export function PopularPackages() {
     return () => clearInterval(timer);
   }, [isPaused]);
 
-  const handleAddToCartConfirm = (playerId: string, zoneId?: string) => {
-    if (selectedPkgForCart) {
-      addItem({
-        packageId: selectedPkgForCart.id,
-        gameId: selectedPkgForCart.gameId,
-        gameName: "Mobile Legends",
-        name: `${selectedPkgForCart.amount} Diamonds`,
-        price: selectedPkgForCart.price,
-        quantity: 1,
-        playerId,
-        zoneId,
-        image: "/logo.jpg",
-      });
-      setSelectedPkgForCart(null);
-    }
+  const handleDirectAddToCart = (pkg: Package) => {
+    addItem({
+      packageId: pkg.id,
+      gameId: pkg.gameId,
+      gameName: "Mobile Legends",
+      name: `${pkg.amount} Diamonds`,
+      price: pkg.price,
+      quantity: 1,
+      image: "/logo.jpg",
+    });
+    toast.success("✅ Pack ajouté au panier !", {
+      description: `${pkg.amount} Diamants ajouté`,
+      duration: 2500,
+    });
   };
 
   return (
@@ -149,7 +147,7 @@ export function PopularPackages() {
                 <Card className="glass-card h-full flex flex-col relative overflow-hidden group border border-slate-200 dark:border-white/10 shadow-xl hover:border-cyan-500/50 transition-all duration-300">
                   {/* Cart Icon Quick Add Top Right */}
                   <button
-                    onClick={() => setSelectedPkgForCart(pkg)}
+                    onClick={() => handleDirectAddToCart(pkg)}
                     className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 hover:bg-primary hover:text-white text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all backdrop-blur-md"
                     title="Ajouter au panier"
                   >
@@ -200,14 +198,6 @@ export function PopularPackages() {
             ))}
           </div>
         </div>
-
-        {/* Player ID Modal for Quick Cart Addition */}
-        <PlayerIdModal
-          isOpen={!!selectedPkgForCart}
-          onClose={() => setSelectedPkgForCart(null)}
-          onConfirm={handleAddToCartConfirm}
-          gameName="Mobile Legends"
-        />
       </div>
     </section>
   );

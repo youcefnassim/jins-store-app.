@@ -5,7 +5,7 @@ export interface CartItem {
   id: string; // Unique ID for the cart item (e.g. timestamp or random string)
   gameId: string;
   packageId: string;
-  playerId: string; // The player ID the user enters
+  playerId?: string; // Optional: The player ID (can be filled later or skipped)
   zoneId?: string;
   price: number;
   quantity: number;
@@ -32,7 +32,7 @@ export const useCartStore = create<CartStore>()(
         set((state) => {
           // Check if identical item (same package AND same player ID) already exists
           const existingItemIndex = state.items.findIndex(
-            (i) => i.packageId === item.packageId && i.playerId === item.playerId
+            (i) => i.packageId === item.packageId && (i.playerId || '') === (item.playerId || '')
           );
 
           if (existingItemIndex > -1) {

@@ -6,9 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowDown, ShoppingCart, Minus, Plus, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { useTranslations } from "next-intl";
@@ -36,37 +33,28 @@ export function PackageSelector({
   gameName = "Mobile Legends" 
 }: PackageSelectorProps) {
   const t = useTranslations("PackageSelector");
-  const tForm = useTranslations("RechargeForm");
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Cart state
-  const [cartPkg, setCartPkg] = useState<Package | null>(null);
-  const [cartQuantity, setCartQuantity] = useState(1);
-  const [playerId, setPlayerId] = useState("");
-  const { addItem } = useCartStore();
+  const { addItem, getItemCount } = useCartStore();
   const { formatPrice } = useCurrencyStore();
+  const totalCartCount = getItemCount();
 
-  const handleAddToCart = () => {
-    if (cartPkg && playerId.trim()) {
-      addItem({
-        gameId: cartPkg.gameId,
-        packageId: cartPkg.id,
-        playerId: playerId.trim(),
-        price: cartPkg.price,
-        quantity: cartQuantity,
-        name: String(cartPkg.amount),
-        gameName: gameName,
-        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
-      });
-      toast.success("✅ Ajouté au panier avec succès !", {
-        description: `${gameName} — ${cartPkg.amount} (x${cartQuantity}) — ID: ${playerId.trim()}`,
-        duration: 3000,
-      });
-      setCartPkg(null);
-      setPlayerId("");
-      setCartQuantity(1);
-    }
+  const handleDirectAddToCart = (pkg: Package, qty: number = 1) => {
+    addItem({
+      gameId: pkg.gameId,
+      packageId: pkg.id,
+      price: pkg.price,
+      quantity: qty,
+      name: String(pkg.amount),
+      gameName: gameName,
+      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
+    });
+    const newTotal = totalCartCount + qty;
+    toast.success("✅ Pack ajouté au panier !", {
+      description: `${pkg.amount} (x${qty}) — Total: ${newTotal} ${newTotal > 1 ? "packs" : "pack"} au panier`,
+      duration: 3000,
+    });
   };
 
   useEffect(() => {
@@ -140,7 +128,15 @@ export function PackageSelector({
           <div className="flex items-center gap-2.5">
             <span className="w-6 h-6 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shrink-0">2</span>
             <div>
-              <CardTitle className="text-lg sm:text-xl text-white leading-tight">{t("select_package")}</CardTitle>
+              <div className="flex items-center gap-2 flex-wrap">
+                <CardTitle className="text-lg sm:text-xl text-white leading-tight">{t("select_package")}</CardTitle>
+                {totalCartCount > 0 && (
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-pink-500/20 to-primary/20 text-pink-300 border border-pink-500/30 flex items-center gap-1.5 shadow-sm animate-in zoom-in-75 duration-200">
+                    <ShoppingCart className="w-3 h-3 text-pink-400" />
+                    <span>{totalCartCount} {totalCartCount > 1 ? "packs" : "pack"} au panier</span>
+                  </span>
+                )}
+              </div>
               <CardDescription className="text-xs text-muted-foreground mt-0.5">
                 {t("choose_package")}
               </CardDescription>
@@ -205,8 +201,7 @@ export function PackageSelector({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setCartPkg(pkg);
-                        setCartQuantity(1);
+                        handleDirectAddToCart(pkg, 1);
                       }}
                       title={t("add_to_cart_title")}
                       className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/10 hover:bg-primary text-white/70 hover:text-white flex items-center justify-center transition-all z-10 rtl:right-auto rtl:left-2"
@@ -273,94 +268,39 @@ export function PackageSelector({
             )}
 
             {/* Bottom Actions with Down Arrow Flow */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/5">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 border-t border-white/5">
               <Button type="button" variant="ghost" size="sm" onClick={onBack} className="text-white/70 hover:text-white hover:bg-white/5 h-9 px-3">
                 <ArrowLeft className="mr-1.5 w-4 h-4 rtl:rotate-180 rtl:ml-1.5 rtl:mr-0" />
                 {t("back")}
               </Button>
               
-              <Button 
-                type="button" 
-                onClick={handleProceed} 
-                disabled={!selectedPackage}
-                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-10 sm:h-11 px-5 sm:px-7 rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 disabled:opacity-50"
-              >
-                <span>{t("buy_now")}</span>
-                <ArrowDown className="w-4 h-4 animate-bounce" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => selectedPackage && handleDirectAddToCart(selectedPackage, quantity)}
+                  disabled={!selectedPackage}
+                  className="h-10 sm:h-11 px-4 rounded-xl font-semibold border-white/15 bg-white/5 hover:bg-white/10 text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                  title="Ajouter directement au panier"
+                >
+                  <ShoppingCart className="w-4 h-4 text-primary" />
+                  <span>Ajouter au panier</span>
+                </Button>
+
+                <Button 
+                  type="button" 
+                  onClick={handleProceed} 
+                  disabled={!selectedPackage}
+                  className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-10 sm:h-11 px-5 sm:px-7 rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  <span>{t("buy_now")}</span>
+                  <ArrowDown className="w-4 h-4 animate-bounce" />
+                </Button>
+              </div>
             </div>
           </div>
         )}
       </CardContent>
-
-      {/* Cart Dialog with Quantity */}
-      <Dialog open={!!cartPkg} onOpenChange={(open) => !open && setCartPkg(null)}>
-        <DialogContent className="sm:max-w-md bg-[#0a0e17] border-white/10">
-          <DialogHeader>
-            <DialogTitle>{t("add_to_cart_title")}</DialogTitle>
-            <DialogDescription>
-              {t("enter_player_id", { amount: cartPkg?.amount ?? "" })}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-3 space-y-3">
-            <div>
-              <Label htmlFor="dialogPlayerId" className="text-xs text-white">{tForm("player_id")}</Label>
-              <Input 
-                id="dialogPlayerId" 
-                value={playerId} 
-                onChange={(e) => setPlayerId(e.target.value)} 
-                placeholder="Ex: 12345678" 
-                className="mt-1.5 bg-black/40 border-white/10 text-white h-10 font-mono text-sm"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs text-white/80 mb-1.5 block">{t("quantity")}</Label>
-              <div className="flex items-center justify-between bg-black/40 border border-white/10 p-2 rounded-lg">
-                <div className="flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => setCartQuantity(Math.max(1, cartQuantity - 1))}
-                    disabled={cartQuantity <= 1}
-                    className="h-8 w-8 text-white hover:bg-white/10 flex items-center justify-center rounded disabled:opacity-30"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="w-10 text-center text-sm font-bold text-white">{cartQuantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setCartQuantity(Math.min(99, cartQuantity + 1))}
-                    disabled={cartQuantity >= 99}
-                    className="h-8 w-8 text-white hover:bg-white/10 flex items-center justify-center rounded disabled:opacity-30"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                {cartPkg && (
-                  <div className="text-right">
-                    <span className="text-[10px] text-muted-foreground block uppercase">Total</span>
-                    <span className="text-sm font-bold text-primary">
-                      {formatPrice(cartPkg.price * cartQuantity)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" size="sm" onClick={() => setCartPkg(null)}>{t("cancel")}</Button>
-            <Button 
-              onClick={handleAddToCart} 
-              disabled={!playerId.trim()}
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-white font-semibold"
-            >
-              {t("add_to_cart_title")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
     </Card>
   );
 }

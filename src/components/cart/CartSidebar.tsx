@@ -27,10 +27,10 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         {children ? children : (
-          <Button variant="ghost" size="icon" className="relative group">
+          <Button variant="ghost" size="icon" className="relative group overflow-visible" title="Panier">
             <ShoppingCart className="w-5 h-5 text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors" />
             {totalItems > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full border-2 border-white dark:border-[#0a0e17]">
+              <span className="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 flex items-center justify-center bg-gradient-to-r from-pink-500 to-primary text-white text-[10px] font-extrabold rounded-full border-2 border-white dark:border-[#0a0e17] shadow-[0_0_10px_rgba(236,72,153,0.5)] animate-in zoom-in-75 duration-200">
                 {totalItems}
               </span>
             )}
@@ -42,7 +42,12 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
         <SheetHeader className="p-6 pr-16 border-b border-slate-200 dark:border-white/10 text-left">
           <SheetTitle className="flex items-center gap-2 text-xl font-bold">
             <ShoppingCart className="w-5 h-5 text-primary" />
-            {t("title")}
+            <span>{t("title")}</span>
+            {totalItems > 0 && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25 ml-auto">
+                {totalItems} {totalItems > 1 ? "packs" : "pack"}
+              </span>
+            )}
           </SheetTitle>
         </SheetHeader>
 
@@ -78,7 +83,15 @@ export function CartSidebar({ children }: { children?: React.ReactNode }) {
                       <div>
                         <h4 className="font-semibold text-slate-900 dark:text-white line-clamp-1">{item.name}</h4>
                         <p className="text-xs text-muted-foreground">{item.gameName}</p>
-                        <p className="text-xs font-mono text-primary bg-primary/10 w-max px-2 py-0.5 rounded mt-1">ID: {item.playerId}</p>
+                        {item.playerId ? (
+                          <p className="text-xs font-mono text-primary bg-primary/10 w-max px-2 py-0.5 rounded mt-1">
+                            ID: {item.playerId}{item.zoneId ? ` (${item.zoneId})` : ""}
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 w-max px-2 py-0.5 rounded mt-1">
+                            Pack direct
+                          </p>
+                        )}
                       </div>
                       
                       <div className="flex items-center justify-between mt-3">
