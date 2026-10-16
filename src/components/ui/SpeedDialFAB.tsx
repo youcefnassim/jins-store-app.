@@ -49,8 +49,10 @@ export function SpeedDialFAB() {
   ];
 
   return (
-    // Only visible on mobile (md:hidden), anchored to the right side above the Profil tab
-    <div className="md:hidden fixed bottom-[72px] right-4 z-50 flex flex-col items-center gap-3">
+    <div 
+      className="md:hidden fixed right-4 z-50 flex flex-col items-center gap-3"
+      style={{ bottom: "calc(80px + max(env(safe-area-inset-bottom, 0px), 8px))" }}
+    >
       {/* Sub-actions (expanded) */}
       <AnimatePresence>
         {isOpen && (

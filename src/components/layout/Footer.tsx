@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 export function Footer() {
   const t = useTranslations("Footer");
   return (
-    <footer className="border-t border-white/10 bg-background/50 py-8 sm:py-10 mt-6 sm:mt-10">
+    <footer className="border-t border-white/10 bg-background/50 py-8 sm:py-10 mt-6 sm:mt-10 pb-28 md:pb-10">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">

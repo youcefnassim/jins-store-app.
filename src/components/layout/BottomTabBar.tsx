@@ -30,13 +30,16 @@ export function BottomTabBar() {
   };
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 w-full z-50 bg-white/90 dark:bg-[#0a0e17]/90 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.15)]">
-      <div className="grid grid-cols-5 h-14 sm:h-16">
+    <div 
+      className="md:hidden fixed bottom-0 left-0 right-0 w-full z-50 bg-white/95 dark:bg-[#0a0e17]/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.15)]"
+      style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 8px)" }}
+    >
+      <div className="grid grid-cols-5 h-16 items-center">
         {tabs.map((tab) => {
           const active = isActive(tab.href);
           
           const tabContent = (
-            <>
+            <div className="flex flex-col items-center justify-center w-full h-full py-1 relative">
               {active && (
                 <div className="absolute top-0 w-8 h-0.5 bg-gradient-to-r from-primary to-purple-600 rounded-b-full shadow-[0_0_10px_rgba(139,92,246,0.6)]" />
               )}
@@ -49,16 +52,16 @@ export function BottomTabBar() {
                   </span>
                 )}
               </div>
-              <span className={`text-[10px] font-medium tracking-tight truncate max-w-[62px] px-0.5 text-center leading-none transition-colors ${active ? 'text-primary font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+              <span className={`text-[10px] font-medium tracking-tight truncate max-w-[62px] px-0.5 text-center leading-none transition-colors mt-0.5 ${active ? 'text-primary font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
                 {tab.name}
               </span>
-            </>
+            </div>
           );
 
           if (tab.isCart) {
             return (
               <CartSidebar key={tab.name}>
-                <button className="flex flex-col items-center justify-center w-full h-full space-y-1 relative group bg-transparent border-none">
+                <button className="flex flex-col items-center justify-center w-full h-full relative group bg-transparent border-none p-0 cursor-pointer">
                   {tabContent}
                 </button>
               </CartSidebar>
@@ -69,7 +72,7 @@ export function BottomTabBar() {
             <Link
               key={tab.name}
               href={tab.href}
-              className="flex flex-col items-center justify-center w-full h-full space-y-1 relative group"
+              className="flex flex-col items-center justify-center w-full h-full relative group cursor-pointer"
             >
               {tabContent}
             </Link>
