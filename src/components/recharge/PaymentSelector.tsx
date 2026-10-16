@@ -5,7 +5,7 @@ import { PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, QrCode, Smartphone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
@@ -162,14 +162,14 @@ export function PaymentSelector({
   const getAccountDetails = (id: string) => {
     switch (id) {
       case "baridimob":
-        return { label: "Numéro RIP (BaridiMob)", value: "00799999000000000012", showQr: true };
+        return { label: "Numéro RIP (BaridiMob)", value: "00799999000000000012" };
       case "ccp":
-        return { label: "Compte CCP & Clé", value: "12345678 Clé 99 (MOCK NAME)", showQr: false };
+        return { label: "Compte CCP & Clé", value: "12345678 Clé 99 (MOCK NAME)" };
       case "redotpay":
       case "binance":
-        return { label: "ID Compte RedotPay", value: "123456789", showQr: true };
+        return { label: "ID Compte RedotPay", value: "123456789" };
       case "flexy":
-        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: "0550000000", showQr: false };
+        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: "0550000000" };
       default:
         return null;
     }
@@ -323,63 +323,51 @@ export function PaymentSelector({
                     </div>
                   </div>
                   
-                  {/* Copy Account Box & QR Code */}
+                  {/* Copy Account Box (Full Width, No QR code) */}
                   {getAccountDetails(selectedPayment.id) && (
-                    <div className="flex flex-col sm:flex-row gap-3 bg-black/50 rounded-xl p-3 sm:p-4 border border-white/10 items-stretch sm:items-center">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[11px] text-muted-foreground mb-1 font-semibold uppercase tracking-wider">
-                          {getAccountDetails(selectedPayment.id)?.label}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <code className="bg-black/60 text-white px-3 py-2 rounded-lg font-mono text-xs sm:text-sm border border-white/10 flex-1 truncate select-all">
-                            {getAccountDetails(selectedPayment.id)?.value}
-                          </code>
-                          <Button 
-                            type="button"
-                            variant="secondary" 
-                            size="sm"
-                            onClick={() => handleCopy(getAccountDetails(selectedPayment.id)?.value || "")}
-                            className={cn(
-                              "h-9 px-3 shrink-0 rounded-lg transition-all font-semibold text-xs flex items-center gap-1.5",
-                              copiedText === getAccountDetails(selectedPayment.id)?.value 
-                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
-                                : "bg-white/10 hover:bg-white/20 text-white"
-                            )}
-                          >
-                            {copiedText === getAccountDetails(selectedPayment.id)?.value ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                <span>Copié !</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                <span>Copier</span>
-                              </>
-                            )}
-                          </Button>
-                        </div>
+                    <div className="bg-black/50 rounded-xl p-3.5 sm:p-4 border border-white/10 space-y-1.5">
+                      <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                        {getAccountDetails(selectedPayment.id)?.label}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <code className="bg-black/60 text-white px-3 py-2.5 rounded-lg font-mono text-xs sm:text-sm border border-white/10 flex-1 min-w-0 truncate select-all">
+                          {getAccountDetails(selectedPayment.id)?.value}
+                        </code>
+                        <Button 
+                          type="button"
+                          variant="secondary" 
+                          size="sm"
+                          onClick={() => handleCopy(getAccountDetails(selectedPayment.id)?.value || "")}
+                          className={cn(
+                            "h-10 px-3.5 shrink-0 rounded-lg transition-all font-semibold text-xs flex items-center gap-1.5 shadow-sm",
+                            copiedText === getAccountDetails(selectedPayment.id)?.value 
+                              ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40" 
+                              : "bg-white/15 hover:bg-white/25 text-white border border-white/10"
+                          )}
+                        >
+                          {copiedText === getAccountDetails(selectedPayment.id)?.value ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Copié !</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copier</span>
+                            </>
+                          )}
+                        </Button>
                       </div>
-
-                      {/* QR Code */}
-                      {getAccountDetails(selectedPayment.id)?.showQr && (
-                        <div className="flex sm:flex-col items-center justify-center shrink-0 bg-white p-2 rounded-lg gap-2 cursor-pointer hover:scale-105 transition-transform" title="Scanner pour payer">
-                          <QrCode className="w-12 h-12 text-black" />
-                          <span className="text-[9px] text-black font-extrabold uppercase tracking-tight">
-                            {t("scan_to_pay")}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   )}
                   
                   {/* Promo Code Input */}
-                  <div className="rounded-xl border border-white/10 bg-black/30 p-3 sm:p-3.5 space-y-2">
+                  <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 sm:p-4 space-y-2.5">
                     <label className="text-[11px] font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
                       <span className="text-primary font-black">%</span>
                       {t("promo_title")}
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2.5">
                       <input 
                         type="text" 
                         placeholder={t("promo_placeholder")}
@@ -390,25 +378,27 @@ export function PaymentSelector({
                           setPromoSuccess(false);
                           if (onPromoApply) onPromoApply("", 0);
                         }}
-                        className="flex-1 bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-primary uppercase placeholder:normal-case placeholder:text-white/30 font-mono transition-colors"
+                        className="flex-1 min-w-0 bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-primary uppercase placeholder:normal-case placeholder:text-white/30 font-mono transition-colors h-10"
                       />
                       <Button 
                         type="button"
                         onClick={handleApplyPromo}
                         disabled={!promoInput.trim() || promoLoading || promoSuccess}
-                        size="sm"
-                        variant={promoSuccess ? "default" : "secondary"}
                         className={cn(
-                          "h-9 px-4 rounded-lg font-bold text-xs shrink-0",
-                          promoSuccess && "bg-emerald-500 hover:bg-emerald-600 text-white"
+                          "h-10 px-5 rounded-lg font-bold text-xs sm:text-sm shrink-0 transition-all select-none shadow-md",
+                          promoSuccess
+                            ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                            : promoInput.trim()
+                            ? "bg-primary hover:bg-primary/90 text-white shadow-primary/25 cursor-pointer"
+                            : "bg-white/15 hover:bg-white/20 text-white border border-white/10 opacity-70"
                         )}
                       >
                         {promoLoading ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin" />
                         ) : promoSuccess ? (
-                          <Check className="w-3.5 h-3.5" />
+                          <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> Appliqué</span>
                         ) : (
-                          t("promo_apply")
+                          <span>{t("promo_apply")}</span>
                         )}
                       </Button>
                     </div>
