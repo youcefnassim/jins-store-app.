@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import {
   ShoppingBag, Users, CheckCircle2, Clock, XCircle,
   TrendingUp, DollarSign, Gamepad2, BarChart3, RefreshCw,
-  PieChart, AlertTriangle, Megaphone, Save, Check
+  PieChart, AlertTriangle, Megaphone, Save, Check, Smartphone
 } from "lucide-react";
 import { toast } from "sonner";
+import { FlexyCalculator } from "@/components/admin/FlexyCalculator";
 
 interface PaymentMethodStat {
   name: string;
@@ -187,6 +188,17 @@ export default function AdminDashboard() {
               </motion.div>
             ))}
           </div>
+
+          {/* Flexy Fee Calculator Tool (+20%) */}
+          <motion.div
+            id="flexy-calculator"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="scroll-mt-6"
+          >
+            <FlexyCalculator />
+          </motion.div>
 
           {/* Dynamic Site Announcement Banner Manager (Feature 5) */}
           <motion.div
@@ -402,8 +414,9 @@ export default function AdminDashboard() {
               <BarChart3 className="w-4 h-4 text-primary" />
               Actions Rapides
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
+                { label: "Calculateur Flexy (+20%)", href: "#flexy-calculator", color: "text-amber-500 dark:text-amber-400" },
                 { label: "Voir commandes en attente", href: "/admin/orders", badge: stats?.pendingOrders, color: "text-amber-500 dark:text-amber-400" },
                 { label: "Gérer les utilisateurs", href: "/admin/users", color: "text-blue-500 dark:text-blue-400" },
                 { label: "Ajouter un code promo", href: "/admin/promos", color: "text-emerald-500 dark:text-emerald-400" },

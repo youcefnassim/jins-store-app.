@@ -5,13 +5,15 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, ShoppingBag, Users, Gamepad2,
-  Tag, Star, Activity, LogOut, ChevronRight, X, ExternalLink, Image as ImageIcon
+  Tag, Star, Activity, LogOut, ChevronRight, X, ExternalLink, Image as ImageIcon,
+  Smartphone
 } from "lucide-react";
 import { useAuth } from "@/lib/supabase/AuthContext";
 import { useRouter } from "next/navigation";
 
 const navItems = [
   { label: "Tableau de bord", icon: LayoutDashboard, href: "/admin/dashboard" },
+  { label: "Calculateur Flexy", icon: Smartphone, href: "/admin/dashboard#flexy-calculator" },
   { label: "Commandes", icon: ShoppingBag, href: "/admin/orders" },
   { label: "Utilisateurs", icon: Users, href: "/admin/users" },
   { label: "Jeux & Packs", icon: Gamepad2, href: "/admin/games" },
