@@ -41,6 +41,12 @@ export function PackageSelector({
   const totalCartCount = getItemCount();
 
   const handleDirectAddToCart = (pkg: Package, qty: number = 1) => {
+    const gameImg = gameName.toLowerCase().includes("pubg") 
+      ? "/images/games/pubg-mobile.png" 
+      : gameName.toLowerCase().includes("valorant") 
+      ? "/images/games/valorant.png" 
+      : "/images/games/mobile-legends.png";
+
     addItem({
       gameId: pkg.gameId,
       packageId: pkg.id,
@@ -48,7 +54,7 @@ export function PackageSelector({
       quantity: qty,
       name: String(pkg.amount),
       gameName: gameName,
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Mobile_Legends_Bang_Bang_logo.png/600px-Mobile_Legends_Bang_Bang_logo.png", 
+      image: gameImg, 
     });
     const newTotal = totalCartCount + qty;
     toast.success("✅ Pack ajouté au panier !", {

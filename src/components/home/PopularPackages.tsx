@@ -67,7 +67,7 @@ export function PopularPackages() {
       name: `${pkg.amount} Diamonds`,
       price: pkg.price,
       quantity: 1,
-      image: "/logo.jpg",
+      image: "/images/games/mobile-legends.png",
     });
     toast.success("✅ Pack ajouté au panier !", {
       description: `${pkg.amount} Diamants ajouté`,
