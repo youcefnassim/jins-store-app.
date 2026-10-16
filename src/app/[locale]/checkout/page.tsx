@@ -21,19 +21,22 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
+  const [flexyFeePercent, setFlexyFeePercent] = useState<number>(20);
 
   useEffect(() => {
-    fetch("/api/settings/flexy")
+    fetch("/api/settings/payments")
       .then((res) => res.json())
       .then((data) => {
-        if (data.flexyPhone) setFlexyPhone(data.flexyPhone);
+        const s = data.settings || data;
+        if (s.flexy?.phone) setFlexyPhone(s.flexy.phone);
+        if (typeof s.flexy?.feePercent === "number") setFlexyFeePercent(s.flexy.feePercent);
       })
       .catch(() => {});
   }, []);
 
   const totalPrice = getTotalPrice();
   const isFlexy = paymentMethod?.id === "flexy" || (paymentMethod?.name || "").toLowerCase().includes("flexy");
-  const flexyFee = isFlexy ? Math.round(totalPrice * 0.20) : 0;
+  const flexyFee = isFlexy ? Math.round(totalPrice * (flexyFeePercent / 100)) : 0;
   const finalPayPrice = totalPrice + flexyFee;
 
   if (items.length === 0) {
@@ -137,7 +140,7 @@ export default function CheckoutPage() {
                       Veuillez envoyer le montant total de <span className="font-bold text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span> vers notre compte {paymentMethod?.name}.
                       {isFlexy && (
                         <span className="block text-xs text-amber-400 mt-1 font-semibold">
-                          Numéro Flexy récepteur : <span className="font-mono underline">{flexyPhone}</span> (Inclut +20% de frais : +{flexyFee.toLocaleString()} DZD)
+                          Numéro Flexy récepteur : <span className="font-mono underline">{flexyPhone}</span> (Inclut +{flexyFeePercent}% de frais : +{flexyFee.toLocaleString()} DZD)
                         </span>
                       )}
                     </p>
@@ -176,7 +179,7 @@ export default function CheckoutPage() {
                 <div className="mt-4 pt-4 border-t border-white/10 space-y-1.5">
                   {isFlexy && (
                     <div className="flex justify-between items-center text-xs text-amber-400">
-                      <span>Frais Flexy (+20%)</span>
+                      <span>Frais Flexy (+{flexyFeePercent}%)</span>
                       <span className="font-mono">+{flexyFee.toLocaleString()} DZD</span>
                     </div>
                   )}

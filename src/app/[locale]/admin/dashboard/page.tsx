@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { FlexyCalculator } from "@/components/admin/FlexyCalculator";
+import { PaymentAccountsManager } from "@/components/admin/PaymentAccountsManager";
 
 interface PaymentMethodStat {
   name: string;
@@ -188,6 +189,17 @@ export default function AdminDashboard() {
               </motion.div>
             ))}
           </div>
+
+          {/* Payment Accounts & Profit Margin Manager */}
+          <motion.div
+            id="payment-accounts"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="scroll-mt-6"
+          >
+            <PaymentAccountsManager />
+          </motion.div>
 
           {/* Flexy Fee Calculator Tool (+20%) */}
           <motion.div
@@ -416,10 +428,11 @@ export default function AdminDashboard() {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {[
+                { label: "Coordonnées de paiement", href: "#payment-accounts", color: "text-emerald-500 dark:text-emerald-400" },
                 { label: "Calculateur Flexy (+20%)", href: "#flexy-calculator", color: "text-amber-500 dark:text-amber-400" },
                 { label: "Voir commandes en attente", href: "/admin/orders", badge: stats?.pendingOrders, color: "text-amber-500 dark:text-amber-400" },
                 { label: "Gérer les utilisateurs", href: "/admin/users", color: "text-blue-500 dark:text-blue-400" },
-                { label: "Ajouter un code promo", href: "/admin/promos", color: "text-emerald-500 dark:text-emerald-400" },
+                { label: "Ajouter un code promo", href: "/admin/promos", color: "text-purple-500 dark:text-purple-400" },
                 { label: "Voir les logs", href: "/admin/logs", color: "text-slate-500 dark:text-slate-400" },
               ].map((action) => (
                 <a

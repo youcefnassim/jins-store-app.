@@ -84,14 +84,34 @@ export async function GET(request: NextRequest) {
       last7Days.push({ date: dateStr, count });
     }
 
+    let marginPercent = 18;
+    try {
+      const { data: paySettings } = await admin
+        .from('site_settings')
+        .select('value')
+        .eq('key', 'payment_accounts')
+        .maybeSingle();
+
+      if (paySettings?.value) {
+        const val = typeof paySettings.value === 'string' ? JSON.parse(paySettings.value) : paySettings.value;
+        if (typeof val?.defaultMarginPercent === 'number') {
+          marginPercent = val.defaultMarginPercent;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+
+    const netProfit = Math.round(totalRevenue * (marginPercent / 100));
+
     return NextResponse.json({
       totalOrders,
       pendingOrders,
       completedOrders,
       rejectedOrders,
       totalRevenue,
-      netProfit: null,
-      marginPercent: null,
+      netProfit,
+      marginPercent,
       paymentBreakdown,
       stockAlerts: [],
       usersCount: usersCount ?? 0,

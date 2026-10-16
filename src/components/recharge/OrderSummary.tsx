@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { OrderData } from "./RechargeStepper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
@@ -13,6 +14,19 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ data, step }: OrderSummaryProps) {
   const t = useTranslations("OrderSummary");
+  const [flexyFeePercent, setFlexyFeePercent] = useState<number>(20);
+
+  useEffect(() => {
+    fetch("/api/settings/payments")
+      .then((res) => res.json())
+      .then((d) => {
+        const fee = d?.settings?.flexy?.feePercent ?? d?.flexy?.feePercent;
+        if (typeof fee === "number") {
+          setFlexyFeePercent(fee);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const quantity = data.quantity || 1;
   const unitPrice = data.package 
@@ -25,7 +39,7 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
 
   const isFlexy = data.paymentMethod?.id === 'flexy' || 
     (data.paymentMethod?.name || '').toLowerCase().includes('flexy');
-  const flexyFee = isFlexy ? Math.round(discountedTotal * 0.20) : 0;
+  const flexyFee = isFlexy ? Math.round(discountedTotal * (flexyFeePercent / 100)) : 0;
   const finalTotal = discountedTotal + flexyFee;
 
   return (
@@ -65,7 +79,7 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
                 </span>
                 {isFlexy && (
                   <span className="text-[10px] font-bold text-amber-400 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 rounded">
-                    +20%
+                    +{flexyFeePercent}%
                   </span>
                 )}
               </div>
@@ -87,7 +101,7 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
 
               {isFlexy && (
                 <div className="flex justify-between items-center text-amber-400 text-xs sm:text-sm font-medium">
-                  <span>Frais Flexy (+20%)</span>
+                  <span>Frais Flexy (+{flexyFeePercent}%)</span>
                   <span>+{flexyFee.toLocaleString()} DZD</span>
                 </div>
               )}

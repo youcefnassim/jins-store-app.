@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from "@/app/api/settings/payments/route";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
@@ -41,7 +42,7 @@ export function PaymentSelector({
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoError, setPromoError] = useState("");
   const [promoSuccess, setPromoSuccess] = useState(!!promoCode);
-  const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
+  const [paySettings, setPaySettings] = useState<PaymentAccountsSettings>(DEFAULT_PAYMENT_SETTINGS);
 
   useEffect(() => {
     let isMounted = true;
@@ -52,11 +53,11 @@ export function PaymentSelector({
       }
     });
 
-    fetch("/api/settings/flexy")
+    fetch("/api/settings/payments")
       .then((res) => res.json())
       .then((data) => {
-        if (isMounted && data.flexyPhone) {
-          setFlexyPhone(data.flexyPhone);
+        if (isMounted && data.settings) {
+          setPaySettings(data.settings);
         }
       })
       .catch(() => {});
@@ -162,7 +163,7 @@ export function PaymentSelector({
       case "flexy":
         return (
           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            +20% Frais
+            +{paySettings.flexy.feePercent}% Frais
           </span>
         );
       default:
@@ -173,14 +174,20 @@ export function PaymentSelector({
   const getAccountDetails = (id: string) => {
     switch (id) {
       case "baridimob":
-        return { label: "Numéro RIP (BaridiMob)", value: "00799999000000000012" };
+        return { 
+          label: `Numéro RIP BaridiMob (${paySettings.baridimob.holder || "Algérie Poste"})`, 
+          value: paySettings.baridimob.rip 
+        };
       case "ccp":
-        return { label: "Compte CCP & Clé", value: "12345678 Clé 99 (MOCK NAME)" };
+        return { 
+          label: `Compte CCP & Clé (${paySettings.ccp.holder || "Algérie Poste"})`, 
+          value: `${paySettings.ccp.account} Clé ${paySettings.ccp.cle}` 
+        };
       case "redotpay":
       case "binance":
-        return { label: "ID Compte RedotPay", value: "123456789" };
+        return { label: "ID Compte RedotPay", value: paySettings.redotpay.id };
       case "flexy":
-        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: flexyPhone };
+        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: paySettings.flexy.phone };
       default:
         return null;
     }
@@ -192,7 +199,7 @@ export function PaymentSelector({
   const displayAmount = isRedotPay 
     ? (amount / 240).toFixed(2) // Conversion rate: 1 USD = 240 DZD
     : isFlexy
-    ? Math.round(amount * 1.2) // +20% fee for Flexy
+    ? Math.round(amount * (1 + paySettings.flexy.feePercent / 100))
     : amount;
   const displayCurrency = isRedotPay ? "USD" : siteConfig.currency;
 
@@ -335,7 +342,7 @@ export function PaymentSelector({
                       </h4>
                       <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
                         {selectedPayment.id === 'flexy'
-                          ? `Envoyez le flexy (+20% de frais) au ${flexyPhone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`
+                          ? `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`
                           : selectedPayment.instructions}
                       </p>
                     </div>
