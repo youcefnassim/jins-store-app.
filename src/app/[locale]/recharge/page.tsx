@@ -35,12 +35,21 @@ export default async function RechargePage({
     <div className="container mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-2 md:pb-4">
       <div className="max-w-6xl mx-auto">
         {game?.image_url && (
-          <div className="mb-4 w-full h-36 sm:h-48 md:h-56 rounded-2xl md:rounded-3xl overflow-hidden relative shadow-2xl border border-white/10">
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0c14] via-transparent to-transparent z-10" />
+          <div className="mb-6 w-full h-44 sm:h-56 md:h-64 rounded-2xl md:rounded-3xl overflow-hidden relative shadow-2xl border border-white/10 bg-slate-950 flex items-center justify-center group">
+            {/* Ambient blurred backdrop so the container is full of vibrant game atmosphere */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center blur-2xl opacity-40 scale-125 transition-transform duration-700 group-hover:scale-130"
+              style={{ backgroundImage: `url(${game.image_url})` }}
+            />
+            {/* Gradient overlays for readability and depth */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0c14] via-black/30 to-black/20 z-10" />
+            <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/20 to-black/60 z-10" />
+
+            {/* Foreground image: perfectly centered, 100% visible, never cut or cropped */}
             <img 
               src={game.image_url} 
               alt={game.name || "Game Banner"} 
-              className="w-full h-full object-cover object-center"
+              className="relative z-20 max-h-[85%] max-w-[90%] object-contain drop-shadow-[0_12px_30px_rgba(0,0,0,0.85)] transition-transform duration-500 hover:scale-105"
             />
           </div>
         )}

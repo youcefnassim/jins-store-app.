@@ -151,13 +151,21 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
             {/* Game Card / Cover */}
             <div className="relative group shrink-0">
-              <div className="w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl relative bg-slate-900">
+              <div className="w-44 h-44 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-3xl overflow-hidden border-2 border-white/15 shadow-2xl relative bg-slate-900 flex items-center justify-center">
                 {game.image_url ? (
-                  <img
-                    src={game.image_url}
-                    alt={game.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <>
+                    {/* Ambient backdrop */}
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center blur-xl opacity-35 scale-125"
+                      style={{ backgroundImage: `url(${game.image_url})` }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10" />
+                    <img
+                      src={game.image_url}
+                      alt={game.name}
+                      className="relative z-10 max-h-[85%] max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-500 drop-shadow-md"
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-indigo-950 to-purple-950">
                     {game.emoji ? (
@@ -167,9 +175,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     )}
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-3 inset-x-3 text-center">
-                  <span className="inline-block bg-primary/90 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">
+                <div className="absolute bottom-3 inset-x-3 text-center z-20">
+                  <span className="inline-block bg-primary/90 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm shadow-md">
                     {game.category || "Jeu Mobile"}
                   </span>
                 </div>

@@ -153,9 +153,19 @@ export default function GamesPage() {
                             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 group-hover:from-primary group-hover:via-purple-500 group-hover:to-blue-500 transition-colors duration-500 opacity-50 group-hover:opacity-100" />
                             
                             {/* Inner Image Container */}
-                            <div className="absolute inset-[2px] bg-[#0d1020] rounded-[22px] overflow-hidden z-10 flex flex-col">
+                            <div className="absolute inset-[2px] bg-[#0d1020] rounded-[22px] overflow-hidden z-10 flex flex-col items-center justify-center">
                               {game.image_url ? (
-                                <img src={game.image_url} alt={game.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <>
+                                  <div 
+                                    className="absolute inset-0 bg-cover bg-center blur-lg opacity-35 scale-125"
+                                    style={{ backgroundImage: `url(${game.image_url})` }}
+                                  />
+                                  <img 
+                                    src={game.image_url} 
+                                    alt={game.name} 
+                                    className="relative z-10 max-h-[80%] max-w-[85%] object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-md" 
+                                  />
+                                </>
                               ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-indigo-950">
                                   {game.emoji ? <span className="text-6xl">{game.emoji}</span> : <Gamepad2 className="w-16 h-16 text-white/20" />}
