@@ -17,6 +17,7 @@ import {
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 interface CheckResult {
   valid: boolean;
@@ -29,6 +30,7 @@ interface CheckResult {
 }
 
 export default function CheckIdPage() {
+  const t = useTranslations("CheckId");
   const [selectedGame, setSelectedGame] = useState<"mobile-legends" | "free-fire" | "pubg-mobile">("mobile-legends");
   const [playerId, setPlayerId] = useState("");
   const [zoneId, setZoneId] = useState("");
@@ -40,7 +42,7 @@ export default function CheckIdPage() {
     e.preventDefault();
     if (!playerId.trim()) return;
     if (selectedGame === "mobile-legends" && !zoneId.trim()) {
-      setError("Le Zone ID (Serveur) est obligatoire pour Mobile Legends.");
+      setError(t("zone_required_error"));
       return;
     }
 
@@ -63,10 +65,10 @@ export default function CheckIdPage() {
       if (res.ok && data.success) {
         setResult(data);
       } else {
-        setError(data.error || "Impossible de vérifier cet identifiant.");
+        setError(data.error || t("unable_to_verify_error"));
       }
     } catch {
-      setError("Erreur de connexion. Veuillez réessayer.");
+      setError(t("connection_error"));
     } finally {
       setLoading(false);
     }
@@ -91,13 +93,13 @@ export default function CheckIdPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider mb-4 shadow-sm">
             <Sparkles className="w-4 h-4" />
-            Vérificateur Officiel de Joueur
+            {t("badge")}
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Game ID Checker
+            {t("title")}
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-2 max-w-md mx-auto">
-            Vérifiez instantanément le pseudo de votre compte et votre statut Double Diamants avant de recharger.
+            {t("description")}
           </p>
         </div>
 
@@ -144,7 +146,7 @@ export default function CheckIdPage() {
             <div className={`grid gap-4 ${selectedGame === "mobile-legends" ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1"}`}>
               <div className={selectedGame === "mobile-legends" ? "sm:col-span-2" : ""}>
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 block">
-                  {selectedGame === "mobile-legends" ? "User ID" : "Player ID (UID)"}
+                  {selectedGame === "mobile-legends" ? t("user_id") : t("player_id_uid")}
                 </label>
                 <Input
                   required
@@ -158,7 +160,7 @@ export default function CheckIdPage() {
               {selectedGame === "mobile-legends" && (
                 <div>
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 block">
-                    Zone (Serveur)
+                    {t("zone_server")}
                   </label>
                   <Input
                     required
@@ -178,13 +180,13 @@ export default function CheckIdPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Vérification du compte...
+                  <Loader2 className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2 animate-spin" />
+                  {t("checking_btn")}
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4 mr-2" />
-                  Vérifier le statut du compte
+                  <Search className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                  {t("check_btn")}
                 </>
               )}
             </Button>
@@ -210,17 +212,17 @@ export default function CheckIdPage() {
                 {/* Account details */}
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Pseudo Joueur (In-Game)</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t("nickname_label")}</span>
                     <span className="text-base font-extrabold text-primary font-mono">{result.nickname}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Région / Serveur</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t("region_label")}</span>
                     <span className="text-xs font-bold text-slate-800 dark:text-white">{result.region || "Global"}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Statut du Compte</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">{t("account_status_label")}</span>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Compte Valide
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {t("valid_account")}
                     </span>
                   </div>
                 </div>
@@ -230,14 +232,14 @@ export default function CheckIdPage() {
                   <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
                     <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Coins className="w-3.5 h-3.5 text-amber-400" />
-                      Statut Événement Double Diamants
+                      {t("double_diamond_title")}
                     </div>
                     <div className="space-y-2">
                       {doubleDiamondOffers.map((item) => (
                         <div key={item.label} className="flex items-center justify-between text-xs py-1 border-b border-white/5 last:border-0">
                           <span className="font-semibold text-slate-700 dark:text-slate-300">{item.label}</span>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                            Disponible
+                            {t("available")}
                           </span>
                         </div>
                       ))}
@@ -251,8 +253,8 @@ export default function CheckIdPage() {
                   className="w-full h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all"
                 >
                   <Link href={`/recharge?game=${selectedGame}&playerId=${result.playerId}${result.zoneId ? `&zoneId=${result.zoneId}` : ""}`}>
-                    Recharger ce compte maintenant
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    {t("recharge_now_btn")}
+                    <ArrowRight className="w-4 h-4 ml-2 rtl:ml-0 rtl:mr-2 rtl:rotate-180" />
                   </Link>
                 </Button>
               </motion.div>

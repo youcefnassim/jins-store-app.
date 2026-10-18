@@ -5,7 +5,7 @@ import { OrderData } from "./RechargeStepper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
 import { Separator } from "@/components/ui/separator";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface OrderSummaryProps {
   data: OrderData & { promoCode?: string; promoDiscount?: number };
@@ -14,6 +14,8 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ data, step }: OrderSummaryProps) {
   const t = useTranslations("OrderSummary");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [flexyFeePercent, setFlexyFeePercent] = useState<number>(20);
 
   useEffect(() => {
@@ -101,14 +103,14 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
 
               {isFlexy && (
                 <div className="flex justify-between items-center text-amber-400 text-xs sm:text-sm font-medium">
-                  <span>Frais Flexy (+{flexyFeePercent}%)</span>
+                  <span>{isAr ? `رسوم فليكسي (+${flexyFeePercent}%)` : `Frais Flexy (+${flexyFeePercent}%)`}</span>
                   <span>+{flexyFee.toLocaleString()} DZD</span>
                 </div>
               )}
 
               <div className="flex justify-between items-end mt-1">
                 <span className="text-white/80 font-medium text-xs sm:text-sm">
-                  {isFlexy ? "Total à payer (Flexy)" : t("total_amount")}
+                  {isFlexy ? (isAr ? "المجموع (فليكسي)" : "Total à payer (Flexy)") : t("total_amount")}
                 </span>
                 <div className="text-right">
                   <div className="flex flex-col items-end">

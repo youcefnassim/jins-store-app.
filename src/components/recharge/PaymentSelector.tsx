@@ -9,7 +9,7 @@ import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Cop
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from "@/app/api/settings/payments/route";
 
 interface PaymentSelectorProps {
@@ -33,6 +33,8 @@ export function PaymentSelector({
 }: PaymentSelectorProps) {
   const t = useTranslations("PaymentSelector");
   const tPkg = useTranslations("PackageSelector");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
@@ -163,7 +165,7 @@ export function PaymentSelector({
       case "flexy":
         return (
           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            +{paySettings.flexy.feePercent}% Frais
+            +{paySettings.flexy.feePercent}% {isAr ? "رسوم" : "Frais"}
           </span>
         );
       default:
@@ -175,19 +177,31 @@ export function PaymentSelector({
     switch (id) {
       case "baridimob":
         return { 
-          label: `Numéro RIP BaridiMob (${paySettings.baridimob.holder || "Algérie Poste"})`, 
+          label: isAr 
+            ? `رقم الحساب البريدي الجاري RIP بريدي موب (${paySettings.baridimob.holder || "بريد الجزائر"})`
+            : `Numéro RIP BaridiMob (${paySettings.baridimob.holder || "Algérie Poste"})`, 
           value: paySettings.baridimob.rip 
         };
       case "ccp":
         return { 
-          label: `Compte CCP & Clé (${paySettings.ccp.holder || "Algérie Poste"})`, 
+          label: isAr
+            ? `رقم حساب CCP والمفتاح (${paySettings.ccp.holder || "بريد الجزائر"})`
+            : `Compte CCP & Clé (${paySettings.ccp.holder || "Algérie Poste"})`, 
           value: `${paySettings.ccp.account} Clé ${paySettings.ccp.cle}` 
         };
       case "redotpay":
       case "binance":
-        return { label: "ID Compte RedotPay", value: paySettings.redotpay.id };
+        return { 
+          label: isAr ? "معرّف حساب ريدوت باي (ID)" : "ID Compte RedotPay", 
+          value: paySettings.redotpay.id 
+        };
       case "flexy":
-        return { label: "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", value: paySettings.flexy.phone };
+        return { 
+          label: isAr 
+            ? "رقم فليكسي المستقبل (موبيليس / جيزي / أوريدو)"
+            : "Numéro Flexy (Mobilis / Djezzy / Ooredoo)", 
+          value: paySettings.flexy.phone 
+        };
       default:
         return null;
     }
@@ -342,7 +356,9 @@ export function PaymentSelector({
                       </h4>
                       <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
                         {selectedPayment.id === 'flexy'
-                          ? `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`
+                          ? (isAr 
+                              ? `أرسل الفليكسي (+${paySettings.flexy.feePercent}% رسوم خدمة) إلى الرقم ${paySettings.flexy.phone}. انتظر رسالة SMS لتأكيد التحويل والتقط لقطة شاشة للوصل، أو اذكر فقط الرقم الذي أرسلت منه في خانة الملاحظات.`
+                              : `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`)
                           : selectedPayment.instructions}
                       </p>
                     </div>

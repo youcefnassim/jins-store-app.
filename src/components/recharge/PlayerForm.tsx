@@ -200,7 +200,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
       <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
         {user && savedAccounts.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-slate-700 dark:text-white/80 mb-2">Comptes enregistrés :</p>
+            <p className="text-xs font-medium text-slate-700 dark:text-white/80 mb-2">{t("saved_accounts")}</p>
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/10">
               {savedAccounts.map((acc) => (
                 <button
@@ -228,7 +228,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-semibold text-slate-700 dark:text-white/80">
-                      {isMlbb ? t("player_id") : "ID Joueur (UID)"}
+                      {isMlbb ? t("player_id") : t("player_id_uid")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -339,12 +339,12 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
                 ) : verifiedName ? (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>Choisir mon forfait</span>
+                    <span>{t("choose_package_btn")}</span>
                     <ArrowDown className="w-4 h-4 animate-bounce" />
                   </>
                 ) : (
                   <>
-                    <span>Continuer vers les forfaits</span>
+                    <span>{t("continue_to_packages")}</span>
                     <ArrowDown className="w-4 h-4" />
                   </>
                 )}

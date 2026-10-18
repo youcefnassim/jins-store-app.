@@ -11,8 +11,10 @@ import { ProofUpload } from "@/components/recharge/ProofUpload";
 import { PaymentMethod } from "@/lib/mock-data";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function CheckoutPage() {
+  const t = useTranslations("Checkout");
   const router = useRouter();
   const { items, getTotalPrice, clearCart } = useCartStore();
   const { user } = useAuth();
@@ -43,9 +45,9 @@ export default function CheckoutPage() {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <ShoppingBag className="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
-        <h1 className="text-2xl font-bold mb-4">Votre panier est vide</h1>
+        <h1 className="text-2xl font-bold mb-4">{t("empty_title")}</h1>
         <Button onClick={() => router.push("/games")} variant="outline">
-          Parcourir les jeux
+          {t("browse_games")}
         </Button>
       </div>
     );
@@ -89,7 +91,7 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error(data.error || 'Failed to submit order');
       
-      toast.success("Commande envoyée avec succès !");
+      toast.success(t("order_success"));
       clearCart();
       router.push(`/order/success?id=${data.orderId}`);
     } catch (error: any) {
@@ -104,10 +106,10 @@ export default function CheckoutPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Retour
+            <ArrowLeft className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2 rtl:rotate-180" /> {t("back")}
           </Button>
-          <h1 className="text-3xl font-bold">Caisse (Checkout)</h1>
-          <p className="text-muted-foreground">Finalisez votre achat de {items.length} article(s).</p>
+          <h1 className="text-3xl font-bold">{t("title")}</h1>
+          <p className="text-muted-foreground">{t("subtitle", { count: items.length })}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -115,7 +117,7 @@ export default function CheckoutPage() {
             {currentStep === "payment" && (
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle>1. Méthode de Paiement</CardTitle>
+                  <CardTitle>{t("step_payment")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <PaymentSelector 
@@ -132,15 +134,22 @@ export default function CheckoutPage() {
             {currentStep === "proof" && (
               <Card className="glass-card">
                 <CardHeader>
-                  <CardTitle>2. Preuve de Paiement</CardTitle>
+                  <CardTitle>{t("step_proof")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl mb-6">
                     <p className="text-sm font-medium">
-                      Veuillez envoyer le montant total de <span className="font-bold text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span> vers notre compte {paymentMethod?.name}.
+                      {t("payment_instruction", { 
+                        amount: `${finalPayPrice.toLocaleString()} DZD`, 
+                        method: paymentMethod?.name || "" 
+                      })}
                       {isFlexy && (
                         <span className="block text-xs text-amber-400 mt-1 font-semibold">
-                          Numéro Flexy récepteur : <span className="font-mono underline">{flexyPhone}</span> (Inclut +{flexyFeePercent}% de frais : +{flexyFee.toLocaleString()} DZD)
+                          {t("flexy_instruction", {
+                            phone: flexyPhone,
+                            fee: flexyFeePercent,
+                            feeAmount: `${flexyFee.toLocaleString()} DZD`
+                          })}
                         </span>
                       )}
                     </p>
@@ -158,7 +167,7 @@ export default function CheckoutPage() {
           <div>
             <Card className="glass-card sticky top-24">
               <CardHeader>
-                <CardTitle>Résumé de la Commande</CardTitle>
+                <CardTitle>{t("order_summary")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
@@ -169,7 +178,7 @@ export default function CheckoutPage() {
                         <p className="text-xs text-muted-foreground">{item.gameName}</p>
                         {item.playerId && <p className="text-xs font-mono text-primary">ID: {item.playerId}</p>}
                       </div>
-                      <span className="font-medium whitespace-nowrap ml-2">
+                      <span className="font-medium whitespace-nowrap ml-2 rtl:ml-0 rtl:mr-2">
                         {(item.price * item.quantity).toLocaleString()} DZD
                       </span>
                     </div>
@@ -179,12 +188,12 @@ export default function CheckoutPage() {
                 <div className="mt-4 pt-4 border-t border-white/10 space-y-1.5">
                   {isFlexy && (
                     <div className="flex justify-between items-center text-xs text-amber-400">
-                      <span>Frais Flexy (+{flexyFeePercent}%)</span>
+                      <span>{t("flexy_fee", { fee: flexyFeePercent })}</span>
                       <span className="font-mono">+{flexyFee.toLocaleString()} DZD</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total {isFlexy ? "(Flexy)" : ""}</span>
+                    <span>{isFlexy ? t("total_flexy") : t("total")}</span>
                     <span className="text-primary font-mono">{finalPayPrice.toLocaleString()} DZD</span>
                   </div>
                 </div>

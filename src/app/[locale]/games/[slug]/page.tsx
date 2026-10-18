@@ -5,26 +5,33 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
-import { ArrowLeft, Check, Copy, Flame, Gamepad2, HelpCircle, Info, ShieldCheck, Sparkles, Zap } from "lucide-react";
-import { setRequestLocale } from "next-intl/server";
+import { ArrowLeft, Copy, Flame, Gamepad2, HelpCircle, Info, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 interface GameDetailPageProps {
   params: Promise<{ locale: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: GameDetailPageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const game = await getGameBySlug(slug);
 
   if (!game) {
     return {
-      title: "Jeu Introuvable - Jin's Store",
+      title: locale === "ar" ? "اللعبة غير متوفرة - Jin's Store" : "Jeu Introuvable - Jin's Store",
     };
   }
 
+  const title = locale === "ar" 
+    ? `شحن ${game.name} الجزائر - Jin's Store` 
+    : `Recharge ${game.name} Algérie - Jin's Store`;
+  const description = locale === "ar"
+    ? `اشحن رصيد وجواهر ${game.name} في الجزائر فورياً عبر بريدي موب، CCP، فليكسي وريدوت باي.`
+    : `Rechargez vos crédits et diamants pour ${game.name} en Algérie par BaridiMob, CCP, Flexy et RedotPay instantanément.`;
+
   return {
-    title: `Recharge ${game.name} Algérie - Jin's Store`,
-    description: `Rechargez vos crédits et diamants pour ${game.name} en Algérie par BaridiMob, CCP, Flexy et RedotPay instantanément.`,
+    title,
+    description,
   };
 }
 
@@ -32,6 +39,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
+  const t = await getTranslations({ locale, namespace: "GameDetail" });
   const game = await getGameBySlug(slug);
 
   if (!game) {
@@ -43,13 +51,12 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const isFreeFire = slug === "free-fire" || slug.includes("freefire");
   const isPubg = slug === "pubg-mobile" || slug.includes("pubg");
   const isValorant = slug === "valorant";
-  const isMlbb = slug === "mobile-legends" || slug === "mlbb";
 
   const getCurrencyName = () => {
-    if (isFreeFire) return "Diamants Free Fire";
-    if (isPubg) return "Unknown Cash (UC)";
-    if (isValorant) return "Valorant Points (VP)";
-    return "Diamants";
+    if (isFreeFire) return t("currencies.free_fire");
+    if (isPubg) return t("currencies.pubg");
+    if (isValorant) return t("currencies.valorant");
+    return t("currencies.default");
   };
 
   const getTutorialSteps = () => {
@@ -57,23 +64,23 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
       return [
         {
           num: 1,
-          title: "Lancez le jeu Free Fire",
-          desc: "Ouvrez l'application Garena Free Fire sur votre smartphone.",
+          title: t("tutorials.free_fire.step_1_title"),
+          desc: t("tutorials.free_fire.step_1_desc"),
         },
         {
           num: 2,
-          title: "Accédez à votre profil",
-          desc: "Touchez votre avatar de profil en haut à gauche de l'écran principal.",
+          title: t("tutorials.free_fire.step_2_title"),
+          desc: t("tutorials.free_fire.step_2_desc"),
         },
         {
           num: 3,
-          title: "Copiez votre ID Joueur (UID)",
-          desc: "Votre ID numérique unique (8 à 10 chiffres) se trouve sous votre pseudo. Touchez l'icône Copier.",
+          title: t("tutorials.free_fire.step_3_title"),
+          desc: t("tutorials.free_fire.step_3_desc"),
         },
         {
           num: 4,
-          title: "Validez la recharge",
-          desc: "Collez votre ID dans notre formulaire de recharge sans mot de passe requis !",
+          title: t("tutorials.free_fire.step_4_title"),
+          desc: t("tutorials.free_fire.step_4_desc"),
         },
       ];
     }
@@ -82,23 +89,23 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
       return [
         {
           num: 1,
-          title: "Ouvrez PUBG Mobile",
-          desc: "Connectez-vous à votre compte sur votre smartphone.",
+          title: t("tutorials.pubg.step_1_title"),
+          desc: t("tutorials.pubg.step_1_desc"),
         },
         {
           num: 2,
-          title: "Consultez votre profil",
-          desc: "Cliquez sur votre icône de joueur dans le coin supérieur droit.",
+          title: t("tutorials.pubg.step_2_title"),
+          desc: t("tutorials.pubg.step_2_desc"),
         },
         {
           num: 3,
-          title: "Relevez votre ID Joueur",
-          desc: "Votre numéro de compte (UID) apparaît directement sous votre nom de joueur.",
+          title: t("tutorials.pubg.step_3_title"),
+          desc: t("tutorials.pubg.step_3_desc"),
         },
         {
           num: 4,
-          title: "Commandez vos UC",
-          desc: "Indiquez votre ID sur notre site pour une livraison rapide en jeu.",
+          title: t("tutorials.pubg.step_4_title"),
+          desc: t("tutorials.pubg.step_4_desc"),
         },
       ];
     }
@@ -106,23 +113,23 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
     return [
       {
         num: 1,
-        title: "Ouvrez le jeu sur votre appareil",
-        desc: "Connectez-vous à votre compte de jeu principal.",
+        title: t("tutorials.default.step_1_title"),
+        desc: t("tutorials.default.step_1_desc"),
       },
       {
         num: 2,
-        title: "Ouvrez les paramètres / profil",
-        desc: "Accédez aux détails de votre compte pour afficher votre identifiant joueur.",
+        title: t("tutorials.default.step_2_title"),
+        desc: t("tutorials.default.step_2_desc"),
       },
       {
         num: 3,
-        title: "Copiez votre ID de joueur",
-        desc: "Relevez l'identifiant exact affiché sur votre écran.",
+        title: t("tutorials.default.step_3_title"),
+        desc: t("tutorials.default.step_3_desc"),
       },
       {
         num: 4,
-        title: "Finalisez votre recharge",
-        desc: "Sélectionnez votre forfait et effectuez votre paiement en toute sécurité.",
+        title: t("tutorials.default.step_4_title"),
+        desc: t("tutorials.default.step_4_desc"),
       },
     ];
   };
@@ -142,8 +149,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           <div className="mb-6">
             <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:text-white">
               <Link href="/games" className="flex items-center gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Retour aux jeux
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+                {t("back_to_games")}
               </Link>
             </Button>
           </div>
@@ -177,17 +184,17 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 )}
                 <div className="absolute bottom-3 inset-x-3 text-center z-20">
                   <span className="inline-block bg-primary/90 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm shadow-md">
-                    {game.category || "Jeu Mobile"}
+                    {game.category || (locale === "ar" ? "ألعاب الجوال" : "Jeu Mobile")}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Game Info & Quick CTA */}
-            <div className="text-center md:text-left flex-1">
+            <div className="text-center md:text-left rtl:md:text-right flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-3">
                 <Sparkles className="w-3.5 h-3.5" />
-                Recharge Officielle & Instantanée
+                {t("official_instant")}
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">
@@ -198,37 +205,37 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 {getCurrencyName()}
               </p>
 
-              <p className="text-muted-foreground text-sm sm:text-base max-w-xl mb-6">
-                Rechargez votre compte {game.name} en Algérie au meilleur prix. Entrez uniquement votre identifiant joueur et payez en Dinar algérien via BaridiMob, CCP, Flexy ou RedotPay.
+              <p className="text-muted-foreground text-sm sm:text-base max-w-xl mb-6 leading-relaxed">
+                {t("recharge_desc", { game: game.name })}
               </p>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+              <div className="flex flex-wrap items-center justify-center md:justify-start rtl:md:justify-start gap-3">
                 <Button asChild size="lg" className="bg-primary hover:bg-primary/90 h-12 px-8 text-base rounded-xl font-bold shadow-lg shadow-primary/25">
                   <Link href={`/recharge?game=${game.slug}`}>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Recharger Maintenant
+                    <Zap className="w-4 h-4 mr-2 rtl:mr-0 rtl:ml-2" />
+                    {t("recharge_now")}
                   </Link>
                 </Button>
 
                 <Button asChild variant="outline" size="lg" className="h-12 px-6 rounded-xl border-white/15">
                   <a href="#packages">
-                    Voir les Packs ({packages.length})
+                    {t("view_packages")} ({packages.length})
                   </a>
                 </Button>
               </div>
 
-              <div className="flex items-center justify-center md:justify-start gap-4 mt-6 text-xs text-muted-foreground">
+              <div className="flex items-center justify-center md:justify-start rtl:md:justify-start gap-4 mt-6 text-xs text-muted-foreground flex-wrap">
                 <div className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                  <span>100% Sécurisé</span>
+                  <span>{t("secure_100")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Zap className="w-4 h-4 text-amber-400" />
-                  <span>Livraison Rapide (15-30 min)</span>
+                  <span>{t("fast_delivery")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Flame className="w-4 h-4 text-rose-500" />
-                  <span>Sans mot de passe</span>
+                  <span>{t("no_password")}</span>
                 </div>
               </div>
             </div>
@@ -245,13 +252,13 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             <div className="sticky top-24">
               <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-primary" />
-                Comment trouver votre ID
+                {t("how_to_find_id")}
               </h2>
 
               <Card className="glass-card border-black/10 dark:border-white/10 overflow-hidden shadow-lg">
                 <div className="p-5 border-b border-white/5 bg-primary/5">
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Vous n'avez besoin que de votre identifiant public. <span className="text-white font-medium">Ne partagez jamais votre mot de passe.</span>
+                    {t("id_notice")}
                   </p>
                 </div>
                 <CardContent className="p-5">
@@ -274,7 +281,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <div className="mt-4 flex items-start gap-3 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-900 dark:text-blue-200 text-xs sm:text-sm">
                 <Info className="w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400 mt-0.5" />
                 <p>
-                  Vérifiez attentivement votre identifiant avant de soumettre. Une fois les diamants transférés sur le compte, l'opération ne peut être annulée.
+                  {t("id_warning")}
                 </p>
               </div>
             </div>
@@ -285,27 +292,27 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
-                  Packs Disponibles
+                  {t("available_packages")}
                 </h2>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                  Sélectionnez un pack pour commencer votre recharge
+                  {t("select_package_desc")}
                 </p>
               </div>
 
               <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                {packages.length} packs
+                {packages.length} {locale === "ar" ? "باقات" : "packs"}
               </span>
             </div>
 
             {packages.length === 0 ? (
               <Card className="glass-card p-12 text-center">
                 <Gamepad2 className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-                <h3 className="text-lg font-bold text-white mb-1">Packs en cours de réapprovisionnement</h3>
+                <h3 className="text-lg font-bold text-white mb-1">{t("out_of_stock_title")}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Les forfaits pour ce jeu sont actuellement en mise à jour. Revenez dans quelques instants.
+                  {t("out_of_stock_desc")}
                 </p>
                 <Button asChild variant="outline">
-                  <Link href="/games">Explorer les autres jeux</Link>
+                  <Link href="/games">{t("explore_other_games")}</Link>
                 </Button>
               </Card>
             ) : (
@@ -343,7 +350,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         className="bg-primary hover:bg-primary/90 text-white font-semibold h-10 px-4 rounded-xl shadow-md shrink-0"
                       >
                         <Link href={`/recharge?game=${game.slug}&package=${pkg.id}`}>
-                          Choisir
+                          {t("choose")}
                         </Link>
                       </Button>
                     </div>
@@ -356,16 +363,16 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             <div className="mt-8 p-6 rounded-2xl bg-gradient-to-r from-primary/15 via-purple-600/10 to-transparent border border-primary/25 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
                 <h4 className="text-base font-bold text-white mb-1">
-                  Vous souhaitez commander directement ?
+                  {t("direct_order_title")}
                 </h4>
                 <p className="text-xs text-muted-foreground">
-                  Accédez au formulaire instantané avec sélection du mode de paiement.
+                  {t("direct_order_desc")}
                 </p>
               </div>
 
               <Button asChild className="bg-primary hover:bg-primary/90 text-white font-bold h-11 px-6 rounded-xl shrink-0">
                 <Link href={`/recharge?game=${game.slug}`}>
-                  Commencer la recharge
+                  {t("start_recharge")}
                 </Link>
               </Button>
             </div>

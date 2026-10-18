@@ -26,9 +26,18 @@ export default async function RechargePage({
   
   // Fetch requested game data to show its image and title
   const game = (await getGameBySlug(gameSlug)) || (await getGameBySlug("mobile-legends"));
-  const gameTitle = game?.name ? `Recharger ${game.name}` : t("title");
+  const isAr = locale === "ar";
+  const isEn = locale === "en";
+
+  const gameTitle = game?.name 
+    ? (isAr ? `شحن ${game.name}` : isEn ? `Top Up ${game.name}` : `Recharger ${game.name}`) 
+    : t("title");
   const gameDesc = game?.name 
-    ? `Sélectionnez votre forfait de crédits pour ${game.name} et recevez votre recharge rapidement.` 
+    ? (isAr 
+        ? `اختر باقة الرصيد المناسبة لك في ${game.name} واستلم شحنك فورياً عبر وسائل الدفع المحلية.` 
+        : isEn 
+        ? `Select your credit package for ${game.name} and receive your top-up instantly.` 
+        : `Sélectionnez votre forfait de crédits pour ${game.name} et recevez votre recharge rapidement.`)
     : t("description");
 
   return (

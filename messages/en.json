@@ -248,6 +248,7 @@
     "coming_soon": "Coming Soon",
     "recharge_now": "Recharge Now",
     "unavailable": "Unavailable",
+    "all": "All",
     "no_games": "No games found",
     "no_games_desc": "We couldn't find any games matching \"{searchQuery}\""
   },
@@ -347,7 +348,11 @@
     "verifying": "Verifying ID...",
     "account_verified": "Account Verified",
     "continue_payment": "Continue to Payment (Step 2)",
-    "change_player_info": "Change Package or Player ID"
+    "change_player_info": "Change Package or Player ID",
+    "choose_package_btn": "Choose My Package",
+    "continue_to_packages": "Continue to Packages",
+    "saved_accounts": "Saved Accounts:",
+    "player_id_uid": "Player ID (UID)"
   },
   "OrderSummary": {
     "title": "Order Summary",
@@ -408,5 +413,101 @@
     "items": "items",
     "checkout": "Proceed to Checkout",
     "added_success": "Added to cart successfully!"
+  },
+  "GameDetail": {
+    "back_to_games": "Back to Games",
+    "official_instant": "Official & Instant Top-up",
+    "recharge_desc": "Top up your {game} account in Algeria at the best price. Enter only your Player ID and pay in Algerian Dinar via BaridiMob, CCP, Flexy or RedotPay.",
+    "recharge_now": "Top Up Now",
+    "view_packages": "View Packages",
+    "secure_100": "100% Secure",
+    "fast_delivery": "Fast Delivery (15-30 min)",
+    "no_password": "No Password Required",
+    "how_to_find_id": "How to Find Your Player ID",
+    "id_notice": "You only need your public Player ID. Never share your password with anyone.",
+    "id_warning": "Please double-check your Player ID before submitting. Once top-up is processed in-game, it cannot be refunded.",
+    "available_packages": "Available Packages",
+    "select_package_desc": "Select a package to start your top-up",
+    "choose": "Choose",
+    "direct_order_title": "Want to order directly?",
+    "direct_order_desc": "Proceed to the instant checkout form with your preferred payment method.",
+    "start_recharge": "Start Top Up",
+    "out_of_stock_title": "Packages being restocked",
+    "out_of_stock_desc": "Packages for this game are currently being updated. Please check back shortly.",
+    "explore_other_games": "Explore Other Games",
+    "tutorials": {
+      "free_fire": {
+        "step_1_title": "Launch Free Fire",
+        "step_1_desc": "Open Garena Free Fire on your smartphone.",
+        "step_2_title": "Go to your profile",
+        "step_2_desc": "Tap your profile avatar in the top left corner of the main lobby.",
+        "step_3_title": "Copy your Player ID (UID)",
+        "step_3_desc": "Your unique numeric ID (8 to 10 digits) is displayed beneath your nickname. Tap the copy icon.",
+        "step_4_title": "Confirm Top-Up",
+        "step_4_desc": "Paste your ID in our recharge form with no password required!"
+      },
+      "pubg": {
+        "step_1_title": "Open PUBG Mobile",
+        "step_1_desc": "Log into your game account on your mobile device.",
+        "step_2_title": "Check your profile",
+        "step_2_desc": "Click your player avatar in the top right corner.",
+        "step_3_title": "Find your Player ID",
+        "step_3_desc": "Your numeric account ID (UID) appears directly under your player name.",
+        "step_4_title": "Order your UC",
+        "step_4_desc": "Enter your ID on our website for fast in-game delivery."
+      },
+      "default": {
+        "step_1_title": "Open the game on your device",
+        "step_1_desc": "Log in to your main game account.",
+        "step_2_title": "Open settings or profile",
+        "step_2_desc": "Navigate to your profile details to view your player ID.",
+        "step_3_title": "Copy your Player ID",
+        "step_3_desc": "Note down the exact identifier displayed on your screen.",
+        "step_4_title": "Complete your top-up",
+        "step_4_desc": "Select your package and make your secure payment."
+      }
+    },
+    "currencies": {
+      "free_fire": "Free Fire Diamonds",
+      "pubg": "Unknown Cash (UC)",
+      "valorant": "Valorant Points (VP)",
+      "default": "Diamonds / Credits"
+    }
+  },
+  "Checkout": {
+    "title": "Checkout",
+    "subtitle": "Finalize your purchase of {count} item(s).",
+    "back": "Back",
+    "empty_title": "Your cart is empty",
+    "browse_games": "Browse Games",
+    "step_payment": "1. Payment Method",
+    "step_proof": "2. Proof of Payment",
+    "payment_instruction": "Please send the total amount of {amount} to our {method} account.",
+    "flexy_instruction": "Receiver Flexy phone: {phone} (Includes +{fee}% service fee: +{feeAmount})",
+    "order_summary": "Order Summary",
+    "flexy_fee": "Flexy Fee (+{fee}%)",
+    "total": "Total",
+    "total_flexy": "Total (Flexy)",
+    "order_success": "Order placed successfully!"
+  },
+  "CheckId": {
+    "badge": "Official Player Checker",
+    "title": "Game ID Checker",
+    "description": "Instantly verify your account nickname and Double Diamonds eligibility before recharging.",
+    "user_id": "User ID",
+    "player_id_uid": "Player ID (UID)",
+    "zone_server": "Zone (Server)",
+    "check_btn": "Check Account Status",
+    "checking_btn": "Checking Account...",
+    "nickname_label": "Player Nickname (In-Game)",
+    "region_label": "Region / Server",
+    "account_status_label": "Account Status",
+    "valid_account": "Valid Account",
+    "double_diamond_title": "Double Diamonds Event Status",
+    "available": "Available",
+    "recharge_now_btn": "Recharge this account now",
+    "zone_required_error": "Zone ID (Server) is required for Mobile Legends.",
+    "unable_to_verify_error": "Unable to verify this player ID.",
+    "connection_error": "Connection error. Please try again."
   }
 }

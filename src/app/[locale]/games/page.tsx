@@ -64,14 +64,14 @@ export default function GamesPage() {
     fetchGames();
   }, []);
 
-  const [activeCategory, setActiveCategory] = useState<string>("Tous");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  const categories = ["Tous", ...Array.from(new Set(allGames.map(g => g.category || "Jeux")))];
+  const categories = ["all", ...Array.from(new Set(allGames.map(g => g.category || "Jeux")))];
 
   const filteredGames = allGames.filter(game => {
     const matchesSearch = game.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           game.currencyName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "Tous" || (game.category || "Jeux") === activeCategory;
+    const matchesCategory = activeCategory === "all" || (game.category || "Jeux") === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -112,7 +112,7 @@ export default function GamesPage() {
                     : "bg-white/5 border border-black/10 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-black/5 dark:hover:bg-white/10 hover:scale-105"
                 }`}
               >
-                {cat}
+                {cat === "all" ? t("all") : cat}
               </button>
             ))}
           </div>

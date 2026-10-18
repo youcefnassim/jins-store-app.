@@ -248,6 +248,7 @@
     "coming_soon": "Bientôt",
     "recharge_now": "Recharger",
     "unavailable": "Indisponible",
+    "all": "Tous",
     "no_games": "Aucun jeu trouvé",
     "no_games_desc": "Nous n'avons trouvé aucun jeu correspondant à \"{searchQuery}\""
   },
@@ -347,7 +348,11 @@
     "verifying": "Vérification en cours...",
     "account_verified": "Compte Vérifié",
     "continue_payment": "Continuer vers le Paiement (Étape 2)",
-    "change_player_info": "Changer le Forfait ou l'ID Joueur"
+    "change_player_info": "Changer le Forfait ou l'ID Joueur",
+    "choose_package_btn": "Choisir mon forfait",
+    "continue_to_packages": "Continuer vers les forfaits",
+    "saved_accounts": "Comptes enregistrés :",
+    "player_id_uid": "ID Joueur (UID)"
   },
   "OrderSummary": {
     "title": "Résumé de la Commande",
@@ -408,5 +413,101 @@
     "items": "articles",
     "checkout": "Passer à la caisse",
     "added_success": "Ajouté au panier avec succès !"
+  },
+  "GameDetail": {
+    "back_to_games": "Retour aux jeux",
+    "official_instant": "Recharge Officielle & Instantanée",
+    "recharge_desc": "Rechargez votre compte {game} en Algérie au meilleur prix. Entrez uniquement votre identifiant joueur et payez en Dinar algérien via BaridiMob, CCP, Flexy ou RedotPay.",
+    "recharge_now": "Recharger Maintenant",
+    "view_packages": "Voir les Packs",
+    "secure_100": "100% Sécurisé",
+    "fast_delivery": "Livraison Rapide (15-30 min)",
+    "no_password": "Sans mot de passe",
+    "how_to_find_id": "Comment trouver votre ID",
+    "id_notice": "Vous n'avez besoin que de votre identifiant public. Ne partagez jamais votre mot de passe.",
+    "id_warning": "Vérifiez attentivement votre identifiant avant de soumettre. Une fois les crédits transférés sur le compte, l'opération ne peut être annulée.",
+    "available_packages": "Packs Disponibles",
+    "select_package_desc": "Sélectionnez un pack pour commencer votre recharge",
+    "choose": "Choisir",
+    "direct_order_title": "Vous souhaitez commander directement ?",
+    "direct_order_desc": "Accédez au formulaire instantané avec sélection du mode de paiement.",
+    "start_recharge": "Commencer la recharge",
+    "out_of_stock_title": "Packs en cours de réapprovisionnement",
+    "out_of_stock_desc": "Les forfaits pour ce jeu sont actuellement en mise à jour. Revenez dans quelques instants.",
+    "explore_other_games": "Explorer les autres jeux",
+    "tutorials": {
+      "free_fire": {
+        "step_1_title": "Lancez le jeu Free Fire",
+        "step_1_desc": "Ouvrez l'application Garena Free Fire sur votre smartphone.",
+        "step_2_title": "Accédez à votre profil",
+        "step_2_desc": "Touchez votre avatar de profil en haut à gauche de l'écran principal.",
+        "step_3_title": "Copiez votre ID Joueur (UID)",
+        "step_3_desc": "Votre ID numérique unique (8 à 10 chiffres) se trouve sous votre pseudo. Touchez l'icône Copier.",
+        "step_4_title": "Validez la recharge",
+        "step_4_desc": "Collez votre ID dans notre formulaire de recharge sans mot de passe requis !"
+      },
+      "pubg": {
+        "step_1_title": "Ouvrez PUBG Mobile",
+        "step_1_desc": "Connectez-vous à votre compte sur votre smartphone.",
+        "step_2_title": "Consultez votre profil",
+        "step_2_desc": "Cliquez sur votre icône de joueur dans le coin supérieur droit.",
+        "step_3_title": "Relevez votre ID Joueur",
+        "step_3_desc": "Votre numéro de compte (UID) apparaît directement sous votre nom de joueur.",
+        "step_4_title": "Commandez vos UC",
+        "step_4_desc": "Indiquez votre ID sur notre site pour une livraison rapide en jeu."
+      },
+      "default": {
+        "step_1_title": "Ouvrez le jeu sur votre appareil",
+        "step_1_desc": "Connectez-vous à votre compte de jeu principal.",
+        "step_2_title": "Ouvrez les paramètres / profil",
+        "step_2_desc": "Accédez aux détails de votre compte pour afficher votre identifiant joueur.",
+        "step_3_title": "Copiez votre ID de joueur",
+        "step_3_desc": "Relevez l'identifiant exact affiché sur votre écran.",
+        "step_4_title": "Finalisez votre recharge",
+        "step_4_desc": "Sélectionnez votre forfait et effectuez votre paiement en toute sécurité."
+      }
+    },
+    "currencies": {
+      "free_fire": "Diamants Free Fire",
+      "pubg": "Unknown Cash (UC)",
+      "valorant": "Valorant Points (VP)",
+      "default": "Diamants / Crédits"
+    }
+  },
+  "Checkout": {
+    "title": "Caisse (Checkout)",
+    "subtitle": "Finalisez votre achat de {count} article(s).",
+    "back": "Retour",
+    "empty_title": "Votre panier est vide",
+    "browse_games": "Parcourir les jeux",
+    "step_payment": "1. Méthode de Paiement",
+    "step_proof": "2. Preuve de Paiement",
+    "payment_instruction": "Veuillez envoyer le montant total de {amount} vers notre compte {method}.",
+    "flexy_instruction": "Numéro Flexy récepteur : {phone} (Inclut +{fee}% de frais : +{feeAmount})",
+    "order_summary": "Résumé de la Commande",
+    "flexy_fee": "Frais Flexy (+{fee}%)",
+    "total": "Total",
+    "total_flexy": "Total (Flexy)",
+    "order_success": "Commande envoyée avec succès !"
+  },
+  "CheckId": {
+    "badge": "Vérificateur Officiel de Joueur",
+    "title": "Game ID Checker",
+    "description": "Vérifiez instantanément le pseudo de votre compte et votre statut Double Diamants avant de recharger.",
+    "user_id": "User ID",
+    "player_id_uid": "Player ID (UID)",
+    "zone_server": "Zone (Serveur)",
+    "check_btn": "Vérifier le statut du compte",
+    "checking_btn": "Vérification du compte...",
+    "nickname_label": "Pseudo Joueur (In-Game)",
+    "region_label": "Région / Serveur",
+    "account_status_label": "Statut du Compte",
+    "valid_account": "Compte Valide",
+    "double_diamond_title": "Statut Événement Double Diamants",
+    "available": "Disponible",
+    "recharge_now_btn": "Recharger ce compte maintenant",
+    "zone_required_error": "Le Zone ID (Serveur) est obligatoire pour Mobile Legends.",
+    "unable_to_verify_error": "Impossible de vérifier cet identifiant.",
+    "connection_error": "Erreur de connexion. Veuillez réessayer."
   }
 }
