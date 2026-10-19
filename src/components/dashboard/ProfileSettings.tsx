@@ -40,28 +40,7 @@ export function ProfileSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Loyalty Points Card */}
-      <Card className="glass-card border-black/10 dark:border-white/10 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border-amber-500/20 shadow-md">
-        <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
-              <Award className="w-7 h-7" />
-            </div>
-            <div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white">Jins Coins & Fidélité</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">Cumulez des points à chaque recharge et transformez-les en codes promo de réduction.</p>
-            </div>
-          </div>
-          <div className="text-center sm:text-right shrink-0">
-            <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500 font-mono">
-              {profile?.points || 0}
-            </div>
-            <p className="text-[11px] font-bold text-amber-500 uppercase tracking-widest mt-1">Total Jins Coins</p>
-          </div>
-        </CardContent>
-      </Card>
-
+    <div className="space-y-4">
       {/* Edit Profile Info Form */}
       <Card className="glass-card border-black/10 dark:border-white/10 shadow-md">
         <CardHeader>
