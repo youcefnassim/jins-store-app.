@@ -88,11 +88,12 @@ export async function POST(request: NextRequest) {
     const admin = getSupabaseAdmin();
     const { data: order, error: fetchError } = await admin
       .from('orders')
-      .select('id, user_id, points_to_award, points_awarded, status, game, package, price')
+      .select('id, user_id, points_to_award, status, game, package, price')
       .eq('id', orderId)
       .single();
 
     if (fetchError || !order) {
+      console.error('Admin order fetch error:', fetchError);
       return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 });
     }
 

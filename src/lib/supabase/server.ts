@@ -193,31 +193,48 @@ export async function awardPointsOnce(
 ) {
   if (!userId || points <= 0) return;
 
-  // Atomically claim points_awarded = true ONLY IF currently false
-  // Prevents race conditions from duplicate concurrent requests
-  const { data: updatedOrders, error: updateOrderErr } = await admin
-    .from('orders')
-    .update({ points_awarded: true })
-    .eq('id', orderId)
-    .eq('points_awarded', false)
-    .select('id');
+  try {
+    const { data: updatedOrders, error: updateOrderErr } = await admin
+      .from('orders')
+      .update({ points_awarded: true })
+      .eq('id', orderId)
+      .eq('points_awarded', false)
+      .select('id');
 
-  if (updateOrderErr || !updatedOrders || updatedOrders.length === 0) {
-    // Points already awarded by another concurrent request or order not found
-    return;
+    if (updateOrderErr) {
+      // Column points_awarded might not exist in schema; fall back to directly updating profile
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('points')
+        .eq('id', userId)
+        .single();
+
+      if (profile) {
+        await admin
+          .from('profiles')
+          .update({ points: (profile.points || 0) + points })
+          .eq('id', userId);
+      }
+      return;
+    }
+
+    if (!updatedOrders || updatedOrders.length === 0) {
+      return;
+    }
+
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('points')
+      .eq('id', userId)
+      .single();
+
+    if (!profile) return;
+
+    await admin
+      .from('profiles')
+      .update({ points: (profile.points || 0) + points })
+      .eq('id', userId);
+  } catch (e) {
+    console.warn('awardPointsOnce notice:', e);
   }
-
-  // Points lock acquired successfully, now safely credit user profile
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('points')
-    .eq('id', userId)
-    .single();
-
-  if (!profile) return;
-
-  await admin
-    .from('profiles')
-    .update({ points: (profile.points || 0) + points })
-    .eq('id', userId);
 }

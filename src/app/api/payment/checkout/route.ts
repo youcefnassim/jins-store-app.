@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestUser, getSupabaseAdmin } from '@/lib/supabase/server';
+import { getRequestUser, getSupabaseAdmin, resolveAdminUuid } from '@/lib/supabase/server';
 
 const CHARGILY_API_KEY = process.env.CHARGILY_API_KEY!;
 const CHARGILY_BASE_URL = process.env.CHARGILY_MODE === 'live'
@@ -98,10 +98,27 @@ export async function POST(request: NextRequest) {
 
     const pointsToAward = Math.floor(price * 0.1);
 
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let userId = user.id;
+    if (!UUID_REGEX.test(userId)) {
+      userId = await resolveAdminUuid(user.email || '');
+    }
+
+    if (user.email) {
+      try {
+        await admin.from('profiles').upsert(
+          { id: userId, email: user.email },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
+      } catch (profErr) {
+        console.warn('Profile sync notice:', profErr);
+      }
+    }
+
     const { data: order, error: orderError } = await admin
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         game: gameSlug,
         package: quantity > 1 ? `${pkg.label || packageName} (x${quantity})` : (pkg.label || packageName),
         player_id: playerId,
@@ -110,7 +127,6 @@ export async function POST(request: NextRequest) {
         payment_method: 'chargily',
         price: String(price),
         points_to_award: pointsToAward,
-        points_awarded: false,
         receipt_url: '',
         promo_code: promoCode,
         status: 'pending',

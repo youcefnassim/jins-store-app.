@@ -85,12 +85,13 @@ export default function AdminOrdersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderId: order.id, action }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         toast.success(action === "approve" ? "✅ Commande approuvée !" : "❌ Commande rejetée");
         setSelected(null);
         fetchOrders();
       } else {
-        toast.error("Erreur lors de l'action");
+        toast.error(data.error || "Erreur lors de l'action");
       }
     } catch {
       toast.error("Erreur réseau");
