@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Lock, Loader2, Save, Award } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { User, Lock, Loader2, Save, Award, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/supabase/AuthContext";
 
@@ -14,135 +13,88 @@ export function ProfileSettings() {
   const [name, setName] = useState(profile?.name || "");
   const [loading, setLoading] = useState(false);
 
-  const [password, setPassword] = useState("");
-  const [passLoading, setPassLoading] = useState(false);
-
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!name.trim()) return toast.error("Le nom ne peut pas être vide");
+
     setLoading(true);
-
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ full_name: name })
-        .eq("id", user.id);
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec de la mise à jour");
 
-      if (error) throw error;
-      toast.success("Profile updated successfully");
-      
-      // We could trigger a context refresh here, but for now a simple reload or state update is okay.
-      // window.location.reload(); 
+      toast.success("Profil mis à jour avec succès !");
+      // Trigger instant UI update by reloading window state smoothly
+      setTimeout(() => {
+        window.location.reload();
+      }, 600);
     } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Failed to update profile");
+      toast.error(err.message || "Erreur lors de la mise à jour");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!password) return;
-    setPassLoading(true);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) throw error;
-      toast.success("Password updated successfully");
-      setPassword("");
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Failed to update password");
-    } finally {
-      setPassLoading(false);
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Loyalty Points Card */}
-      <Card className="glass-card border-black/10 dark:border-white/10 bg-gradient-to-r from-amber-500/10 to-orange-600/10 border-amber-500/20">
-        <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6">
-          <div className="flex items-center gap-4 mb-4 sm:mb-0">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
-              <Award className="w-8 h-8 text-white" />
+      <Card className="glass-card border-black/10 dark:border-white/10 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-transparent border-amber-500/20 shadow-md">
+        <CardContent className="flex flex-col sm:flex-row items-center justify-between p-6 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/20 shrink-0">
+              <Award className="w-7 h-7" />
             </div>
             <div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Jins Coins</h3>
-              <p className="text-sm text-muted-foreground">Earn coins with every purchase to get discounts!</p>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">Jins Coins & Fidélité</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Cumulez des points à chaque recharge et transformez-les en codes promo de réduction.</p>
             </div>
           </div>
-          <div className="text-center sm:text-right">
-            <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">
+          <div className="text-center sm:text-right shrink-0">
+            <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-500 font-mono">
               {profile?.points || 0}
             </div>
-            <p className="text-xs font-bold text-amber-500 uppercase tracking-widest mt-1">Total Coins</p>
+            <p className="text-[11px] font-bold text-amber-500 uppercase tracking-widest mt-1">Total Jins Coins</p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="glass-card border-black/10 dark:border-white/10">
+      {/* Edit Profile Info Form */}
+      <Card className="glass-card border-black/10 dark:border-white/10 shadow-md">
         <CardHeader>
           <CardTitle className="text-xl text-slate-900 dark:text-white flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />
-            Profile Information
+            Informations du Profil
           </CardTitle>
           <CardDescription>
-            Update your account details and public name.
+            Gérez vos coordonnées et votre nom d'affichage public sur la boutique.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-md">
+          <form onSubmit={handleUpdateProfile} className="space-y-4 max-w-lg">
             <div>
-              <label className="text-sm font-medium mb-1 block">Email Address (Cannot be changed)</label>
-              <Input value={user?.email || ""} disabled className="opacity-50 dark:bg-black/20" />
+              <label className="text-xs font-semibold text-slate-500 mb-1.5 block">Adresse E-mail (Identifiant)</label>
+              <Input value={user?.email || ""} disabled className="opacity-60 bg-slate-100 dark:bg-black/30 cursor-not-allowed" />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Display Name</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 block">Nom complet / Pseudo</label>
               <Input 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
-                placeholder="Enter your name" 
-                className="dark:bg-black/20"
+                placeholder="Entrez votre nom" 
+                className="bg-white dark:bg-black/40"
               />
             </div>
-            <Button type="submit" disabled={loading || name === profile?.name} className="w-full sm:w-auto bg-primary hover:bg-primary/90">
-              {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Changes
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card className="glass-card border-black/10 dark:border-white/10 border-red-500/20">
-        <CardHeader>
-          <CardTitle className="text-xl text-slate-900 dark:text-white flex items-center gap-2">
-            <Lock className="w-5 h-5 text-red-500" />
-            Security
-          </CardTitle>
-          <CardDescription>
-            Change your account password.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md">
-            <div>
-              <label className="text-sm font-medium mb-1 block">New Password</label>
-              <Input 
-                type="password"
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="Enter new password" 
-                className="dark:bg-black/20"
-              />
-            </div>
-            <Button type="submit" disabled={passLoading || !password} variant="destructive" className="w-full sm:w-auto">
-              {passLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Lock className="w-4 h-4 mr-2" />}
-              Update Password
+            <Button 
+              type="submit" 
+              disabled={loading || name === profile?.name} 
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-bold rounded-xl flex items-center gap-2"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>Enregistrer les modifications</span>
             </Button>
           </form>
         </CardContent>

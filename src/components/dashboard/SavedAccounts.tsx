@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gamepad2, Trash2, Plus, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { Gamepad2, Trash2, Plus, Loader2, Zap, ArrowRight, User } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface SavedAccount {
   id: string;
@@ -16,65 +16,73 @@ interface SavedAccount {
   player_name: string | null;
 }
 
+const POPULAR_GAMES = [
+  { name: "Free Fire", slug: "free-fire" },
+  { name: "Mobile Legends", slug: "mobile-legends" },
+  { name: "PUBG Mobile", slug: "pubg-mobile" },
+  { name: "Roblox", slug: "roblox" },
+  { name: "Brawl Stars", slug: "brawl-stars" },
+  { name: "Valorant", slug: "valorant" },
+  { name: "Genshin Impact", slug: "genshin-impact" },
+];
+
 export function SavedAccounts({ userId }: { userId: string }) {
   const [accounts, setAccounts] = useState<SavedAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  const [newGame, setNewGame] = useState("PUBG Mobile");
+  const [newGame, setNewGame] = useState("Free Fire");
   const [newPlayerId, setNewPlayerId] = useState("");
   const [newPlayerName, setNewPlayerName] = useState("");
 
-  const gamesList = ["PUBG Mobile", "Free Fire", "Mobile Legends", "Valorant", "Genshin Impact"];
-
-  useEffect(() => {
-    fetchAccounts();
-  }, [userId]);
-
   const fetchAccounts = async () => {
     try {
-      const { data, error } = await supabase
-        .from("saved_accounts")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setAccounts(data || []);
-    } catch (err: any) {
+      const res = await fetch('/api/user/saved-accounts');
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.accounts)) {
+        setAccounts(data.accounts);
+      }
+    } catch (err: unknown) {
       console.error("Error fetching accounts:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchAccounts();
+  }, [userId]);
+
   const handleAddAccount = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPlayerId) return toast.error("Player ID is required");
+    if (!newPlayerId.trim()) {
+      return toast.error("Veuillez saisir l'ID du joueur");
+    }
 
     setAdding(true);
     try {
-      const { data, error } = await supabase
-        .from("saved_accounts")
-        .insert({
-          user_id: userId,
+      const res = await fetch('/api/user/saved-accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           game: newGame,
-          player_id: newPlayerId,
-          player_name: newPlayerName || null,
-        })
-        .select()
-        .single();
+          playerId: newPlayerId.trim(),
+          playerName: newPlayerName.trim() || null,
+        }),
+      });
 
-      if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Impossible d'enregistrer le compte");
+      }
 
-      setAccounts([data, ...accounts]);
-      toast.success("Account saved successfully!");
+      toast.success("Compte joueur enregistré avec succès !");
       setNewPlayerId("");
       setNewPlayerName("");
+      fetchAccounts();
     } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Failed to save account");
+      toast.error(err.message || "Échec de l'enregistrement");
     } finally {
       setAdding(false);
     }
@@ -83,100 +91,156 @@ export function SavedAccounts({ userId }: { userId: string }) {
   const handleDelete = async (id: string) => {
     setDeleting(id);
     try {
-      const { error } = await supabase.from("saved_accounts").delete().eq("id", id);
-      if (error) throw error;
-      
-      setAccounts(accounts.filter(a => a.id !== id));
-      toast.success("Account deleted");
+      const res = await fetch(`/api/user/saved-accounts?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Échec de la suppression");
+
+      setAccounts(prev => prev.filter(a => a.id !== id));
+      toast.success("Compte supprimé");
     } catch (err: any) {
-      console.error(err);
-      toast.error("Failed to delete account");
+      toast.error(err.message || "Erreur lors de la suppression");
     } finally {
       setDeleting(null);
     }
   };
 
+  const getGameSlug = (gameName: string) => {
+    const found = POPULAR_GAMES.find(g => g.name.toLowerCase() === gameName.toLowerCase());
+    return found ? found.slug : "mobile-legends";
+  };
+
   return (
-    <Card className="glass-card border-black/10 dark:border-white/10">
+    <Card className="glass-card border-black/10 dark:border-white/10 shadow-lg">
       <CardHeader>
         <CardTitle className="text-xl text-slate-900 dark:text-white flex items-center gap-2">
           <Gamepad2 className="w-5 h-5 text-primary" />
-          Saved Accounts
+          Comptes & Identifiants Joueurs Enregistrés
         </CardTitle>
         <CardDescription>
-          Save your Player IDs to recharge faster next time.
+          Enregistrez vos Player IDs pour recharger vos jeux favoris en 1 seul clic sans retaper votre identifiant.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        {/* Add New Account Form */}
-        <form onSubmit={handleAddAccount} className="bg-black/5 dark:bg-black/40 p-4 rounded-xl border border-black/5 dark:border-white/5 mb-6">
-          <h4 className="font-semibold text-sm mb-3">Add New Account</h4>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <select 
-              value={newGame} 
-              onChange={(e) => setNewGame(e.target.value)}
-              className="flex h-10 w-full sm:w-[150px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-black/20"
-            >
-              {gamesList.map(game => (
-                <option key={game} value={game}>{game}</option>
-              ))}
-            </select>
-            <Input 
-              placeholder="Player ID (e.g. 51234567)" 
-              value={newPlayerId}
-              onChange={(e) => setNewPlayerId(e.target.value)}
-              className="dark:bg-black/20"
-            />
-            <Input 
-              placeholder="Nickname (Optional)" 
-              value={newPlayerName}
-              onChange={(e) => setNewPlayerName(e.target.value)}
-              className="dark:bg-black/20"
-            />
-            <Button type="submit" disabled={adding} className="shrink-0 bg-primary hover:bg-primary/90">
-              {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
-              Save
-            </Button>
+      <CardContent className="space-y-6">
+        
+        {/* Form to Add Account */}
+        <form onSubmit={handleAddAccount} className="bg-slate-50 dark:bg-black/40 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-white/10 space-y-3">
+          <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+            <Plus className="w-4 h-4 text-primary" />
+            Ajouter un nouveau compte joueur
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div className="sm:col-span-4">
+              <label className="text-xs font-semibold text-slate-500 mb-1 block">Jeu</label>
+              <select 
+                value={newGame} 
+                onChange={(e) => setNewGame(e.target.value)}
+                className="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-black/60 px-3 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-primary"
+              >
+                {POPULAR_GAMES.map(game => (
+                  <option key={game.name} value={game.name}>{game.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="text-xs font-semibold text-slate-500 mb-1 block">Player ID (Requis)</label>
+              <Input 
+                placeholder="Ex: 512345678" 
+                value={newPlayerId}
+                onChange={(e) => setNewPlayerId(e.target.value)}
+                className="h-10 text-xs font-mono rounded-xl bg-white dark:bg-black/60 border-slate-200 dark:border-white/10"
+              />
+            </div>
+
+            <div className="sm:col-span-4">
+              <label className="text-xs font-semibold text-slate-500 mb-1 block">Pseudo / Surnom (Optionnel)</label>
+              <div className="flex gap-2">
+                <Input 
+                  placeholder="Ex: ProGamer" 
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  className="h-10 text-xs rounded-xl bg-white dark:bg-black/60 border-slate-200 dark:border-white/10"
+                />
+                <Button 
+                  type="submit" 
+                  disabled={adding} 
+                  className="h-10 px-4 bg-primary hover:bg-primary/90 rounded-xl shrink-0 font-bold text-xs flex items-center gap-1.5 shadow-md shadow-primary/20"
+                >
+                  {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  <span>{adding ? "..." : "Ajouter"}</span>
+                </Button>
+              </div>
+            </div>
           </div>
         </form>
 
         {/* List of Saved Accounts */}
         <div className="space-y-3">
           {loading ? (
-            <div className="text-center py-4 text-muted-foreground">Loading accounts...</div>
+            <div className="text-center py-8 text-sm text-muted-foreground flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span>Chargement de vos comptes...</span>
+            </div>
           ) : accounts.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground bg-black/5 dark:bg-white/5 rounded-xl">
-              No saved accounts yet. Add one above!
+            <div className="text-center py-10 px-4 text-muted-foreground bg-slate-50 dark:bg-white/5 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
+              <Gamepad2 className="w-10 h-10 mx-auto mb-2 text-slate-400 opacity-60" />
+              <p className="font-medium text-sm">Aucun compte enregistré pour le moment.</p>
+              <p className="text-xs text-slate-500 mt-1">Ajoutez votre identifiant joueur ci-dessus pour vos futures recharges rapides.</p>
             </div>
           ) : (
             accounts.map((acc, i) => (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.05 }}
                 key={acc.id}
-                className="flex items-center justify-between p-4 rounded-xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-white dark:bg-black/40 border border-slate-200 dark:border-white/10 hover:border-primary/40 transition-all gap-4 shadow-sm"
               >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 dark:text-white">{acc.game}</span>
-                    {acc.player_name && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-                        {acc.player_name}
-                      </span>
-                    )}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                    <Gamepad2 className="w-5 h-5" />
                   </div>
-                  <p className="text-sm font-mono text-muted-foreground mt-1">ID: {acc.player_id}</p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 dark:text-white text-sm">{acc.game}</span>
+                      {acc.player_name && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {acc.player_name}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs font-mono font-bold text-slate-500 dark:text-slate-400 mt-0.5">
+                      ID: <span className="text-slate-900 dark:text-white">{acc.player_id}</span>
+                    </p>
+                  </div>
                 </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => handleDelete(acc.id)}
-                  disabled={deleting === acc.id}
-                  className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                >
-                  {deleting === acc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                </Button>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <Link href={`/recharge?game=${getGameSlug(acc.game)}&playerId=${encodeURIComponent(acc.player_id)}`}>
+                    <Button 
+                      size="sm" 
+                      className="h-9 px-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span>Recharger</span>
+                      <ArrowRight className="w-3 h-3 rtl:rotate-180" />
+                    </Button>
+                  </Link>
+
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => handleDelete(acc.id)}
+                    disabled={deleting === acc.id}
+                    className="h-9 w-9 p-0 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                    title="Supprimer ce compte"
+                  >
+                    {deleting === acc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </Button>
+                </div>
               </motion.div>
             ))
           )}
