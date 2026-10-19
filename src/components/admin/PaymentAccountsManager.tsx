@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Landmark, CreditCard, Smartphone, Save, RefreshCw, CheckCircle2, ShieldCheck, DollarSign, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { PaymentAccountsSettings, DEFAULT_PAYMENT_SETTINGS } from "@/app/api/settings/payments/route";
+import { PaymentAccountsSettings, DEFAULT_PAYMENT_SETTINGS } from "@/lib/payment-settings";
 
 export function PaymentAccountsManager() {
   const [settings, setSettings] = useState<PaymentAccountsSettings>(DEFAULT_PAYMENT_SETTINGS);

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAdminAuth } from '@/lib/supabase/server';
 import { logAdminAction } from '@/lib/supabase/audit';
-import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from '@/app/api/settings/payments/route';
+import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from '@/lib/payment-settings';
 import { getSiteSetting, saveSiteSetting } from '@/lib/settingsStore';
 
 async function loadPaymentSettings(): Promise<PaymentAccountsSettings> {

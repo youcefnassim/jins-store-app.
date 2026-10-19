@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
-import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from "@/app/api/settings/payments/route";
+import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from "@/lib/payment-settings";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
