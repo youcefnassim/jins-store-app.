@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAnon } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const DEFAULT_ITEMS = [
   { id: '1', text: "OFFRE SPECIALE : +10% de diamants bonus sur PUBG Mobile jusqu'à minuit !", type: 'flame' },
@@ -7,11 +7,12 @@ const DEFAULT_ITEMS = [
   { id: '3', text: 'Support client 24/7 sur WhatsApp', type: 'support' },
 ];
 
-export const revalidate = 60; // Cache for 60 seconds
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const supabase = getSupabaseAnon();
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('site_settings')
       .select('value')
@@ -28,3 +29,4 @@ export async function GET() {
     return NextResponse.json({ items: DEFAULT_ITEMS });
   }
 }
+

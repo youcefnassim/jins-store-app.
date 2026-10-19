@@ -315,6 +315,36 @@ export function PaymentAccountsManager() {
             </div>
           </div>
 
+          {/* 6. WhatsApp Support Client Card */}
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-black/30 border border-slate-200 dark:border-white/5 space-y-3">
+            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase tracking-wider">
+              <Smartphone className="w-4 h-4" />
+              <span>Numéro WhatsApp Support Client</span>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1 block">
+                Numéro WhatsApp (avec indicatif +213) :
+              </label>
+              <input
+                type="text"
+                value={settings.whatsapp || "+213550000000"}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    whatsapp: e.target.value,
+                  }))
+                }
+                placeholder="+213550000000"
+                className="w-full h-9 px-3 bg-white dark:bg-black/50 border border-slate-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white text-xs font-mono focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400">
+              💬 Ce numéro alimente automatiquement le bouton de chat flottant WhatsApp et la page Contact.
+            </div>
+          </div>
+
         </div>
       </form>
     </div>

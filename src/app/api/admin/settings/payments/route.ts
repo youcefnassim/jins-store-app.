@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
         phone: String(body.flexy?.phone || DEFAULT_PAYMENT_SETTINGS.flexy.phone).trim(),
         feePercent: Math.max(0, Math.min(100, Number(body.flexy?.feePercent ?? DEFAULT_PAYMENT_SETTINGS.flexy.feePercent))),
       },
+      whatsapp: String(body.whatsapp || DEFAULT_PAYMENT_SETTINGS.whatsapp).trim(),
       defaultMarginPercent: Math.max(1, Math.min(100, Number(body.defaultMarginPercent ?? DEFAULT_PAYMENT_SETTINGS.defaultMarginPercent))),
     };
 
@@ -95,6 +96,15 @@ export async function POST(request: NextRequest) {
       value: settingsPayload.flexy.phone,
       updated_at: new Date().toISOString(),
     });
+
+    // 3. Keep whatsapp in sync
+    if (settingsPayload.whatsapp) {
+      await admin.from('site_settings').upsert({
+        key: 'whatsapp',
+        value: settingsPayload.whatsapp,
+        updated_at: new Date().toISOString(),
+      });
+    }
 
     await logAdminAction({
       adminId: auth.user!.id,

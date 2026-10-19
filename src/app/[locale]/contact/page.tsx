@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/site";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,16 @@ export default function ContactPage() {
   const t = useTranslations("Contact");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState(siteConfig.supportWhatsApp);
+
+  useEffect(() => {
+    fetch("/api/settings/payments")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings?.whatsapp) setWhatsappPhone(data.settings.whatsapp);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,8 +62,8 @@ export default function ContactPage() {
                 <div className="text-left rtl:text-right">
                   <h3 className="font-bold text-slate-900 dark:text-white mb-1">WhatsApp</h3>
                   <p className="text-slate-600 dark:text-muted-foreground text-sm mb-3">{t("whatsapp_desc")}</p>
-                  <a href={`https://wa.me/${siteConfig.supportWhatsApp.replace('+', '')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
-                    {siteConfig.supportWhatsApp}
+                  <a href={`https://wa.me/${whatsappPhone.replace('+', '')}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-medium">
+                    {whatsappPhone}
                   </a>
                 </div>
               </CardContent>

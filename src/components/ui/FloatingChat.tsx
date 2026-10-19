@@ -1,7 +1,7 @@
 "use client";
 
 import { MessageCircle, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { siteConfig } from "@/config/site";
 import Link from "next/link";
@@ -9,14 +9,25 @@ import Link from "next/link";
 export function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
+  const [whatsappPhone, setWhatsappPhone] = useState(siteConfig.supportWhatsApp);
 
   // Auto-hide tooltip after a few seconds
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setShowTooltip(false);
     }, 10000);
     return () => clearTimeout(timer);
-  });
+  }, []);
+
+  // Fetch live WhatsApp number from Supabase site_settings
+  useEffect(() => {
+    fetch("/api/settings/payments")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.settings?.whatsapp) setWhatsappPhone(data.settings.whatsapp);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="fixed bottom-6 right-6 rtl:left-6 rtl:right-auto z-50 flex flex-col items-end rtl:items-start">
@@ -51,7 +62,7 @@ export function FloatingChat() {
               </div>
               
               <Link 
-                href={`https://wa.me/${siteConfig.supportWhatsApp.replace('+', '')}`} 
+                href={`https://wa.me/${whatsappPhone.replace('+', '')}`} 
                 target="_blank"
                 className="block w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-medium text-center py-3 rounded-xl transition-colors shadow-lg"
               >

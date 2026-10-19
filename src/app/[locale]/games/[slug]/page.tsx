@@ -51,15 +51,42 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const isFreeFire = slug === "free-fire" || slug.includes("freefire");
   const isPubg = slug === "pubg-mobile" || slug.includes("pubg");
   const isValorant = slug === "valorant";
+  const isMlbb = slug === "mobile-legends" || slug.includes("mlbb");
 
   const getCurrencyName = () => {
     if (isFreeFire) return t("currencies.free_fire");
     if (isPubg) return t("currencies.pubg");
     if (isValorant) return t("currencies.valorant");
+    if (isMlbb) return locale === "ar" ? "جواهر موبايل ليجندز (Diamonds)" : "Diamants Mobile Legends";
     return t("currencies.default");
   };
 
   const getTutorialSteps = () => {
+    if (isMlbb) {
+      return [
+        {
+          num: 1,
+          title: locale === "ar" ? "افتح لعبة موبايل ليجندز" : "Ouvrez Mobile Legends sur votre appareil",
+          desc: locale === "ar" ? "قم بتسجيل الدخول إلى حسابك الرئيسي." : "Connectez-vous à votre compte de jeu principal.",
+        },
+        {
+          num: 2,
+          title: locale === "ar" ? "اضغط على صورة الملف الشخصي" : "Accédez à votre profil",
+          desc: locale === "ar" ? "اضغط على الصورة الرمزية في أعلى الشاشة لعرض معلومات الحساب." : "Cliquez sur votre avatar en haut à gauche pour afficher votre profil.",
+        },
+        {
+          num: 3,
+          title: locale === "ar" ? "انسخ معرّف المستخدم ومعرف المنطقة" : "Relevez votre ID et Zone ID",
+          desc: locale === "ar" ? "ستجد معرّف المستخدم (User ID) متبوعاً بمعرّف المنطقة المكون من 4 أرقام بين قوسين." : "Votre ID Utilisateur et l'ID de Zone (entre parenthèses) s'affichent sous vos paramètres.",
+        },
+        {
+          num: 4,
+          title: locale === "ar" ? "اختر باقة الجواهر واشحن فوراً" : "Sélectionnez votre pack et rechargez",
+          desc: locale === "ar" ? "أدخل المعرفات واختر طريقة الدفع المناسبة لك لإتمام الشحن في دقائق." : "Remplissez vos identifiants et choisissez votre mode de paiement sécurisé.",
+        },
+      ];
+    }
+
     if (isFreeFire) {
       return [
         {

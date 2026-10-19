@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAnon } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/server';
 
 const DEFAULT_FLEXY_PHONE = "0550000000";
 
-export const revalidate = 30; // 30s cache
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const supabase = getSupabaseAnon();
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from('site_settings')
       .select('value')
@@ -27,3 +28,4 @@ export async function GET() {
     return NextResponse.json({ flexyPhone: DEFAULT_FLEXY_PHONE });
   }
 }
+

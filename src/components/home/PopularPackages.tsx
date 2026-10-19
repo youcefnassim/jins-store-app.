@@ -15,10 +15,36 @@ import { toast } from "sonner";
 export function PopularPackages() {
   const t = useTranslations("PopularPackages");
   const { formatPrice } = useCurrencyStore();
-  const popularPackages = packages.filter((p) => p.gameId === "mobile-legends" && p.active);
+  const [popularPackages, setPopularPackages] = useState<Package[]>(() => 
+    packages.filter((p) => p.gameId === "mobile-legends" && p.active)
+  );
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const { addItem } = useCartStore();
+
+  // Load database MLBB packages
+  useEffect(() => {
+    fetch('/api/games')
+      .then(res => res.json())
+      .then(data => {
+        if (data.games) {
+          const mlbb = data.games.find((g: any) => g.slug === 'mobile-legends');
+          if (mlbb && mlbb.packages && mlbb.packages.length > 0) {
+            const mapped: Package[] = mlbb.packages.map((pkg: any) => ({
+              id: pkg.id || `mlbb-${pkg.price}`,
+              gameId: 'mobile-legends',
+              amount: pkg.label.replace(/[^0-9]/g, '') || pkg.label,
+              price: pkg.price,
+              currency: 'DZD',
+              popular: pkg.popular,
+              active: true,
+            }));
+            setPopularPackages(mapped);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Scroll left or right helper
   const handleScroll = (direction: "left" | "right") => {

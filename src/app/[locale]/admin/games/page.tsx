@@ -34,15 +34,52 @@ export default function AdminGamesPage() {
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  // Currency Store & Rates
+  // Currency Store & Rates (Saved in Supabase site_settings)
   const { rates, setRate } = useCurrencyStore();
   const [usdRate, setUsdRate] = useState(rates.USD || 242);
   const [eurRate, setEurRate] = useState(rates.EUR || 260);
+  const [isSavingRates, setIsSavingRates] = useState(false);
 
-  const handleSaveRates = () => {
-    setRate('USD', usdRate);
-    setRate('EUR', eurRate);
-    toast.success("✅ Taux de change enregistrés avec succès !");
+  const fetchRates = async () => {
+    try {
+      const res = await fetch("/api/settings/currency");
+      const data = await res.json();
+      if (data.rates) {
+        if (data.rates.USD) {
+          setUsdRate(data.rates.USD);
+          setRate('USD', data.rates.USD);
+        }
+        if (data.rates.EUR) {
+          setEurRate(data.rates.EUR);
+          setRate('EUR', data.rates.EUR);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load currency rates:", e);
+    }
+  };
+
+  const handleSaveRates = async () => {
+    setIsSavingRates(true);
+    try {
+      const res = await fetch("/api/admin/settings/currency", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ USD: usdRate, EUR: eurRate }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRate('USD', usdRate);
+        setRate('EUR', eurRate);
+        toast.success("✅ Taux de change enregistrés dans la base de données !");
+      } else {
+        toast.error(data.error || "Erreur lors de l'enregistrement des taux");
+      }
+    } catch {
+      toast.error("Erreur de connexion au serveur");
+    } finally {
+      setIsSavingRates(false);
+    }
   };
 
   // Add Game State
@@ -71,6 +108,7 @@ export default function AdminGamesPage() {
 
   useEffect(() => {
     fetchGames();
+    fetchRates();
   }, []);
 
   const handleDelete = async (id: string, name: string) => {

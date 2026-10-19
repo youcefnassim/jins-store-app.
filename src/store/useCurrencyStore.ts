@@ -33,6 +33,7 @@ interface CurrencyState {
     profitDzd: number;
     marginPercent: number;
   };
+  syncRatesWithDb: () => Promise<void>;
 }
 
 export const useCurrencyStore = create<CurrencyState>()(
@@ -43,6 +44,24 @@ export const useCurrencyStore = create<CurrencyState>()(
         DZD: 1,
         EUR: 275, // 1 EUR = 275 DZD
         USD: 242, // 1 USD = 242 DZD
+      },
+
+      syncRatesWithDb: async () => {
+        try {
+          const res = await fetch('/api/settings/currency');
+          const data = await res.json();
+          if (data?.rates) {
+            set((state) => ({
+              rates: {
+                ...state.rates,
+                USD: Number(data.rates.USD) || state.rates.USD,
+                EUR: Number(data.rates.EUR) || state.rates.EUR,
+              },
+            }));
+          }
+        } catch {
+          // silently keep fallback
+        }
       },
 
       setCurrency: (currency: Currency) => {

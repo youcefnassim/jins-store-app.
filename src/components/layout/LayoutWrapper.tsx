@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "@/i18n/routing";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -8,10 +9,16 @@ import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { SpeedDialFAB } from "@/components/ui/SpeedDialFAB";
 import { SocialProofPopup } from "@/components/ui/SocialProofPopup";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { useCurrencyStore } from "@/store/useCurrencyStore";
 
 export function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.includes("/admin");
+  const { syncRatesWithDb } = useCurrencyStore();
+
+  useEffect(() => {
+    syncRatesWithDb();
+  }, [syncRatesWithDb]);
 
   if (isAdmin) {
     return (
