@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { getSiteSetting } from '@/lib/settingsStore';
 
 export interface PaymentAccountsSettings {
   baridimob: {
@@ -48,47 +48,22 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-      .from('site_settings')
-      .select('key, value')
-      .in('key', ['payment_accounts', 'flexy_phone', 'whatsapp']);
+    const paySaved = await getSiteSetting<PaymentAccountsSettings | null>('payment_accounts', null);
+    const flexyPhone = await getSiteSetting<string | null>('flexy_phone', null);
+    const whatsapp = await getSiteSetting<string | null>('whatsapp', null);
 
-    if (error || !data || data.length === 0) {
-      return NextResponse.json({ settings: DEFAULT_PAYMENT_SETTINGS, ...DEFAULT_PAYMENT_SETTINGS });
-    }
+    let parsed: PaymentAccountsSettings = {
+      ...DEFAULT_PAYMENT_SETTINGS,
+      ...(paySaved || {}),
+      baridimob: { ...DEFAULT_PAYMENT_SETTINGS.baridimob, ...(paySaved?.baridimob || {}) },
+      ccp: { ...DEFAULT_PAYMENT_SETTINGS.ccp, ...(paySaved?.ccp || {}) },
+      redotpay: { ...DEFAULT_PAYMENT_SETTINGS.redotpay, ...(paySaved?.redotpay || {}) },
+      flexy: { ...DEFAULT_PAYMENT_SETTINGS.flexy, ...(paySaved?.flexy || {}) },
+      whatsapp: whatsapp || paySaved?.whatsapp || DEFAULT_PAYMENT_SETTINGS.whatsapp,
+    };
 
-    const payRow = data.find(d => d.key === 'payment_accounts');
-    const flexyRow = data.find(d => d.key === 'flexy_phone');
-    const waRow = data.find(d => d.key === 'whatsapp');
-
-    let parsed = { ...DEFAULT_PAYMENT_SETTINGS };
-    if (payRow?.value) {
-      const val = typeof payRow.value === 'string' ? JSON.parse(payRow.value) : payRow.value;
-      parsed = {
-        ...DEFAULT_PAYMENT_SETTINGS,
-        ...val,
-        baridimob: { ...DEFAULT_PAYMENT_SETTINGS.baridimob, ...(val.baridimob || {}) },
-        ccp: { ...DEFAULT_PAYMENT_SETTINGS.ccp, ...(val.ccp || {}) },
-        redotpay: { ...DEFAULT_PAYMENT_SETTINGS.redotpay, ...(val.redotpay || {}) },
-        flexy: { ...DEFAULT_PAYMENT_SETTINGS.flexy, ...(val.flexy || {}) },
-        whatsapp: val.whatsapp || DEFAULT_PAYMENT_SETTINGS.whatsapp,
-      };
-    }
-
-    // If flexy_phone exists specifically, prioritize it
-    if (flexyRow?.value) {
-      const fPhone = typeof flexyRow.value === 'string' ? flexyRow.value : String(flexyRow.value?.phone || '');
-      if (fPhone) {
-        parsed.flexy.phone = fPhone;
-      }
-    }
-
-    if (waRow?.value) {
-      const waVal = typeof waRow.value === 'string' ? waRow.value : String(waRow.value?.phone || '');
-      if (waVal) {
-        parsed.whatsapp = waVal;
-      }
+    if (flexyPhone) {
+      parsed.flexy.phone = flexyPhone;
     }
 
     return NextResponse.json({
@@ -103,3 +78,4 @@ export async function GET() {
     });
   }
 }
+

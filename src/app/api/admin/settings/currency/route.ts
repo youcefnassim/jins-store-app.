@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkAdminAuth, getSupabaseAdmin } from '@/lib/supabase/server';
+import { checkAdminAuth } from '@/lib/supabase/server';
 import { logAdminAction } from '@/lib/supabase/audit';
+import { saveSiteSetting } from '@/lib/settingsStore';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,17 +14,7 @@ export async function POST(request: NextRequest) {
 
     const rates = { USD: usd, EUR: eur, DZD: 1 };
 
-    const admin = getSupabaseAdmin();
-    const { error } = await admin.from('site_settings').upsert({
-      key: 'currency_rates',
-      value: rates,
-      updated_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      console.error('Save currency rates error:', error);
-      return NextResponse.json({ error: 'Échec de la sauvegarde des taux de change' }, { status: 500 });
-    }
+    await saveSiteSetting('currency_rates', rates);
 
     await logAdminAction({
       adminId: auth.user!.id,

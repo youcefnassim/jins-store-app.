@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { checkAdminAuth, getSupabaseAdmin } from '@/lib/supabase/server';
+import { checkAdminAuth } from '@/lib/supabase/server';
+import { logAdminAction } from '@/lib/supabase/audit';
+import { getSiteSetting, saveSiteSetting } from '@/lib/settingsStore';
 
 const DEFAULT_ITEMS = [
   { id: '1', text: "OFFRE SPECIALE : +10% de diamants bonus sur PUBG Mobile jusqu'à minuit !", type: 'flame' },
@@ -7,32 +9,13 @@ const DEFAULT_ITEMS = [
   { id: '3', text: 'Support client 24/7 sur WhatsApp', type: 'support' },
 ];
 
-async function loadMarquee() {
-  const admin = getSupabaseAdmin();
-  const { data, error } = await admin
-    .from('site_settings')
-    .select('value')
-    .eq('key', 'marquee')
-    .maybeSingle();
-
-  if (error || !data?.value) return DEFAULT_ITEMS;
-  try {
-    const parsed = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
-    return Array.isArray(parsed) ? parsed : DEFAULT_ITEMS;
-  } catch {
-    return DEFAULT_ITEMS;
-  }
-}
-
-import { logAdminAction } from '@/lib/supabase/audit';
-
 export async function GET(request: NextRequest) {
   try {
     const auth = await checkAdminAuth(request);
     if (auth.error) return NextResponse.json({ error: auth.error }, { status: 401 });
 
-    const items = await loadMarquee();
-    return NextResponse.json({ items });
+    const items = await getSiteSetting('marquee', DEFAULT_ITEMS);
+    return NextResponse.json({ items: Array.isArray(items) ? items : DEFAULT_ITEMS });
   } catch {
     return NextResponse.json({ items: DEFAULT_ITEMS });
   }
@@ -48,17 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid items payload' }, { status: 400 });
     }
 
-    const admin = getSupabaseAdmin();
-    const { error } = await admin.from('site_settings').upsert({
-      key: 'marquee',
-      value: body.items,
-      updated_at: new Date().toISOString(),
-    });
-
-    if (error) {
-      console.error('Marquee update error:', error);
-      return NextResponse.json({ error: 'Échec de mise à jour du bandeau' }, { status: 500 });
-    }
+    await saveSiteSetting('marquee', body.items);
 
     await logAdminAction({
       adminId: auth.user!.id,
@@ -74,3 +47,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }
+

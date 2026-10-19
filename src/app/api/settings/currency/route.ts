@@ -1,20 +1,13 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/server';
+import { getSiteSetting } from '@/lib/settingsStore';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
   try {
-    const admin = getSupabaseAdmin();
-    const { data } = await admin
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'currency_rates')
-      .maybeSingle();
-
-    if (data?.value) {
-      const val = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+    const val = await getSiteSetting<{ USD?: number; EUR?: number } | null>('currency_rates', null);
+    if (val) {
       return NextResponse.json({
         rates: {
           DZD: 1,
@@ -33,3 +26,4 @@ export async function GET() {
     });
   }
 }
+
