@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestUser, getSupabaseAdmin } from '@/lib/supabase/server';
+import { getRequestUser, getSupabaseAdmin, resolveAdminUuid } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 import { sendDiscordOrderNotification } from '@/lib/discord/webhook';
 
@@ -11,6 +11,7 @@ const ALLOWED_RECEIPT_TYPES: Record<string, string> = {
   'application/pdf': 'pdf',
 };
 const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function POST(request: NextRequest) {
   // 1. Rate Limiting: Max 10 orders per 5 minutes per IP
@@ -58,21 +59,54 @@ export async function POST(request: NextRequest) {
 
     const admin = getSupabaseAdmin();
 
-    // 3. Fetch package securely from DB (never trust client price)
-    const { data: pkg, error: pkgError } = await admin
-      .from('game_packages')
-      .select('id, label, price, active, game_id, games(name, slug)')
-      .eq('id', packageId)
-      .single();
-
-    if (pkgError || !pkg || pkg.active === false) {
-      return NextResponse.json({ error: 'Forfait indisponible ou invalide' }, { status: 400 });
+    // 3. Resolve user UUID & guarantee profile existence for foreign key
+    let userId = user.id;
+    if (!UUID_REGEX.test(userId)) {
+      userId = await resolveAdminUuid(user.email || '');
     }
 
-    let price = Number(pkg.price) * quantity;
+    if (user.email) {
+      try {
+        await admin.from('profiles').upsert(
+          { id: userId, email: user.email },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
+      } catch (profErr) {
+        console.warn('Profile ensure notice:', profErr);
+      }
+    }
+
+    // 4. Determine price & game/package details
+    let price = 0;
+    let packageTitle = packageName || 'Forfait';
+    let gameName = game || 'Mobile Legends';
+
+    if (packageId.startsWith('cart-')) {
+      const rawPrice = Number(formData.get('price'));
+      price = Math.max(0, isNaN(rawPrice) ? 0 : rawPrice);
+      packageTitle = packageName || 'Panier Multi-articles';
+    } else {
+      const { data: pkg, error: pkgError } = await admin
+        .from('game_packages')
+        .select('id, label, price, active, game_id, games(name, slug)')
+        .eq('id', packageId)
+        .single();
+
+      if (pkgError || !pkg || pkg.active === false) {
+        return NextResponse.json({ error: 'Forfait indisponible ou invalide' }, { status: 400 });
+      }
+
+      price = Number(pkg.price) * quantity;
+      packageTitle = quantity > 1 ? `${pkg.label || packageName} (x${quantity})` : (pkg.label || packageName);
+      const gameLabel = (pkg as { games?: { name?: string; slug?: string } | { name?: string; slug?: string }[] }).games;
+      gameName = Array.isArray(gameLabel)
+        ? gameLabel[0]?.name || game || packageName
+        : gameLabel?.name || game || packageName;
+    }
+
     let promoCode: string | null = null;
 
-    // 4. Promo code validation & atomic concurrency update (Fixes B5)
+    // 5. Promo code validation & atomic concurrency update (Fixes B5)
     if (promoCodeRaw) {
       const code = promoCodeRaw.toUpperCase().trim();
       const { data: promo } = await admin
@@ -87,7 +121,6 @@ export async function POST(request: NextRequest) {
         promo.current_uses < promo.max_uses &&
         promo.discount_percentage > 0
       ) {
-        // Optimistic concurrency increment: only succeeds if current_uses hasn't exceeded
         const { data: updatedPromo } = await admin
           .from('promo_codes')
           .update({ current_uses: promo.current_uses + 1 })
@@ -103,19 +136,13 @@ export async function POST(request: NextRequest) {
     }
 
     const pointsToAward = Math.floor(price * 0.1);
-    const gameLabel =
-      (pkg as { games?: { name?: string; slug?: string } | { name?: string; slug?: string }[] }).games;
-    const gameName = Array.isArray(gameLabel)
-      ? gameLabel[0]?.name || game || packageName
-      : gameLabel?.name || game || packageName;
-
     const timestamp = Date.now();
-    const fileName = `${user.id}/${timestamp}.${fileExtension}`;
+    const fileName = `${userId}/${timestamp}.${fileExtension}`;
 
     const arrayBuffer = await receiptFile.arrayBuffer();
     const buffer = new Uint8Array(arrayBuffer);
 
-    // 5. Upload receipt to storage
+    // 6. Upload receipt to storage
     const { error: uploadError } = await admin.storage
       .from('receipts')
       .upload(fileName, buffer, {
@@ -132,16 +159,13 @@ export async function POST(request: NextRequest) {
     // Generate public URL (or storage path)
     const { data: { publicUrl } } = admin.storage.from('receipts').getPublicUrl(fileName);
 
-    const packageTitle = quantity > 1 ? `${pkg.label || packageName} (x${quantity})` : (pkg.label || packageName);
-
     const orderPayload: Record<string, unknown> = {
-      user_id: user.id,
+      user_id: userId,
       game: gameName,
       package: packageTitle,
       player_id: playerId.trim(),
       price: String(price),
       points_to_award: pointsToAward,
-      points_awarded: false,
       receipt_url: publicUrl || fileName,
       status: 'pending',
     };
@@ -151,17 +175,44 @@ export async function POST(request: NextRequest) {
     if (paymentMethod) orderPayload.payment_method = paymentMethod;
     if (promoCode) orderPayload.promo_code = promoCode;
 
-    // 6. Insert Order into DB
-    const { data: orderData, error: orderError } = await admin
+    // 7. Insert Order into DB
+    let { data: orderData, error: orderError } = await admin
       .from('orders')
       .insert(orderPayload)
       .select('id')
       .single();
 
-    // 7. Prevent orphaned storage files if order insert fails (Fixes R6)
+    // Resilient fallback in case optional columns are missing in remote DB
     if (orderError) {
-      console.error('Order creation error:', orderError);
-      // Clean up orphaned receipt from storage
+      console.error('Order creation error, attempting minimal insertion:', orderError);
+      const minimalPayload: Record<string, unknown> = {
+        user_id: userId,
+        game: gameName,
+        package: packageTitle,
+        player_id: playerId.trim(),
+        price: String(price),
+        status: 'pending',
+      };
+      if (publicUrl || fileName) minimalPayload.receipt_url = publicUrl || fileName;
+      if (paymentMethod) minimalPayload.payment_method = paymentMethod;
+      if (phone) minimalPayload.phone = phone.trim();
+      if (zoneId) minimalPayload.zone_id = zoneId.trim();
+
+      const retry = await admin
+        .from('orders')
+        .insert(minimalPayload)
+        .select('id')
+        .single();
+
+      if (!retry.error && retry.data) {
+        orderData = retry.data;
+        orderError = null;
+      }
+    }
+
+    // 8. Prevent orphaned storage files if order insert fails
+    if (orderError || !orderData?.id) {
+      console.error('Final order creation error:', orderError);
       await admin.storage.from('receipts').remove([fileName]).catch(() => {});
       return NextResponse.json({ error: 'Impossible de finaliser la commande. Veuillez réessayer.' }, { status: 500 });
     }

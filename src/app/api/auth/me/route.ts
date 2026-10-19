@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_COOKIE, getSupabaseAnon, getSupabaseAdmin, mapProfile } from '@/lib/supabase/server';
+import { AUTH_COOKIE, getSupabaseAnon, getSupabaseAdmin, mapProfile, resolveAdminUuid } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,10 +17,11 @@ export async function GET(request: NextRequest) {
     if (token.startsWith('admin-master:')) {
       const email = token.replace('admin-master:', '').toLowerCase();
       if (adminEmails.includes(email)) {
+        const realId = await resolveAdminUuid(email);
         return NextResponse.json({
-          user: { id: 'admin-master', email },
+          user: { id: realId, email },
           profile: {
-            id: 'admin-master',
+            id: realId,
             email,
             name: 'Administrateur',
             full_name: 'Administrateur',

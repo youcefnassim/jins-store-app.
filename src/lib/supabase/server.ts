@@ -54,17 +54,41 @@ export function authCookieOptions(maxAgeSeconds = 60 * 60 * 24 * 7) {
   };
 }
 
+const KNOWN_ADMIN_UUIDS: Record<string, string> = {
+  'youcefnassim60@gmail.com': '93c48e93-dba5-45fd-af3d-5b8bdf063482',
+  'ramziotaku1@gmail.com': '287caab9-c68f-4ae6-87fb-d4fddaf2c013',
+  'admin@jins-store.com': '8e2fdf3f-91b7-4ca0-9bbb-fbdcc870baa7',
+};
+
+export async function resolveAdminUuid(email: string): Promise<string> {
+  const cleanEmail = email.toLowerCase().trim();
+  if (KNOWN_ADMIN_UUIDS[cleanEmail]) {
+    return KNOWN_ADMIN_UUIDS[cleanEmail];
+  }
+  try {
+    const admin = getSupabaseAdmin();
+    const { data } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('email', cleanEmail)
+      .maybeSingle();
+    if (data?.id) return data.id;
+  } catch {}
+  return '8e2fdf3f-91b7-4ca0-9bbb-fbdcc870baa7';
+}
+
 export async function getRequestUser(request: NextRequest): Promise<User | null> {
   const token = request.cookies.get(AUTH_COOKIE)?.value;
   if (!token) return null;
 
   if (token.startsWith('admin-master:')) {
     const email = token.replace('admin-master:', '').toLowerCase();
+    const realId = await resolveAdminUuid(email);
     return {
-      id: 'admin-master',
+      id: realId,
       email,
-      app_metadata: {},
-      user_metadata: {},
+      app_metadata: { role: 'admin' },
+      user_metadata: { full_name: 'Administrateur' },
       aud: 'authenticated',
       created_at: new Date().toISOString(),
     } as unknown as User;
@@ -88,12 +112,13 @@ export async function checkAdminAuth(request: NextRequest) {
   if (token.startsWith('admin-master:')) {
     const email = token.replace('admin-master:', '').toLowerCase();
     if (adminEmails.includes(email)) {
+      const realId = await resolveAdminUuid(email);
       return {
         user: {
-          id: 'admin-master',
+          id: realId,
           email,
-          app_metadata: {},
-          user_metadata: {},
+          app_metadata: { role: 'admin' },
+          user_metadata: { full_name: 'Administrateur' },
           aud: 'authenticated',
           created_at: new Date().toISOString(),
         } as unknown as User,

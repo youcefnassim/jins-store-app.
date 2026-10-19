@@ -27,3 +27,11 @@ VALUES
   ('whatsapp', '"+213550000000"'::jsonb),
   ('currency_rates', '{"DZD": 1, "USD": 242, "EUR": 275}'::jsonb)
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+
+-- ============================================================
+-- S'assurer que la table orders a toutes ses colonnes
+-- ============================================================
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS points_awarded BOOLEAN DEFAULT false;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS points_to_award INTEGER DEFAULT 0;
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS promo_code TEXT;
+
