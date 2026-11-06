@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, ShoppingBag, Users, Gamepad2, ArrowRight, CornerDownLeft, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 interface AdminSearchModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface AdminSearchModalProps {
 export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
   const [query, setQuery] = useState("");
   const router = useRouter();
+  const t = useTranslations("Admin");
 
   // Keyboard shortcut listener for ESC to close
   useEffect(() => {
@@ -30,11 +32,11 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
   if (!isOpen) return null;
 
   const quickLinks = [
-    { label: "Commandes en attente", icon: ShoppingBag, href: "/admin/orders?status=pending", category: "Commandes" },
-    { label: "Toutes les commandes", icon: ShoppingBag, href: "/admin/orders", category: "Commandes" },
-    { label: "Liste des utilisateurs", icon: Users, href: "/admin/users", category: "Utilisateurs" },
-    { label: "Catalogue des jeux", icon: Gamepad2, href: "/admin/products", category: "Produits" },
-    { label: "Codes promo", icon: Sparkles, href: "/admin/promos", category: "Marketing" },
+    { label: t("pending_orders"), icon: ShoppingBag, href: "/admin/orders?status=pending", category: t("category_orders") },
+    { label: t("all_orders"), icon: ShoppingBag, href: "/admin/orders", category: t("category_orders") },
+    { label: t("users_list"), icon: Users, href: "/admin/users", category: t("category_users") },
+    { label: t("games_catalog"), icon: Gamepad2, href: "/admin/games", category: t("category_products") },
+    { label: t("promo_codes"), icon: Sparkles, href: "/admin/promos", category: t("category_marketing") },
   ];
 
   const filteredLinks = query.trim() === ""
@@ -63,7 +65,7 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher une commande, un utilisateur, un jeu... (ex: BaridiMob, Free Fire)"
+              placeholder={t("search_modal_placeholder")}
               className="w-full h-14 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none text-sm font-medium"
               autoFocus
             />
@@ -82,12 +84,12 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
           <div className="p-4 max-h-[60vh] overflow-y-auto space-y-4">
             <div>
               <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-2">
-                Raccourcis & Actions Rapides
+                {t("quick_actions")}
               </div>
               <div className="space-y-1">
                 {filteredLinks.length === 0 ? (
                   <div className="py-8 text-center text-sm text-slate-500">
-                    Aucun résultat trouvé pour "{query}"
+                    {t("no_results")} "{query}"
                   </div>
                 ) : (
                   filteredLinks.map((item) => (
@@ -110,7 +112,6 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
                         </div>
                       </div>
                       <div className="flex items-center gap-1 text-slate-400 group-hover:text-indigo-500 transition-colors text-xs">
-                        <span>Ouvrir</span>
                         <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </div>
                     </button>
@@ -123,9 +124,9 @@ export function AdminSearchModal({ isOpen, onClose }: AdminSearchModalProps) {
           {/* Footer Shortcuts hint */}
           <div className="px-4 py-2.5 bg-slate-50 dark:bg-white/[0.02] border-t border-slate-200 dark:border-white/5 flex items-center justify-between text-xs text-slate-400">
             <span className="flex items-center gap-1">
-              <CornerDownLeft className="w-3 h-3 text-slate-400" /> Appuyez sur Entrée pour valider
+              <CornerDownLeft className="w-3 h-3 text-slate-400" /> Enter
             </span>
-            <span>Raccourci : <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-200 dark:bg-white/10 rounded text-slate-700 dark:text-slate-300 font-mono">Cmd + K</kbd></span>
+            <span>Shortcut : <kbd className="px-1.5 py-0.5 text-[10px] bg-slate-200 dark:bg-white/10 rounded text-slate-700 dark:text-slate-300 font-mono">⌘K</kbd></span>
           </div>
         </motion.div>
       </div>
