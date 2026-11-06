@@ -122,12 +122,6 @@ export async function PUT(request: NextRequest) {
 
     const admin = getSupabaseAdmin();
 
-    // 1. Fetch existing packages to prevent data loss on rollback (Fixes B3)
-    const { data: previousPackages } = await admin
-      .from('game_packages')
-      .select('label, price, active, popular')
-      .eq('game_id', id);
-
     const { error: gameError } = await admin
       .from('games')
       .update({ name, slug, emoji, image_url, category, sort_order })
@@ -138,42 +132,55 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Échec de la modification du jeu' }, { status: 500 });
     }
 
-    // 2. Validate new packages BEFORE deleting old ones
-    const packagesToInsert = packages
-      .filter((pkg: any) => pkg && typeof pkg.label === 'string' && Number(pkg.price) >= 0)
-      .map((pkg: any) => ({
+    // 1. Fetch existing packages with their UUIDs so we can preserve stable IDs
+    const { data: existingPackages } = await admin
+      .from('game_packages')
+      .select('id, label, price')
+      .eq('game_id', id);
+
+    // 2. Validate incoming packages
+    type PackageInput = { id?: string; label: string; price: number; active?: boolean; popular?: boolean };
+    const incomingPackages: PackageInput[] = packages
+      .filter((pkg: PackageInput) => pkg && typeof pkg.label === 'string' && Number(pkg.price) >= 0)
+      .map((pkg: PackageInput) => ({
+        id: typeof pkg.id === 'string' && pkg.id ? pkg.id : undefined,
         game_id: id,
         label: String(pkg.label).trim().slice(0, 100),
         price: Number(pkg.price),
+        active: pkg.active !== false,
+        popular: pkg.popular === true,
       }));
 
-    // 3. Clear and re-insert
-    const { error: deletePkgError } = await admin
-      .from('game_packages')
-      .delete()
-      .eq('game_id', id);
+    // 3. Upsert packages that have an ID (preserves UUID → no cart breakage)
+    const withId = incomingPackages.filter(p => p.id);
+    const withoutId = incomingPackages.filter(p => !p.id);
 
-    if (deletePkgError) {
-      console.error('Delete packages error:', deletePkgError);
-      return NextResponse.json({ error: 'Échec de la mise à jour des forfaits' }, { status: 500 });
+    if (withId.length > 0) {
+      const { error: upsertErr } = await admin
+        .from('game_packages')
+        .upsert(withId, { onConflict: 'id' });
+      if (upsertErr) {
+        console.error('Package upsert error:', upsertErr);
+        return NextResponse.json({ error: 'Échec de la mise à jour des forfaits' }, { status: 500 });
+      }
     }
 
-    if (packagesToInsert.length > 0) {
+    // 4. Insert new packages (no ID provided)
+    if (withoutId.length > 0) {
       const { error: insertPkgError } = await admin
         .from('game_packages')
-        .insert(packagesToInsert);
-
-      // If insert fails, rollback by restoring previous packages
+        .insert(withoutId);
       if (insertPkgError) {
-        console.error('Insert packages error, restoring previous packages:', insertPkgError);
-        if (previousPackages && previousPackages.length > 0) {
-          const rollbackList = previousPackages.map(p => ({ ...p, game_id: id }));
-          try {
-            await admin.from('game_packages').insert(rollbackList);
-          } catch {}
-        }
-        return NextResponse.json({ error: 'Échec de la mise à jour des forfaits (anciennes données restaurées)' }, { status: 500 });
+        console.error('Package insert error:', insertPkgError);
+        return NextResponse.json({ error: 'Échec de l\'insertion des nouveaux forfaits' }, { status: 500 });
       }
+    }
+
+    // 5. Delete packages removed by the admin (IDs present in DB but not in incoming list)
+    const incomingIds = new Set(withId.map(p => p.id).filter(Boolean));
+    const toDelete = (existingPackages || []).filter(ep => !incomingIds.has(ep.id)).map(ep => ep.id);
+    if (toDelete.length > 0) {
+      await admin.from('game_packages').delete().in('id', toDelete);
     }
 
     await logAdminAction({
@@ -182,7 +189,7 @@ export async function PUT(request: NextRequest) {
       action: 'UPDATE_GAME',
       targetType: 'games',
       targetId: id,
-      details: { name, slug, packageCount: packagesToInsert.length },
+      details: { name, slug, packageCount: incomingPackages.length },
     });
 
     return NextResponse.json({ success: true });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AUTH_COOKIE, authCookieOptions, getSupabaseAnon } from '@/lib/supabase/server';
+import { AUTH_COOKIE, REFRESH_COOKIE, authCookieOptions, getSupabaseAnon } from '@/lib/supabase/server';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
 
     if (data.session?.access_token) {
       response.cookies.set(AUTH_COOKIE, data.session.access_token, authCookieOptions());
+    }
+    if (data.session?.refresh_token) {
+      response.cookies.set(REFRESH_COOKIE, data.session.refresh_token, authCookieOptions(60 * 60 * 24 * 30));
     }
 
     return response;

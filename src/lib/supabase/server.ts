@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 import { NextRequest } from 'next/server';
+import { createHmac } from 'crypto';
 
 function requirePublicEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -44,6 +45,23 @@ export const supabaseServer = new Proxy({} as SupabaseClient, {
 
 export const AUTH_COOKIE = 'sb-access-token';
 
+export const ADMIN_SESSION_COOKIE = 'sb-admin-session';
+
+export const REFRESH_COOKIE = 'sb-refresh-token';
+
+/** Verify HMAC-signed admin session token */
+export function verifyAdminToken(token: string, email: string): boolean {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_MASTER_PASSWORD || 'JinStore2026!';
+  const expected = createHmac('sha256', secret).update(email.toLowerCase()).digest('hex');
+  return token === expected;
+}
+
+/** Create a signed admin session token */
+export function createAdminToken(email: string): string {
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_MASTER_PASSWORD || 'JinStore2026!';
+  return createHmac('sha256', secret).update(email.toLowerCase()).digest('hex');
+}
+
 export function authCookieOptions(maxAgeSeconds = 60 * 60 * 24 * 7) {
   return {
     httpOnly: true,
@@ -78,21 +96,29 @@ export async function resolveAdminUuid(email: string): Promise<string> {
 }
 
 export async function getRequestUser(request: NextRequest): Promise<User | null> {
+  // Check for HMAC-signed admin session cookie first
+  const adminCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  if (adminCookie) {
+    const colonIdx = adminCookie.indexOf(':');
+    if (colonIdx !== -1) {
+      const email = adminCookie.slice(0, colonIdx);
+      const signature = adminCookie.slice(colonIdx + 1);
+      if (email && signature && verifyAdminToken(signature, email)) {
+        const realId = await resolveAdminUuid(email);
+        return {
+          id: realId,
+          email,
+          app_metadata: { role: 'admin' },
+          user_metadata: { full_name: 'Administrateur' },
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+        } as unknown as User;
+      }
+    }
+  }
+
   const token = request.cookies.get(AUTH_COOKIE)?.value;
   if (!token) return null;
-
-  if (token.startsWith('admin-master:')) {
-    const email = token.replace('admin-master:', '').toLowerCase();
-    const realId = await resolveAdminUuid(email);
-    return {
-      id: realId,
-      email,
-      app_metadata: { role: 'admin' },
-      user_metadata: { full_name: 'Administrateur' },
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-    } as unknown as User;
-  }
 
   const { data: { user }, error } = await getSupabaseAnon().auth.getUser(token);
   if (error || !user) return null;
@@ -100,31 +126,37 @@ export async function getRequestUser(request: NextRequest): Promise<User | null>
 }
 
 export async function checkAdminAuth(request: NextRequest) {
-  const token = request.cookies.get(AUTH_COOKIE)?.value;
-  if (!token) return { error: 'Non autorisé. Token manquant.' };
-
   const adminEmails = (process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || 'ramziotaku1@gmail.com,youcefnassim60@gmail.com,admin@jins-store.com')
     .toLowerCase()
     .split(',')
     .map((e) => e.trim())
     .filter(Boolean);
 
-  if (token.startsWith('admin-master:')) {
-    const email = token.replace('admin-master:', '').toLowerCase();
-    if (adminEmails.includes(email)) {
-      const realId = await resolveAdminUuid(email);
-      return {
-        user: {
-          id: realId,
-          email,
-          app_metadata: { role: 'admin' },
-          user_metadata: { full_name: 'Administrateur' },
-          aud: 'authenticated',
-          created_at: new Date().toISOString(),
-        } as unknown as User,
-      };
+  // Check for HMAC-signed admin session cookie
+  const adminCookie = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+  if (adminCookie) {
+    const colonIdx = adminCookie.indexOf(':');
+    if (colonIdx !== -1) {
+      const email = adminCookie.slice(0, colonIdx);
+      const signature = adminCookie.slice(colonIdx + 1);
+      if (email && signature && verifyAdminToken(signature, email) && adminEmails.includes(email)) {
+        const realId = await resolveAdminUuid(email);
+        return {
+          user: {
+            id: realId,
+            email,
+            app_metadata: { role: 'admin' },
+            user_metadata: { full_name: 'Administrateur' },
+            aud: 'authenticated',
+            created_at: new Date().toISOString(),
+          } as unknown as User,
+        };
+      }
     }
   }
+
+  const token = request.cookies.get(AUTH_COOKIE)?.value;
+  if (!token) return { error: 'Non autorisé. Token manquant.' };
 
   const anon = getSupabaseAnon();
   const { data: { user }, error } = await anon.auth.getUser(token);

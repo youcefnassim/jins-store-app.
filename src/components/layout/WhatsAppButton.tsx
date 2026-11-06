@@ -2,9 +2,23 @@
 
 import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export function WhatsAppButton() {
-  const phoneNumber = "213555000000"; // Fake number for now, the user will change it
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings/payments")
+      .then((r) => r.json())
+      .then((d) => {
+        const phone = d?.settings?.whatsapp || d?.whatsapp;
+        if (phone) setPhoneNumber(String(phone).replace(/\D/g, ""));
+      })
+      .catch(() => {});
+  }, []);
+
+  if (!phoneNumber) return null;
+
   const message = encodeURIComponent("Bonjour, j'ai besoin d'aide concernant une recharge.");
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
 

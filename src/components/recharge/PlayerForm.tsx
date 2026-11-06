@@ -12,12 +12,12 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/supabase/AuthContext";
-import { supabase } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
+// Keep the base schema flexible — game-specific validation happens at submit time
 const playerSchema = z.object({
-  playerId: z.string().min(5, "L'ID Joueur est trop court").max(15, "L'ID Joueur est trop long").regex(/^\d+$/, "L'ID Joueur doit contenir uniquement des chiffres"),
+  playerId: z.string().min(3, "L'ID Joueur est trop court").max(30, "L'ID Joueur est trop long"),
   zoneId: z.string().optional(),
   phone: z.string().optional().refine((val) => !val || /^(05|06|07)\d{8}$/.test(val), {
     message: "Numéro de téléphone algérien invalide (ex. 0550000000)",
@@ -72,12 +72,11 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
     if (user) {
       const fetchAccounts = async () => {
         try {
-          const { data, error } = await supabase
-            .from("saved_accounts")
-            .select("*")
-            .eq("user_id", user.id)
-            .order("created_at", { ascending: false });
-          if (!error && data) setSavedAccounts(data);
+          const res = await fetch('/api/user/saved-accounts');
+          if (res.ok) {
+            const json = await res.json();
+            setSavedAccounts(json.accounts || []);
+          }
         } catch (e) {
           console.error(e);
         } finally {
@@ -96,7 +95,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
   const watchedPhone = form.watch("phone");
 
   useEffect(() => {
-    const isPlayerValid = /^\d{5,15}$/.test(watchedPlayerId || "");
+    const isPlayerValid = isMlbb ? /^\d{5,15}$/.test(watchedPlayerId || "") : (watchedPlayerId || "").length >= 3;
     const isZoneValid = isMlbb ? /^\d{3,5}$/.test(watchedZoneId || "") : true;
 
     if (!isPlayerValid || !isZoneValid) {
@@ -119,10 +118,10 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
           }),
         });
         const data = await res.json();
-        if (data.success && data.nickname) {
-          setVerifiedName(data.nickname);
+        if (data.success) {
+          setVerifiedName(data.nickname || (data.verified === false ? "Format Valide ✓" : "Compte Vérifié ✓"));
         } else {
-          setVerifiedName("Format Valide");
+          setVerifiedName(null);
         }
       } catch {
         setVerifiedName("Format Valide");
@@ -161,8 +160,21 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
   };
 
   async function onSubmit(values: PlayerFormValues) {
-    if (isMlbb && (!values.zoneId || values.zoneId.length < 3)) {
-      form.setError("zoneId", { message: "L'ID de Zone (3-5 chiffres) est requis pour Mobile Legends" });
+    // Game-specific player ID validation
+    if (isMlbb) {
+      if (!/^\d{5,15}$/.test(values.playerId)) {
+        form.setError("playerId", { message: "L'ID MLBB doit contenir uniquement des chiffres (5-15 chiffres)" });
+        return;
+      }
+      if (!values.zoneId || values.zoneId.length < 3) {
+        form.setError("zoneId", { message: "L'ID de Zone (3-5 chiffres) est requis pour Mobile Legends" });
+        return;
+      }
+    }
+    // Valorant: RiotID format is "Name#TAG"
+    const isValorant = gameSlug?.includes('valorant');
+    if (isValorant && !/^.{3,16}#[A-Za-z0-9]{3,5}$/.test(values.playerId)) {
+      form.setError("playerId", { message: "L'ID Valorant doit être au format NomJoueur#TAG (ex: Player#EUW)" });
       return;
     }
 
@@ -233,7 +245,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
                     <FormControl>
                       <div className="relative">
                         <Input 
-                          placeholder={isMlbb ? "123456789" : "ex: 123456789 (UID)"} 
+                          placeholder={isMlbb ? "123456789" : gameSlug?.includes('valorant') ? "PlayerName#TAG" : "ex: 123456789 (UID)"} 
                           className="bg-slate-50 dark:bg-black/40 border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 h-10 font-mono text-sm" 
                           {...field} 
                         />

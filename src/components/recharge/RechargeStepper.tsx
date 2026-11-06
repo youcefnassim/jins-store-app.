@@ -41,7 +41,20 @@ export function RechargeStepper() {
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+  const gameSlug = searchParams.get('game') || 'mobile-legends';
+  const [gameName, setGameName] = useState<string>('Mobile Legends');
+
+  useEffect(() => {
+    // Fetch game name from DB based on slug
+    fetch(`/api/games?slug=${gameSlug}`)
+      .then(r => r.json())
+      .then(data => {
+        const game = Array.isArray(data.games) ? data.games.find((g: { slug: string; name: string }) => g.slug === gameSlug) : null;
+        if (game?.name) setGameName(game.name);
+      })
+      .catch(() => {});
+  }, [gameSlug]);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [packagesUnlocked, setPackagesUnlocked] = useState(false);
@@ -147,7 +160,7 @@ export function RechargeStepper() {
     try {
       const qty = orderData.quantity || 1;
       const formData = new FormData();
-      formData.append('game', 'Mobile Legends');
+      formData.append('game', gameName);
       formData.append('packageId', orderData.package.id);
       formData.append('packageName', String(orderData.package.amount));
       formData.append('quantity', String(qty));
@@ -204,7 +217,7 @@ export function RechargeStepper() {
           packageName: String(orderData.package.amount),
           quantity: qty,
           phone: orderData.phone,
-          gameSlug: 'mobile-legends',
+          gameSlug: gameSlug,
           locale,
           promoCode: orderData.promoCode || undefined,
         }),
@@ -272,10 +285,10 @@ export function RechargeStepper() {
           <div className="space-y-4 sm:space-y-6">
             <PlayerForm 
               data={orderData} 
-              gameSlug={searchParams.get("game") || "mobile-legends"}
+              gameSlug={gameSlug}
               onNext={(data) => {
                 setOrderData(prev => ({ ...prev, ...data }));
-                const currentSlug = searchParams.get("game") || "mobile-legends";
+                const currentSlug = gameSlug;
                 const isMlbb = currentSlug === "mobile-legends" || currentSlug === "mlbb";
                 const isFormComplete = isMlbb 
                   ? (!!data.playerId?.trim() && !!data.zoneId?.trim()) 
@@ -428,7 +441,7 @@ export function RechargeStepper() {
 
       {/* Sticky Order Summary */}
       <div className={cn("w-full lg:w-1/3 lg:sticky lg:top-24", !orderData.package && "hidden lg:block")}>
-        <OrderSummary data={orderData} step={currentStep} />
+        <OrderSummary data={orderData} step={currentStep} gameName={gameName} />
       </div>
       
     </div>

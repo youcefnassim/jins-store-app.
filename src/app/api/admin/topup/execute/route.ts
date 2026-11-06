@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       game: order.game,
       package: order.package,
       playerId: order.player_id,
-      zoneId: zoneId || undefined,
+      zoneId: zoneId || order.zone_id || undefined,
       amount: parseFloat(order.price) || 0,
     });
 

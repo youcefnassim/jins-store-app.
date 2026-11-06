@@ -82,17 +82,9 @@ export async function POST(request: NextRequest) {
         promo.current_uses < promo.max_uses &&
         promo.discount_percentage > 0
       ) {
-        const { data: updatedPromo } = await admin
-          .from('promo_codes')
-          .update({ current_uses: promo.current_uses + 1 })
-          .eq('id', promo.id)
-          .eq('current_uses', promo.current_uses)
-          .select('id');
-
-        if (updatedPromo && updatedPromo.length > 0) {
-          price = Math.round(price * (1 - promo.discount_percentage / 100));
-          promoCode = promo.code;
-        }
+        // Apply discount — increment happens in webhook after payment confirmed
+        price = Math.round(price * (1 - promo.discount_percentage / 100));
+        promoCode = promo.code;
       }
     }
 

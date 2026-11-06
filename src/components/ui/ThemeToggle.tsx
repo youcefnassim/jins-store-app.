@@ -1,16 +1,20 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const emptySubscribe = () => () => {};
+
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
-  // Avoid hydration mismatch
-  useEffect(() => setMounted(true), []);
   if (!mounted) return <div className="w-14 h-7 rounded-full bg-slate-200 dark:bg-white/10" />;
 
   const currentTheme = resolvedTheme || theme;

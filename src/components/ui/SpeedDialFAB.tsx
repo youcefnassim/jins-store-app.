@@ -4,13 +4,24 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, ArrowUp, X, Headphones } from "lucide-react";
 
-const phoneNumber = "213555000000";
-const whatsappMessage = encodeURIComponent("Bonjour, j'ai besoin d'aide concernant une recharge.");
-const whatsappUrl = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
-
 export function SpeedDialFAB() {
   const [isOpen, setIsOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState<string>("https://wa.me/213555000000");
+
+  useEffect(() => {
+    fetch("/api/settings/payments")
+      .then((r) => r.json())
+      .then((d) => {
+        const phone = d?.settings?.whatsapp || d?.whatsapp;
+        if (phone) {
+          const cleanPhone = String(phone).replace(/\D/g, "");
+          const msg = encodeURIComponent("Bonjour, j'ai besoin d'aide concernant une recharge.");
+          setWhatsappUrl(`https://wa.me/${cleanPhone}?text=${msg}`);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setShowScrollTop(window.scrollY > 300);

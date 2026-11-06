@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Trash2, Edit, Loader2, Image as ImageIcon, Save, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,8 +37,8 @@ export default function AdminBannersPage() {
     sort_order: 0
   });
 
-  const fetchBanners = async () => {
-    setLoading(true);
+  const fetchBanners = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const res = await fetch("/api/admin/banners");
       const data = await res.json();
@@ -46,21 +46,42 @@ export default function AdminBannersPage() {
         if (data.table_missing) {
           setTableMissing(true);
         } else {
-          setBanners(data.banners);
+          setBanners(data.banners || []);
           setTableMissing(false);
         }
       } else {
         toast.error(data.error);
       }
-    } catch (e) {
+    } catch {
       toast.error("Erreur de chargement");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchBanners();
+    let ignore = false;
+    fetch("/api/admin/banners")
+      .then((res) => res.json())
+      .then((data) => {
+        if (ignore) return;
+        if (data.table_missing) {
+          setTableMissing(true);
+        } else {
+          setBanners(data.banners || []);
+          setTableMissing(false);
+        }
+      })
+      .catch(() => {
+        if (!ignore) toast.error("Erreur de chargement");
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const openAddModal = () => {
@@ -103,8 +124,8 @@ export default function AdminBannersPage() {
       } else {
         throw new Error(data.error || "Erreur lors du téléchargement");
       }
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur lors du téléchargement");
     } finally {
       setIsUploading(false);
     }
@@ -131,8 +152,8 @@ export default function AdminBannersPage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-    } catch (err: any) {
-      toast.error(err.message || "Erreur de sauvegarde");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur de sauvegarde");
     } finally {
       setIsSaving(false);
     }
@@ -149,8 +170,8 @@ export default function AdminBannersPage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-    } catch (err: any) {
-      toast.error(err.message || "Erreur de suppression");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erreur de suppression");
     }
   };
 
@@ -167,14 +188,14 @@ export default function AdminBannersPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-white">Bannières (Hero Carousel)</h1>
-          <p className="text-slate-400 mt-1">Gérez les affiches principales de l'accueil.</p>
+          <p className="text-slate-400 mt-1">Gérez les affiches principales de l&apos;accueil.</p>
         </div>
         <div className="bg-red-500/10 border border-red-500/20 p-6 rounded-2xl text-red-400 max-w-2xl">
           <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
             <Info className="w-5 h-5" />
             Base de données incomplète
           </h3>
-          <p className="mb-4">La table <strong>banners</strong> n'existe pas dans Supabase. Veuillez exécuter cette requête SQL dans l'éditeur SQL de votre projet Supabase :</p>
+          <p className="mb-4">La table <strong>banners</strong> n&apos;existe pas dans Supabase. Veuillez exécuter cette requête SQL dans l&apos;éditeur SQL de votre projet Supabase :</p>
           <pre className="bg-black/50 p-4 rounded-xl text-sm overflow-x-auto text-emerald-400 select-all">
 {`CREATE TABLE IF NOT EXISTS banners (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -187,7 +208,7 @@ export default function AdminBannersPage() {
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );`}
           </pre>
-          <Button onClick={fetchBanners} className="mt-6 bg-white/10 hover:bg-white/20 text-white">J'ai exécuté le script, réessayer</Button>
+          <Button onClick={() => fetchBanners()} className="mt-6 bg-white/10 hover:bg-white/20 text-white">J&apos;ai exécuté le script, réessayer</Button>
         </div>
       </div>
     );
@@ -197,7 +218,7 @@ export default function AdminBannersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Bannières d'Accueil</h1>
+          <h1 className="text-2xl font-bold text-white">Bannières d&apos;Accueil</h1>
           <p className="text-slate-400 mt-1">Personnalisez le carrousel de la page principale</p>
         </div>
         <Button onClick={openAddModal} className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20">
@@ -294,7 +315,7 @@ export default function AdminBannersPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-400 mb-1 block">Ordre d'affichage (0 = premier)</label>
+                <label className="text-xs font-semibold text-slate-400 mb-1 block">Ordre d&apos;affichage (0 = premier)</label>
                 <Input type="number" required value={formData.sort_order} onChange={e => setFormData({...formData, sort_order: parseInt(e.target.value)})} className="bg-black/20 border-white/5 text-white" />
               </div>
               

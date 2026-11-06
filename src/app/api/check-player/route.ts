@@ -64,16 +64,16 @@ export async function POST(request: NextRequest) {
         // Upstream down or timed out, fallback gracefully below
       }
 
-      // Fallback clean confirmation for valid ID and Zone structure
+      // Fallback: format valid but cannot verify online
       return NextResponse.json({
         success: true,
         valid: true,
-        nickname: `MLBB_Gamer_${cleanId.slice(-4)}`,
-        region: 'Global / MENA',
+        nickname: null,
+        verified: false,
+        message: 'Format valide — vérification en ligne indisponible.',
         game: 'Mobile Legends',
         playerId: cleanId,
         zoneId: cleanZone,
-        doubleDiamondAvailable: true,
       });
     }
 
@@ -108,7 +108,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         valid: true,
-        nickname: `FF_Survivor_${cleanId.slice(-4)}`,
+        nickname: null,
+        verified: false,
+        message: 'Format valide — vérification en ligne indisponible.',
         game: 'Free Fire',
         playerId: cleanId,
       });
@@ -119,7 +121,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         valid: true,
-        nickname: `PUBG_Hero_${cleanId.slice(-4)}`,
+        nickname: null,
+        verified: false,
+        message: 'Format valide — vérification en ligne indisponible.',
         game: 'PUBG Mobile',
         playerId: cleanId,
       });
@@ -129,7 +133,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       valid: true,
-      nickname: `Player_${cleanId.slice(-4)}`,
+      nickname: null,
+      verified: false,
+      message: 'Format valide — vérification en ligne indisponible.',
       game,
       playerId: cleanId,
     });

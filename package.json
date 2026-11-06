@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "package:cpanel": "powershell -ExecutionPolicy Bypass -File ./scripts/package-cpanel.ps1"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

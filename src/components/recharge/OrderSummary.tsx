@@ -10,9 +10,10 @@ import { useLocale, useTranslations } from "next-intl";
 interface OrderSummaryProps {
   data: OrderData & { promoCode?: string; promoDiscount?: number };
   step: number;
+  gameName?: string;
 }
 
-export function OrderSummary({ data, step }: OrderSummaryProps) {
+export function OrderSummary({ data, step, gameName }: OrderSummaryProps) {
   const t = useTranslations("OrderSummary");
   const locale = useLocale();
   const isAr = locale === "ar";
@@ -55,7 +56,7 @@ export function OrderSummary({ data, step }: OrderSummaryProps) {
         <div className="p-4 sm:p-5 space-y-3">
           <div className="flex justify-between items-center text-xs sm:text-sm">
             <span className="text-muted-foreground">{t("game")}</span>
-            <span className="font-medium text-white">Mobile Legends</span>
+            <span className="font-medium text-white">{gameName || 'Mobile Legends'}</span>
           </div>
           
           <div className="flex justify-between items-center text-xs sm:text-sm">

@@ -82,8 +82,37 @@ export async function POST(request: NextRequest) {
     let gameName = game || 'Mobile Legends';
 
     if (packageId.startsWith('cart-')) {
-      const rawPrice = Number(formData.get('price'));
-      price = Math.max(0, isNaN(rawPrice) ? 0 : rawPrice);
+      const cartItemsRaw = formData.get('cartItems') as string | null;
+      let calculatedPrice = 0;
+      if (cartItemsRaw) {
+        try {
+          const cartItems = JSON.parse(cartItemsRaw) as Array<{ packageId: string; quantity: number }>;
+          if (Array.isArray(cartItems) && cartItems.length > 0) {
+            const pkgIds = cartItems.map(c => c.packageId).filter(Boolean);
+            const { data: dbPkgs } = await admin
+              .from('game_packages')
+              .select('id, price, active')
+              .in('id', pkgIds);
+
+            if (dbPkgs && dbPkgs.length > 0) {
+              const priceMap = new Map(dbPkgs.map(p => [p.id, Number(p.price) || 0]));
+              for (const item of cartItems) {
+                const itemPrice = priceMap.get(item.packageId) ?? 0;
+                calculatedPrice += itemPrice * Math.max(1, Math.min(99, Number(item.quantity) || 1));
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to parse cartItems in order create:', e);
+        }
+      }
+
+      if (calculatedPrice > 0) {
+        price = calculatedPrice;
+      } else {
+        const rawPrice = Number(formData.get('price'));
+        price = Math.max(0, isNaN(rawPrice) ? 0 : rawPrice);
+      }
       packageTitle = packageName || 'Panier Multi-articles';
     } else {
       const { data: pkg, error: pkgError } = await admin

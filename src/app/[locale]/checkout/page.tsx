@@ -79,6 +79,7 @@ export default function CheckoutPage() {
       // Encode cart items to save them in DB if needed (or just list them in player ID field as a hack for now)
       const itemsList = items.map(i => `${i.gameName}: ${i.name}${i.playerId ? ` (ID: ${i.playerId}${i.zoneId ? `/${i.zoneId}` : ''})` : ''} x${i.quantity}`).join(' | ');
       formData.append('playerId', itemsList);
+      formData.append('cartItems', JSON.stringify(items.map(i => ({ packageId: i.packageId, quantity: i.quantity }))));
       formData.append('price', String(finalPayPrice));
       formData.append('pointsToAward', String(pointsToAward));
       formData.append('receiptFile', file);

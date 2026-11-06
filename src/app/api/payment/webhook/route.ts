@@ -53,6 +53,28 @@ export async function POST(request: NextRequest) {
         console.error('Order update error:', updateError);
         return NextResponse.json({ error: 'Order update failed' }, { status: 500 });
       }
+
+      // Increment promo code usage atomically now that payment is confirmed
+      const { data: orderData } = await admin
+        .from('orders')
+        .select('promo_code, user_id, points_to_award')
+        .eq('id', orderId)
+        .single();
+
+      if (orderData?.promo_code) {
+        const { data: promo } = await admin
+          .from('promo_codes')
+          .select('id, current_uses, max_uses')
+          .eq('code', orderData.promo_code)
+          .single();
+        if (promo && promo.current_uses < promo.max_uses) {
+          await admin
+            .from('promo_codes')
+            .update({ current_uses: promo.current_uses + 1 })
+            .eq('id', promo.id)
+            .eq('current_uses', promo.current_uses); // CAS to prevent double-increment
+        }
+      }
     }
 
     if (event.type === 'checkout.failed') {
