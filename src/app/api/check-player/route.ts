@@ -6,6 +6,105 @@ interface CheckPlayerRequest {
   zoneId?: string;
 }
 
+/**
+ * 1. Primary Validator for MLBB: Smile.one (Official direct partner, fast & returns real nickname)
+ */
+async function checkMLBB_SmileOne(playerId: string, zoneId: string): Promise<{ found: boolean; nickname?: string; notFound?: boolean }> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const body = new URLSearchParams({ user_id: playerId, zone_id: zoneId });
+    const res = await fetch('https://www.smile.one/merchant/mobilelegends/checkrole', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      body: body.toString(),
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.code === 200 && data.username) {
+        return { found: true, nickname: String(data.username).trim() };
+      }
+      if (data.code === 201) {
+        return { found: false, notFound: true };
+      }
+    }
+  } catch (err) {
+    console.warn('SmileOne MLBB check notice:', err);
+  }
+  return { found: false };
+}
+
+/**
+ * 2. Secondary Validator for MLBB: Isan API
+ */
+async function checkMLBB_Isan(playerId: string, zoneId: string): Promise<{ found: boolean; nickname?: string }> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(
+      `https://api.isan.eu.org/nickname/ml?id=${encodeURIComponent(playerId)}&zone=${encodeURIComponent(zoneId)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.success && data?.name) {
+        return { found: true, nickname: String(data.name).trim() };
+      }
+    }
+  } catch (err) {
+    console.warn('Isan MLBB check notice:', err);
+  }
+  return { found: false };
+}
+
+/**
+ * 3. Tertiary Validator for MLBB: BananaGameShop API
+ */
+async function checkMLBB_Banana(playerId: string, zoneId: string): Promise<{ found: boolean; nickname?: string; notFound?: boolean }> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    const res = await fetch(
+      `https://bananagameshop.com/api/mlbb/validasi?id=${encodeURIComponent(playerId)}&serverid=${encodeURIComponent(zoneId)}`,
+      {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.result?.nickname) {
+        return { found: true, nickname: String(data.result.nickname).trim() };
+      }
+      if (data?.status === 'error' || data?.code === 500) {
+        return { found: false, notFound: true };
+      }
+    }
+  } catch (err) {
+    console.warn('Banana MLBB check notice:', err);
+  }
+  return { found: false };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body: CheckPlayerRequest = await request.json();
@@ -31,50 +130,63 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      try {
-        // Try upstream MLBB validator with short timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-
-        const upstreamRes = await fetch(
-          `https://bananagameshop.com/api/mlbb/validasi?id=${encodeURIComponent(cleanId)}&serverid=${encodeURIComponent(cleanZone)}`,
-          {
-            signal: controller.signal,
-            headers: { 'Accept': 'application/json' },
-          }
-        );
-        clearTimeout(timeoutId);
-
-        if (upstreamRes.ok) {
-          const data = await upstreamRes.json();
-          if (data?.result?.nickname) {
-            return NextResponse.json({
-              success: true,
-              valid: true,
-              nickname: data.result.nickname,
-              region: data.result.country || 'Global',
-              game: 'Mobile Legends',
-              playerId: cleanId,
-              zoneId: cleanZone,
-              doubleDiamondAvailable: true,
-            });
-          }
-        }
-      } catch (err) {
-        // Upstream down or timed out, fallback gracefully below
+      // Layer 1: Check Smile.one
+      const smileResult = await checkMLBB_SmileOne(cleanId, cleanZone);
+      if (smileResult.found && smileResult.nickname) {
+        return NextResponse.json({
+          success: true,
+          valid: true,
+          nickname: smileResult.nickname,
+          region: 'Global / MENA',
+          game: 'Mobile Legends',
+          playerId: cleanId,
+          zoneId: cleanZone,
+          doubleDiamondAvailable: true,
+        });
       }
 
-      // Fallback: format valid but cannot verify online
-      return NextResponse.json({
-        success: true,
-        valid: true,
-        nickname: null,
-        verified: false,
-        message: 'Format valide — vérification en ligne indisponible.',
-        game: 'Mobile Legends',
-        playerId: cleanId,
-        zoneId: cleanZone,
-      });
+      // Layer 2: Check Isan API
+      const isanResult = await checkMLBB_Isan(cleanId, cleanZone);
+      if (isanResult.found && isanResult.nickname) {
+        return NextResponse.json({
+          success: true,
+          valid: true,
+          nickname: isanResult.nickname,
+          region: 'Global / MENA',
+          game: 'Mobile Legends',
+          playerId: cleanId,
+          zoneId: cleanZone,
+          doubleDiamondAvailable: true,
+        });
+      }
+
+      // Layer 3: Check BananaGameShop
+      const bananaResult = await checkMLBB_Banana(cleanId, cleanZone);
+      if (bananaResult.found && bananaResult.nickname) {
+        return NextResponse.json({
+          success: true,
+          valid: true,
+          nickname: bananaResult.nickname,
+          region: 'Global / MENA',
+          game: 'Mobile Legends',
+          playerId: cleanId,
+          zoneId: cleanZone,
+          doubleDiamondAvailable: true,
+        });
+      }
+
+      // If Smile.one or Banana explicitly returned not found, or all failed to find account
+      return NextResponse.json(
+        {
+          success: false,
+          valid: false,
+          error: 'Compte Mobile Legends introuvable. Veuillez vérifier votre ID Joueur et Zone ID (Serveur).',
+          game: 'Mobile Legends',
+          playerId: cleanId,
+          zoneId: cleanZone,
+        },
+        { status: 404 }
+      );
     }
 
     // 2. Free Fire verification
@@ -110,7 +222,7 @@ export async function POST(request: NextRequest) {
         valid: true,
         nickname: null,
         verified: false,
-        message: 'Format valide — vérification en ligne indisponible.',
+        message: 'Format d\'ID valide.',
         game: 'Free Fire',
         playerId: cleanId,
       });
@@ -123,19 +235,19 @@ export async function POST(request: NextRequest) {
         valid: true,
         nickname: null,
         verified: false,
-        message: 'Format valide — vérification en ligne indisponible.',
+        message: 'Format d\'ID valide.',
         game: 'PUBG Mobile',
         playerId: cleanId,
       });
     }
 
-    // Default generic valid response
+    // Default generic response
     return NextResponse.json({
       success: true,
       valid: true,
       nickname: null,
       verified: false,
-      message: 'Format valide — vérification en ligne indisponible.',
+      message: 'Format valide.',
       game,
       playerId: cleanId,
     });

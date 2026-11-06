@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { HelpCircle, Loader2, CheckCircle2, UserCheck, ArrowDown } from "lucide-react";
+import { HelpCircle, Loader2, CheckCircle2, UserCheck, ArrowDown, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -41,6 +41,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
   const t = useTranslations("RechargeForm");
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifiedName, setVerifiedName] = useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
   const { user } = useAuth();
   const [savedAccounts, setSavedAccounts] = useState<any[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
@@ -100,11 +101,13 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
 
     if (!isPlayerValid || !isZoneValid) {
       setVerifiedName(null);
+      setVerifyError(null);
       setIsVerifying(false);
       return;
     }
 
     setIsVerifying(true);
+    setVerifyError(null);
 
     const timer = setTimeout(async () => {
       try {
@@ -118,13 +121,19 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
           }),
         });
         const data = await res.json();
-        if (data.success) {
-          setVerifiedName(data.nickname || (data.verified === false ? "Format Valide ✓" : "Compte Vérifié ✓"));
+        if (data.success && data.nickname) {
+          setVerifiedName(data.nickname);
+          setVerifyError(null);
+        } else if (data.success && !isMlbb) {
+          setVerifiedName(data.nickname || null);
+          setVerifyError(null);
         } else {
           setVerifiedName(null);
+          setVerifyError(data.error || "Compte introuvable. Vérifiez votre ID et Zone ID.");
         }
       } catch {
-        setVerifiedName("Format Valide");
+        setVerifiedName(null);
+        setVerifyError("Erreur de connexion lors de la vérification");
       } finally {
         setIsVerifying(false);
       }
@@ -140,7 +149,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
         zoneId: watchedZoneId || "",
         phone: watchedPhone || "",
       });
-    }, 500);
+    }, 600);
 
     return () => clearTimeout(timer);
   }, [watchedPlayerId, watchedZoneId, watchedPhone, isMlbb, gameSlug]);
@@ -149,6 +158,7 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
     form.setValue("playerId", acc.player_id || "");
     if (acc.zone_id) form.setValue("zoneId", acc.zone_id);
     setVerifiedName(acc.player_name || "Compte Enregistré");
+    setVerifyError(null);
     onNext({
       playerId: acc.player_id || "",
       zoneId: acc.zone_id || watchedZoneId || "",
@@ -170,7 +180,42 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
         form.setError("zoneId", { message: "L'ID de Zone (3-5 chiffres) est requis pour Mobile Legends" });
         return;
       }
+
+      // If not yet verified, check right now before allowing submit
+      if (!verifiedName) {
+        setIsVerifying(true);
+        setVerifyError(null);
+        try {
+          const res = await fetch("/api/check-player", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              game: "mobile-legends",
+              playerId: values.playerId,
+              zoneId: values.zoneId,
+            }),
+          });
+          const data = await res.json();
+          if (data.success && data.nickname) {
+            setVerifiedName(data.nickname);
+            setVerifyError(null);
+            setIsVerifying(false);
+          } else {
+            setIsVerifying(false);
+            setVerifiedName(null);
+            const errMsg = data.error || "Compte Mobile Legends introuvable. Veuillez vérifier votre ID et Serveur.";
+            setVerifyError(errMsg);
+            form.setError("playerId", { message: errMsg });
+            return;
+          }
+        } catch {
+          setIsVerifying(false);
+          form.setError("playerId", { message: "Erreur de connexion lors de la vérification" });
+          return;
+        }
+      }
     }
+
     // Valorant: RiotID format is "Name#TAG"
     const isValorant = gameSlug?.includes('valorant');
     if (isValorant && !/^.{3,16}#[A-Za-z0-9]{3,5}$/.test(values.playerId)) {
@@ -178,12 +223,6 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
       return;
     }
 
-    if (!verifiedName) {
-      setIsVerifying(true);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      setVerifiedName("Format Valide");
-      setIsVerifying(false);
-    }
     onNext({
       playerId: values.playerId,
       zoneId: values.zoneId || "",
@@ -302,6 +341,18 @@ export function PlayerForm({ data, gameSlug, onNext }: PlayerFormProps) {
                     </div>
                   </div>
                   <UserCheck className="w-4 h-4 text-emerald-500 opacity-60" />
+                </motion.div>
+              )}
+
+              {verifyError && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: "auto", y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 flex items-center gap-2.5 text-red-600 dark:text-red-400 text-xs font-semibold"
+                >
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <span>{verifyError}</span>
                 </motion.div>
               )}
             </AnimatePresence>

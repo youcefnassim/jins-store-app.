@@ -62,7 +62,7 @@ export default function CheckIdPage() {
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (res.ok && data.success && data.nickname) {
         setResult(data);
       } else {
         setError(data.error || t("unable_to_verify_error"));
