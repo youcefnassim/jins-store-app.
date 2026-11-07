@@ -17,12 +17,28 @@ export async function GET() {
     }
 
     // Format the response to match the frontend expectations
-    const formattedGames = (games || []).map(game => ({
-      ...game,
-      category: game.category || 'Jeux',
-      sort_order: game.sort_order || 0,
-      packages: (game.packages || []).sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
-    })).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    const LOCAL_FALLBACKS: Record<string, string> = {
+      'mobile-legends': '/images/games/mobile-legends.png',
+      'free-fire': '/images/games/free-fire.png',
+      'pubg-mobile': '/images/games/pubg-mobile.png',
+      'valorant': '/images/games/valorant.png',
+    };
+
+    const formattedGames = (games || []).map(game => {
+      let resolvedImageUrl = game.image_url;
+      // Sanitize broken Pinterest links or missing images
+      if (!resolvedImageUrl || resolvedImageUrl.includes('pin.it')) {
+        resolvedImageUrl = LOCAL_FALLBACKS[game.slug] || resolvedImageUrl;
+      }
+
+      return {
+        ...game,
+        image_url: resolvedImageUrl,
+        category: game.category || 'Jeux',
+        sort_order: game.sort_order || 0,
+        packages: (game.packages || []).sort((a: any, b: any) => (a.price || 0) - (b.price || 0))
+      };
+    }).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
     return NextResponse.json({ games: formattedGames });
   } catch (err: unknown) {
