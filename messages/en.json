@@ -564,5 +564,16 @@
     "promo_ff": "Booyah Pass & Diamonds",
     "promo_pubg": "Royale Pass & Instant UC",
     "promo_valorant": "100% Valid Riot VP"
+  },
+  "QuickSettings": {
+    "title": "Preferences",
+    "search_placeholder": "Search a game (e.g. MLBB, PUBG...)",
+    "no_results": "No games found",
+    "language": "Language",
+    "currency": "Currency",
+    "theme": "Display Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "close": "Close"
   }
 }

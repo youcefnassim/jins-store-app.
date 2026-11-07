@@ -564,5 +564,16 @@
     "promo_ff": "Passe & Diamants Promo",
     "promo_pubg": "Royale Pass & UC Directs",
     "promo_valorant": "Codes VP Riot 100% Valides"
+  },
+  "QuickSettings": {
+    "title": "Préférences",
+    "search_placeholder": "Rechercher un jeu (ex: MLBB, PUBG...)",
+    "no_results": "Aucun jeu trouvé",
+    "language": "Langue",
+    "currency": "Devise",
+    "theme": "Thème d'affichage",
+    "light": "Clair",
+    "dark": "Sombre",
+    "close": "Fermer"
   }
 }

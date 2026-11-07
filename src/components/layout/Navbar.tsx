@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { CurrencySwitcher } from "@/components/ui/CurrencySwitcher";
-import { GlobalSearch } from "@/components/layout/GlobalSearch";
+import { QuickPreferencesHub } from "@/components/ui/QuickPreferencesHub";
 import { CartSidebar } from "@/components/cart/CartSidebar";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
@@ -176,12 +173,9 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* CTA & Actions - Right Aligned */}
-          <div className="flex items-center justify-end gap-1 sm:gap-2 md:gap-2.5 shrink-0">
-            <GlobalSearch />
-            <LanguageSwitcher />
-            <CurrencySwitcher />
-            <ThemeToggle />
+          {/* CTA & Actions - Right Aligned (Unified Preferences Hub) */}
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
+            <QuickPreferencesHub />
             <div className="hidden md:block">
               <CartSidebar />
             </div>
