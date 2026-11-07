@@ -543,5 +543,26 @@
     "verifying_access": "Verifying Admin Access...",
     "login_title": "Admin Portal",
     "login_subtitle": "Restricted access. Please identify yourself."
+  },
+  "GamesShowcase": {
+    "badge": "OFFICIAL GAMES CATALOG",
+    "title_part1": "Top Up Your",
+    "title_part2": "Favorite Games",
+    "subtitle": "Enjoy the best rates in Algeria with automated Player ID delivery in under 5 minutes.",
+    "instant_delivery": "Instant (1-5 min)",
+    "from_price": "Starting at",
+    "recharge_btn": "Top Up Now",
+    "view_all_games": "Explore All Games",
+    "all_catalog": "Full Catalog",
+    "secure_badge": "100% Official & Secure",
+    "popular": "Most Popular",
+    "tag_moba": "MOBA 5v5",
+    "tag_br": "Battle Royale",
+    "tag_survival": "Survival & Shooter",
+    "tag_fps": "Tactical FPS 5v5",
+    "promo_mlbb": "Double Diamonds Eligible",
+    "promo_ff": "Booyah Pass & Diamonds",
+    "promo_pubg": "Royale Pass & Instant UC",
+    "promo_valorant": "100% Valid Riot VP"
   }
 }

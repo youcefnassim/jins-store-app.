@@ -543,5 +543,26 @@
     "verifying_access": "Vérification des accès Admin...",
     "login_title": "Portail Administrateur",
     "login_subtitle": "Accès restreint. Veuillez vous identifier."
+  },
+  "GamesShowcase": {
+    "badge": "NOS JEUX OFFICIELS",
+    "title_part1": "Rechargez Vos Jeux",
+    "title_part2": "Favoris en 1-Clic",
+    "subtitle": "Profitez des meilleurs tarifs en Algérie avec livraison automatique par ID en moins de 5 minutes.",
+    "instant_delivery": "Instantané (1-5 min)",
+    "from_price": "À partir de",
+    "recharge_btn": "Recharger Maintenant",
+    "view_all_games": "Explorer tous les jeux",
+    "all_catalog": "Catalogue Complet",
+    "secure_badge": "100% Officiel & Sécurisé",
+    "popular": "Populaire",
+    "tag_moba": "MOBA 5v5",
+    "tag_br": "Battle Royale",
+    "tag_survival": "Survie & Tir",
+    "tag_fps": "FPS Tactique 5v5",
+    "promo_mlbb": "Double Diamants Dispo",
+    "promo_ff": "Passe & Diamants Promo",
+    "promo_pubg": "Royale Pass & UC Directs",
+    "promo_valorant": "Codes VP Riot 100% Valides"
   }
 }
