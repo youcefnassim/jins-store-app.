@@ -567,13 +567,21 @@
   },
   "QuickSettings": {
     "title": "Préférences",
-    "search_placeholder": "Rechercher un jeu (ex: MLBB, PUBG...)",
-    "no_results": "Aucun jeu trouvé",
     "language": "Langue",
     "currency": "Devise",
     "theme": "Thème d'affichage",
     "light": "Clair",
     "dark": "Sombre",
     "close": "Fermer"
+  },
+  "NavbarSearch": {
+    "placeholder": "Rechercher un jeu...",
+    "results": "Résultats",
+    "trending": "Jeux populaires",
+    "games_count": "jeux",
+    "starting_from": "À partir de",
+    "no_results": "Aucun jeu trouvé",
+    "no_results_desc": "Aucun jeu ne correspond à votre recherche",
+    "view_all": "Voir tous les jeux"
   }
 }

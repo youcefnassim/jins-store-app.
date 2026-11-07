@@ -567,13 +567,21 @@
   },
   "QuickSettings": {
     "title": "Preferences",
-    "search_placeholder": "Search a game (e.g. MLBB, PUBG...)",
-    "no_results": "No games found",
     "language": "Language",
     "currency": "Currency",
     "theme": "Display Theme",
     "light": "Light",
     "dark": "Dark",
     "close": "Close"
+  },
+  "NavbarSearch": {
+    "placeholder": "Search games...",
+    "results": "Results",
+    "trending": "Trending Games",
+    "games_count": "games",
+    "starting_from": "Starting from",
+    "no_results": "No games found",
+    "no_results_desc": "No games match your search query",
+    "view_all": "View all games"
   }
 }

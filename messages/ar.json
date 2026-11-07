@@ -567,13 +567,21 @@
   },
   "QuickSettings": {
     "title": "التفضيلات والإعدادات",
-    "search_placeholder": "ابحث عن لعبة (مثال: ببجي، فري فاير...)",
-    "no_results": "لم يتم العثور على ألعاب",
     "language": "اللغة",
     "currency": "العملة",
     "theme": "مظهر العرض",
     "light": "فاتح",
     "dark": "داكن",
     "close": "إغلاق"
+  },
+  "NavbarSearch": {
+    "placeholder": "ابحث عن لعبة...",
+    "results": "النتائج",
+    "trending": "الألعاب الأكثر طلباً",
+    "games_count": "ألعاب",
+    "starting_from": "ابتداءً من",
+    "no_results": "لم يتم العثور على ألعاب",
+    "no_results_desc": "لا توجد لعبة تطابق بحثك",
+    "view_all": "عرض جميع الألعاب"
   }
 }

@@ -9,6 +9,7 @@ import { usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuickPreferencesHub } from "@/components/ui/QuickPreferencesHub";
+import { NavbarSearch } from "@/components/layout/NavbarSearch";
 import { CartSidebar } from "@/components/cart/CartSidebar";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
@@ -173,8 +174,9 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* CTA & Actions - Right Aligned (Unified Preferences Hub) */}
+          {/* CTA & Actions - Right Aligned (Search & Unified Preferences Hub) */}
           <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
+            <NavbarSearch />
             <QuickPreferencesHub />
             <div className="hidden md:block">
               <CartSidebar />
