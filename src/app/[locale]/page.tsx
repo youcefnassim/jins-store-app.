@@ -1,4 +1,3 @@
-import { Hero } from "@/components/home/Hero";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { GamesShowcase } from "@/components/home/GamesShowcase";
 import { PaymentMethods } from "@/components/home/PaymentMethods";
@@ -30,7 +29,6 @@ export default function Home() {
       </div>
 
       <HeroCarousel />
-      <Hero />
       <ScrollReveal delay={0.1}><GamesShowcase /></ScrollReveal>
       <ScrollReveal delay={0.1}><PaymentMethods /></ScrollReveal>
       {/* <ScrollReveal delay={0.2}><PopularPackages /></ScrollReveal> */}
