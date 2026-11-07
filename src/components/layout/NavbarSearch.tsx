@@ -88,10 +88,7 @@ export function NavbarSearch() {
   // Filter games based on search query
   const filteredGames = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
-      // When empty, show first 4 trending games
-      return games.slice(0, 4);
-    }
+    if (!q) return [];
     return games.filter((g) => {
       const nameMatch = g.name?.toLowerCase().includes(q);
       const slugMatch = g.slug?.toLowerCase().includes(q);
@@ -141,10 +138,10 @@ export function NavbarSearch() {
       {/* Search Bar Input Pill */}
       <div
         className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 transition-all duration-300 shadow-sm ${
-          isOpen
+          isOpen && query.trim()
             ? "ring-2 ring-primary/40 border-primary/50 bg-white dark:bg-white/10"
             : "hover:bg-slate-200/80 dark:hover:bg-white/10"
-        } w-28 xs:w-36 sm:w-48 md:w-56 lg:w-64 focus-within:w-40 xs:focus-within:w-48 sm:focus-within:w-60 md:focus-within:w-64 lg:focus-within:w-72`}
+        } w-20 xs:w-28 sm:w-36 md:w-40 focus-within:w-36 xs:focus-within:w-44 sm:focus-within:w-52 md:focus-within:w-60`}
       >
         <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 dark:text-slate-500 shrink-0" />
 
@@ -162,11 +159,11 @@ export function NavbarSearch() {
             if (!isOpen) setIsOpen(true);
           }}
           onKeyDown={handleInputKeyDown}
-          placeholder={t("placeholder")}
-          className="w-full bg-transparent border-0 outline-none text-xs text-slate-900 dark:text-white placeholder:text-slate-400 truncate"
+          className="w-full bg-transparent border-0 outline-none text-xs text-slate-900 dark:text-white truncate"
+          aria-label="Rechercher"
         />
 
-        {query ? (
+        {query && (
           <button
             type="button"
             onClick={() => {
@@ -179,16 +176,12 @@ export function NavbarSearch() {
           >
             <X className="w-3 h-3" />
           </button>
-        ) : (
-          <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono font-medium text-slate-400 bg-black/5 dark:bg-white/10 rounded border border-black/5 dark:border-white/5 shrink-0 pointer-events-none">
-            ⌘K
-          </kbd>
         )}
       </div>
 
-      {/* Floating Results Popover */}
+      {/* Floating Results Popover (Only when typing) */}
       <AnimatePresence>
-        {isOpen && (
+        {isOpen && query.trim().length > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
