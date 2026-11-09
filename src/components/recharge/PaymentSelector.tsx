@@ -5,18 +5,22 @@ import { PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, Smartphone } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, Smartphone, UploadCloud, X, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { DEFAULT_PAYMENT_SETTINGS, PaymentAccountsSettings } from "@/lib/payment-settings";
+import { toast } from "sonner";
+import { useRef } from "react";
 
 interface PaymentSelectorProps {
   selectedPayment?: PaymentMethod;
   onSelect: (method: PaymentMethod) => void;
-  onNext: () => void;
+  onNext?: () => void;
   onBack: () => void;
+  onSubmit?: (file: File, transactionRef: string) => void;
+  isSubmitting?: boolean;
   amount: number;
   promoCode?: string;
   onPromoApply?: (code: string, discount: number) => void;
@@ -27,18 +31,73 @@ export function PaymentSelector({
   onSelect, 
   onNext, 
   onBack, 
+  onSubmit,
+  isSubmitting = false,
   amount, 
   promoCode, 
   onPromoApply 
 }: PaymentSelectorProps) {
   const t = useTranslations("PaymentSelector");
   const tPkg = useTranslations("PackageSelector");
+  const tProof = useTranslations("ProofUpload");
   const locale = useLocale();
   const isAr = locale === "ar";
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedText, setCopiedText] = useState<string | null>(null);
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+
+  // Payment proof upload states
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [transactionRef, setTransactionRef] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (selected?: File) => {
+    if (selected) {
+      if (selected.size > 5 * 1024 * 1024) {
+        toast.error(tProof("too_large"));
+        return;
+      }
+      setProofFile(selected);
+      const url = URL.createObjectURL(selected);
+      setPreviewUrl(url);
+    }
+  };
+
+  const removeFile = () => {
+    setProofFile(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleIHavePaid = () => {
+    if (!selectedPayment) return;
+    
+    // If an onSubmit prop is provided (merged flow)
+    if (onSubmit) {
+      if (!proofFile) {
+        toast.error(
+          locale === "ar"
+            ? "يرجى إرفاق وصل أو صورة إثبات الدفع أولاً."
+            : locale === "en"
+            ? "Please attach your payment receipt proof first."
+            : "Veuillez joindre votre reçu de paiement pour continuer."
+        );
+        document.getElementById("payment-proof-upload-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      onSubmit(proofFile, transactionRef);
+      return;
+    }
+
+    // Fallback to legacy onNext
+    if (onNext) {
+      onNext();
+    }
+  };
 
   const [promoInput, setPromoInput] = useState(promoCode || "");
   const [promoLoading, setPromoLoading] = useState(false);
@@ -481,6 +540,99 @@ export function PaymentSelector({
                       </div>
                     </div>
                   </div>
+
+                  {/* Integrated Proof Upload Section (Merged) */}
+                  <div id="payment-proof-upload-box" className="rounded-xl border border-white/10 bg-black/30 p-3.5 sm:p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                        <UploadCloud className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-bold text-white leading-tight">
+                          {tProof("title")}
+                        </h4>
+                        <p className="text-[11px] text-white/50">
+                          {tProof("description")}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Drag and Drop / Select box */}
+                    <div
+                      className={cn(
+                        "border-2 border-dashed rounded-xl transition-all duration-300 relative overflow-hidden group p-4",
+                        previewUrl
+                          ? "border-emerald-500/50 bg-black/60"
+                          : isDragging
+                          ? "border-primary bg-primary/10 scale-[1.01]"
+                          : "border-white/15 bg-white/5 hover:bg-white/10 hover:border-white/30 cursor-pointer"
+                      )}
+                      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDragging(false);
+                        const f = e.dataTransfer.files?.[0];
+                        if (f && f.type.startsWith("image/")) processFile(f);
+                      }}
+                      onClick={() => !previewUrl && fileInputRef.current?.click()}
+                    >
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(e) => processFile(e.target.files?.[0])}
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                      />
+
+                      {previewUrl ? (
+                        <div className="relative flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 overflow-hidden min-w-0">
+                            <div className="w-14 h-14 rounded-lg overflow-hidden bg-black/60 border border-white/10 shrink-0 flex items-center justify-center">
+                              <img src={previewUrl} alt="Reçu" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="truncate">
+                              <p className="text-xs font-semibold text-white truncate">{proofFile?.name}</p>
+                              <p className="text-[10px] text-emerald-400 font-medium">
+                                ✓ Reçu prêt ({(proofFile?.size! / 1024 / 1024).toFixed(2)} Mo)
+                              </p>
+                            </div>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="rounded-full w-8 h-8 shrink-0 hover:scale-105"
+                            onClick={(e) => { e.stopPropagation(); removeFile(); }}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center py-4 text-center">
+                          <UploadCloud className="w-8 h-8 text-white/40 group-hover:text-primary transition-colors mb-2" />
+                          <p className="text-xs font-semibold text-white/90">
+                            {isDragging ? tProof("drop_here") : tProof("click_or_drag")}
+                          </p>
+                          <p className="text-[10px] text-white/40 mt-0.5">{tProof("format_info")}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Transaction Reference (Optional) */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-white/70">
+                        {tProof("tx_ref")}
+                      </label>
+                      <input
+                        type="text"
+                        value={transactionRef}
+                        onChange={(e) => setTransactionRef(e.target.value)}
+                        placeholder={tProof("tx_ref_placeholder")}
+                        className="w-full h-9 bg-black/60 border border-white/15 rounded-lg px-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primary font-mono transition-colors"
+                      />
+                    </div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -500,12 +652,26 @@ export function PaymentSelector({
               
               <Button 
                 type="button" 
-                onClick={onNext} 
-                disabled={!selectedPayment}
-                className="bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 h-10 sm:h-11 px-6 sm:px-8 rounded-xl font-bold shadow-[0_0_20px_rgba(168,85,247,0.3)] transition-all flex items-center gap-2 text-xs sm:text-sm disabled:opacity-50"
+                onClick={handleIHavePaid} 
+                disabled={!selectedPayment || isSubmitting}
+                className={cn(
+                  "h-10 sm:h-11 px-6 sm:px-8 rounded-xl font-bold shadow-lg transition-all flex items-center gap-2 text-xs sm:text-sm select-none",
+                  proofFile
+                    ? "bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-primary/25 cursor-pointer"
+                    : "bg-gradient-to-r from-primary/80 to-purple-600/80 hover:from-primary hover:to-purple-600 text-white shadow-primary/15 cursor-pointer"
+                )}
               >
-                <span>{t("i_have_paid")}</span>
-                <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                    <span>{tProof("submitting")}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{t("i_have_paid")}</span>
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  </>
+                )}
               </Button>
             </div>
           </div>

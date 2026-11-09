@@ -6,7 +6,6 @@ import { useRouter } from "@/i18n/routing";
 import { PlayerForm } from "./PlayerForm";
 import { PackageSelector } from "./PackageSelector";
 import { PaymentSelector } from "./PaymentSelector";
-import { ProofUpload } from "./ProofUpload";
 import { OrderSummary } from "./OrderSummary";
 import { Package, PaymentMethod } from "@/lib/mock-data";
 import { Check, ChevronDown } from "lucide-react";
@@ -421,20 +420,13 @@ export function RechargeStepper() {
             <PaymentSelector 
               selectedPayment={orderData.paymentMethod}
               onSelect={(method) => setOrderData(prev => ({ ...prev, paymentMethod: method }))}
-              onNext={() => {}}
               onBack={handleBack}
+              onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
               amount={getDiscountedPrice()}
               promoCode={orderData.promoCode}
               onPromoApply={(code, discount) => setOrderData(prev => ({ ...prev, promoCode: code, promoDiscount: discount }))}
             />
-
-            {orderData.paymentMethod && (
-              <ProofUpload 
-                onBack={handleBack}
-                onSubmit={handleSubmit}
-                isSubmitting={isSubmitting}
-              />
-            )}
           </div>
         )}
       </div>
