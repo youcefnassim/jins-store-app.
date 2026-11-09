@@ -35,8 +35,8 @@ export function NavbarSearch() {
   const router = useRouter();
   const { formatPrice } = useCurrencyStore();
 
-  const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [games, setGames] = useState<GameItem[]>([]);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [hasFetched, setHasFetched] = useState(false);
@@ -44,7 +44,7 @@ export function NavbarSearch() {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch games on initial focus/click
+  // Fetch games on demand
   const fetchGames = async () => {
     if (hasFetched) return;
     try {
@@ -59,14 +59,26 @@ export function NavbarSearch() {
     }
   };
 
+  const handleOpen = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState) {
+      fetchGames();
+      setTimeout(() => inputRef.current?.focus(), 80);
+    } else {
+      setQuery("");
+      setActiveIndex(-1);
+    }
+  };
+
   // Keyboard shortcut: Ctrl+K / Cmd+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        inputRef.current?.focus();
         setIsOpen(true);
         fetchGames();
+        setTimeout(() => inputRef.current?.focus(), 80);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -88,7 +100,9 @@ export function NavbarSearch() {
   // Filter games based on search query
   const filteredGames = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return [];
+    if (!q) {
+      return games.slice(0, 4); // show trending games if empty
+    }
     return games.filter((g) => {
       const nameMatch = g.name?.toLowerCase().includes(q);
       const slugMatch = g.slug?.toLowerCase().includes(q);
@@ -102,7 +116,6 @@ export function NavbarSearch() {
     if (e.key === "Escape") {
       setIsOpen(false);
       setActiveIndex(-1);
-      inputRef.current?.blur();
       return;
     }
 
@@ -135,64 +148,72 @@ export function NavbarSearch() {
 
   return (
     <div className="relative" ref={containerRef}>
-      {/* Search Bar Input Pill */}
-      <div
-        className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 transition-all duration-300 shadow-sm ${
-          isOpen && query.trim()
-            ? "ring-2 ring-primary/40 border-primary/50 bg-white dark:bg-white/10"
-            : "hover:bg-slate-200/80 dark:hover:bg-white/10"
-        } w-20 xs:w-28 sm:w-36 md:w-40 focus-within:w-36 xs:focus-within:w-44 sm:focus-within:w-52 md:focus-within:w-60`}
+      {/* Search Icon Button (matching Photo 2) */}
+      <button
+        type="button"
+        onClick={handleOpen}
+        className={`w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-full flex items-center justify-center transition-all ${
+          isOpen
+            ? "bg-primary text-white shadow-md shadow-primary/25"
+            : "text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+        }`}
+        title="Rechercher"
+        aria-label="Rechercher"
       >
-        <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 dark:text-slate-500 shrink-0" />
+        <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+      </button>
 
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onFocus={() => {
-            setIsOpen(true);
-            fetchGames();
-          }}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActiveIndex(-1);
-            if (!isOpen) setIsOpen(true);
-          }}
-          onKeyDown={handleInputKeyDown}
-          className="w-full bg-transparent border-0 outline-none text-xs text-slate-900 dark:text-white truncate"
-          aria-label="Rechercher"
-        />
-
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setActiveIndex(-1);
-              inputRef.current?.focus();
-            }}
-            className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full transition-colors shrink-0"
-            aria-label="Clear search"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        )}
-      </div>
-
-      {/* Floating Results Popover (Only when typing) */}
+      {/* Floating Search Overlay & Results */}
       <AnimatePresence>
-        {isOpen && query.trim().length > 0 && (
+        {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 6 }}
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 6 }}
+            exit={{ opacity: 0, scale: 0.95, y: 8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={`absolute top-full ${
-              isAr ? "right-0" : "left-0 sm:left-auto sm:right-0"
-            } mt-2 w-[280px] xs:w-[320px] sm:w-[360px] bg-white/95 dark:bg-[#0c1020]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/15 rounded-2xl shadow-2xl overflow-hidden z-50 p-2 text-slate-900 dark:text-white`}
+              isAr ? "left-0 sm:left-auto sm:right-0" : "right-0"
+            } mt-2 w-[290px] xs:w-[320px] sm:w-[360px] bg-white/95 dark:bg-[#0c1020]/95 backdrop-blur-2xl border border-slate-200 dark:border-white/15 rounded-2xl shadow-2xl p-2.5 z-50 text-slate-900 dark:text-white`}
           >
+            {/* Search Input Box */}
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActiveIndex(-1);
+                }}
+                onKeyDown={handleInputKeyDown}
+                placeholder={t("placeholder")}
+                className="w-full bg-transparent border-0 outline-none text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 truncate"
+              />
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    inputRef.current?.focus();
+                  }}
+                  className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="p-0.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-full"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
             {/* Header label */}
-            <div className="flex items-center justify-between px-2.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="flex items-center justify-between px-2 pt-2.5 pb-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
               <span>{query.trim() ? t("results") : t("trending")}</span>
               {games.length > 0 && (
                 <span className="text-[10px] text-slate-400/80 font-normal lowercase">
@@ -202,10 +223,10 @@ export function NavbarSearch() {
             </div>
 
             {/* List */}
-            <div className="max-h-[320px] overflow-y-auto space-y-1 py-1">
+            <div className="max-h-[280px] overflow-y-auto space-y-1 py-1">
               {filteredGames.length === 0 ? (
-                <div className="py-8 text-center px-4">
-                  <Gamepad2 className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2 opacity-50" />
+                <div className="py-6 text-center px-4">
+                  <Gamepad2 className="w-7 h-7 text-slate-300 dark:text-slate-600 mx-auto mb-1.5 opacity-50" />
                   <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                     {t("no_results")}
                   </p>
@@ -234,14 +255,14 @@ export function NavbarSearch() {
                         setQuery("");
                       }}
                       onMouseEnter={() => setActiveIndex(index)}
-                      className={`flex items-center justify-between gap-3 p-2 rounded-xl transition-all ${
+                      className={`flex items-center justify-between gap-2.5 p-2 rounded-xl transition-all ${
                         isSelected
                           ? "bg-primary/10 dark:bg-primary/20 border border-primary/30"
                           : "hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-9 h-9 rounded-lg overflow-hidden bg-slate-200 dark:bg-white/10 shrink-0 border border-black/5 dark:border-white/10 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-200 dark:bg-white/10 shrink-0 border border-black/5 dark:border-white/10 flex items-center justify-center">
                           <img
                             src={resolvedImage}
                             alt={game.name}
@@ -267,7 +288,7 @@ export function NavbarSearch() {
                       <div className="flex items-center gap-2 shrink-0">
                         {minPrice !== null && (
                           <div className="text-right">
-                            <span className="block text-[9px] text-slate-400">
+                            <span className="block text-[8.5px] text-slate-400">
                               {t("starting_from")}
                             </span>
                             <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 font-mono">
@@ -275,7 +296,7 @@ export function NavbarSearch() {
                             </span>
                           </div>
                         )}
-                        <div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary">
+                        <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-primary">
                           {isAr ? (
                             <ArrowLeft className="w-3 h-3" />
                           ) : (
@@ -309,4 +330,3 @@ export function NavbarSearch() {
     </div>
   );
 }
-

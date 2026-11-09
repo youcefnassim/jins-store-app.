@@ -1,21 +1,22 @@
 "use client";
 
-import { Link } from "@/i18n/routing";
+import { Link, usePathname } from "@/i18n/routing";
 import { siteConfig } from "@/config/site";
 import { Menu, X, Smartphone, Search, Gamepad2, HelpCircle, Phone, ChevronRight, User, LogIn, UserCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "@/i18n/routing";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuickPreferencesHub } from "@/components/ui/QuickPreferencesHub";
 import { NavbarSearch } from "@/components/layout/NavbarSearch";
 import { CartSidebar } from "@/components/cart/CartSidebar";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
 
 export function Navbar() {
   const t = useTranslations("Navbar");
+  const locale = useLocale();
+  const isAr = locale === "ar";
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
@@ -58,20 +59,37 @@ export function Navbar() {
         className={cn(
           "sticky top-0 md:top-2 w-full md:max-w-6xl xl:max-w-7xl md:mx-auto z-50 transition-all duration-500 rounded-none md:rounded-full px-2.5 sm:px-4 md:px-6",
           isScrolled
-            ? "bg-background/80 dark:bg-black/60 backdrop-blur-xl border-b md:border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.2)] py-1.5 sm:py-2"
-            : "bg-background/40 dark:bg-black/30 backdrop-blur-md md:border border-white/10 py-2 sm:py-2.5"
+            ? "bg-background/85 dark:bg-black/65 backdrop-blur-xl border-b md:border border-slate-200/80 dark:border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.15)] py-1.5 sm:py-2"
+            : "bg-background/60 dark:bg-black/40 backdrop-blur-md md:border border-slate-200/60 dark:border-white/10 py-2 sm:py-2.5"
         )}
       >
         <div className="w-full flex items-center justify-between gap-1.5 sm:gap-4">
-          {/* Logo - Left Aligned */}
-          <div className="flex items-center shrink-0">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative w-10 h-10 flex items-center justify-center overflow-hidden rounded-full border border-white/10 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] transition-all duration-300">
+          
+          {/* Left: Mobile Menu Trigger + Logo & Two-line Brand Name (matching Photo 2) */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* Hamburger Button (Mobile) */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden w-8 h-8 rounded-full flex items-center justify-center text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+              aria-label="Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Logo + Two-line Brand Title (Visible on all screens) */}
+            <Link href="/" className="flex items-center gap-2 group">
+              <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-200 dark:border-white/10 shadow-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-300 shrink-0">
                 <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
-              <span className="font-bold text-lg tracking-tight hidden sm:block bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-white/70 whitespace-nowrap">
-                {siteConfig.name}
-              </span>
+              <div className="flex flex-col">
+                <span className="font-black text-xs sm:text-sm md:text-base tracking-wider uppercase text-slate-900 dark:text-white leading-tight font-sans">
+                  {siteConfig.name}
+                </span>
+                <span className="text-[7.5px] sm:text-[8.5px] font-extrabold tracking-widest text-primary dark:text-purple-400 uppercase leading-none mt-0.5">
+                  RECHARGE & GAMING
+                </span>
+              </div>
             </Link>
           </div>
 
@@ -174,13 +192,11 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* CTA & Actions - Right Aligned (Search & Unified Preferences Hub) */}
+          {/* Right: Actions matching Photo 2: [ 🌐 FR / AR ] [ 🔍 ] [ 🛒 ] */}
           <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
-            <NavbarSearch />
             <QuickPreferencesHub />
-            <div className="hidden md:block">
-              <CartSidebar />
-            </div>
+            <NavbarSearch />
+            <CartSidebar />
 
             {/* User Profile / Login (Hidden on Mobile) */}
             <div className="hidden md:block">
@@ -204,6 +220,109 @@ export function Navbar() {
           </div>
         </div>
       </header>
+
+      {/* Mobile Drawer Navigation (Slide-in) */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-[100] md:hidden">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Slide-out Drawer */}
+            <motion.div
+              initial={{ x: isAr ? "100%" : "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: isAr ? "100%" : "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className={`absolute top-0 bottom-0 ${
+                isAr ? "right-0" : "left-0"
+              } w-[280px] sm:w-[320px] bg-white dark:bg-[#0c1020] border-r border-slate-200 dark:border-white/10 shadow-2xl p-5 flex flex-col justify-between overflow-y-auto text-slate-900 dark:text-white`}
+            >
+              {/* Drawer Header */}
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/10 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-slate-200 dark:border-white/10 shrink-0">
+                      <img src="/logo.jpg" alt="Logo" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-black text-xs uppercase tracking-wider">
+                        {siteConfig.name}
+                      </span>
+                      <span className="text-[7.5px] font-bold text-primary uppercase tracking-widest">
+                        RECHARGE & GAMING
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10"
+                    aria-label="Fermer le menu"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Nav Links */}
+                <nav className="space-y-1">
+                  {navLinks.map((link) => {
+                    const Icon = link.icon;
+                    const isActive = pathname === link.href;
+                    return (
+                      <Link
+                        key={link.name}
+                        href={link.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                          isActive
+                            ? "bg-primary text-white shadow-sm shadow-primary/30"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 shrink-0" />
+                        <span>{link.name}</span>
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              {/* Drawer Footer (Auth & Info) */}
+              <div className="pt-4 border-t border-slate-100 dark:border-white/10 space-y-2.5">
+                {user ? (
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full justify-center rounded-xl text-xs h-10 border-slate-200 dark:border-white/10"
+                  >
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <User className="w-4 h-4 mr-2 text-primary" />
+                      <span>{t("dashboard")}</span>
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    asChild
+                    className="w-full justify-center bg-gradient-to-r from-primary to-purple-600 text-white rounded-xl text-xs font-bold h-10 shadow-md shadow-primary/20"
+                  >
+                    <Link href="/auth/login" onClick={() => setMobileMenuOpen(false)}>
+                      <LogIn className="w-4 h-4 mr-2" />
+                      <span>{t("signin")}</span>
+                    </Link>
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

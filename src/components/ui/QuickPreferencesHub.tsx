@@ -89,39 +89,42 @@ export function QuickPreferencesHub() {
 
   return (
     <div className="relative" ref={containerRef}>
-      {/* The Unified Preferences Pill Button */}
+      {/* The Language & Preferences Pill Button (matching Photo 2: [ 🌐 FR / AR ]) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-all shadow-sm group shrink-0"
-        title="Préférences : Langue, Devise, Thème"
-        aria-label="Quick Settings & Preferences"
+        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-slate-100/90 dark:bg-white/5 hover:bg-slate-200/90 dark:hover:bg-white/10 border border-slate-200/90 dark:border-white/10 transition-all shadow-sm group shrink-0"
+        title="Langue & Préférences"
+        aria-label="Language & Preferences"
       >
-        <span className="flex items-center gap-1 text-xs font-bold text-slate-800 dark:text-white uppercase">
-          <span>{currentLang.flag}</span>
-          <span className="hidden xs:inline">{currentLang.code}</span>
-        </span>
+        <Globe className="w-3.5 h-3.5 text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors shrink-0" />
 
-        <span className="text-slate-300 dark:text-white/20 text-xs">·</span>
-
-        <span className="text-xs font-extrabold text-primary font-mono tracking-tight">
-          {currentCurrency}
-        </span>
-
-        <span className="text-slate-300 dark:text-white/20 text-xs">·</span>
-
-        <span className="text-slate-600 dark:text-slate-300 group-hover:scale-110 transition-transform">
-          {mounted && isDark ? (
-            <Moon className="w-3.5 h-3.5 text-indigo-400 fill-indigo-400/20" />
+        <span className="text-[11px] sm:text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1 tracking-wider uppercase font-mono">
+          {locale === "ar" ? (
+            <>
+              <span className="font-black underline decoration-primary underline-offset-2">AR</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500">FR</span>
+            </>
+          ) : locale === "en" ? (
+            <>
+              <span className="font-black underline decoration-primary underline-offset-2">EN</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500">FR</span>
+            </>
           ) : (
-            <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+            <>
+              <span className="font-black underline decoration-primary underline-offset-2">FR</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500">AR</span>
+            </>
           )}
         </span>
 
-        <ChevronDown
-          className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
-        />
+        <span className="text-slate-300 dark:text-white/20 text-xs hidden xs:inline">·</span>
+
+        <span className="text-[10px] sm:text-xs font-bold text-primary font-mono hidden xs:inline">
+          {currentCurrency}
+        </span>
       </button>
 
       {/* Unified Popover Panel */}
