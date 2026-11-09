@@ -18,6 +18,7 @@ INSERT INTO promo_codes (code, discount_percentage, current_uses, max_uses, acti
 -- Set up Row Level Security
 ALTER TABLE promo_codes ENABLE ROW LEVEL SECURITY;
 
+
 -- Allow public read access to validate promos
 CREATE POLICY "Enable read access for all users" 
 ON promo_codes FOR SELECT USING (true);

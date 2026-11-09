@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { QuickPreferencesHub } from "@/components/ui/QuickPreferencesHub";
 import { NavbarSearch } from "@/components/layout/NavbarSearch";
-import { CartSidebar } from "@/components/cart/CartSidebar";
+import { CurrencyPill } from "@/components/ui/CurrencyPill";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/lib/supabase/AuthContext";
 
@@ -192,11 +192,11 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* Right: Actions matching Photo 2: [ 🌐 FR / AR ] [ 🔍 ] [ 🛒 ] */}
+          {/* Right: Actions: [ 🌐 FR / AR ] [ 🔍 ] [ $ / € / DA ] */}
           <div className="flex items-center justify-end gap-1.5 sm:gap-2.5 shrink-0">
             <QuickPreferencesHub />
             <NavbarSearch />
-            <CartSidebar />
+            <CurrencyPill />
 
             {/* User Profile / Login (Hidden on Mobile) */}
             <div className="hidden md:block">

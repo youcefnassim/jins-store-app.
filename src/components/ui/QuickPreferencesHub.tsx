@@ -119,12 +119,6 @@ export function QuickPreferencesHub() {
             </>
           )}
         </span>
-
-        <span className="text-slate-300 dark:text-white/20 text-xs hidden xs:inline">·</span>
-
-        <span className="text-[10px] sm:text-xs font-bold text-primary font-mono hidden xs:inline">
-          {currentCurrency}
-        </span>
       </button>
 
       {/* Unified Popover Panel */}

@@ -50,11 +50,11 @@
       },
       "redotpay": {
         "name": "RedotPay",
-        "description": "Pay with USD / Crypto via RedotPay"
+        "description": "Pay with RedotPay"
       },
       "binance": {
         "name": "RedotPay",
-        "description": "Pay with USD / Crypto via RedotPay"
+        "description": "Pay with RedotPay"
       },
       "flexy": {
         "name": "Flexy (+20%)",

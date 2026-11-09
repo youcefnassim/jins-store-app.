@@ -99,6 +99,13 @@ export function PaymentSelector({
     }
   };
 
+  const handleMethodSelect = (method: PaymentMethod) => {
+    onSelect(method);
+    setTimeout(() => {
+      document.getElementById("selected-payment-details-box")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 80);
+  };
+
   const [promoInput, setPromoInput] = useState(promoCode || "");
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoError, setPromoError] = useState("");
@@ -216,11 +223,7 @@ export function PaymentSelector({
         );
       case "redotpay":
       case "binance":
-        return (
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30">
-            Crypto / USD
-          </span>
-        );
+        return null;
       case "flexy":
         return (
           <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
@@ -333,80 +336,42 @@ export function PaymentSelector({
         ) : (
           <div className="space-y-4 sm:space-y-5">
             
-            {/* Payment Methods Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {methods.map((method) => {
-                const isSelected = selectedPayment?.id === method.id;
-                return (
-                  <div
-                    key={method.id}
-                    onClick={() => onSelect(method)}
-                    className={cn(
-                      "relative cursor-pointer rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 flex items-center justify-between gap-3 group select-none overflow-hidden",
-                      isSelected
-                        ? "border-primary bg-gradient-to-r from-primary/20 via-purple-900/15 to-black/40 shadow-[0_0_20px_rgba(139,92,246,0.35)] ring-1 ring-primary/60 scale-[1.01]"
-                        : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60 hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Icon Container */}
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 p-1.5 border transition-all duration-200 shadow-md",
-                        method.id === "baridimob" 
-                          ? "bg-emerald-950/40 border-emerald-500/30 group-hover:border-emerald-500/60"
-                          : method.id === "ccp"
-                          ? "bg-blue-950/40 border-blue-500/30 group-hover:border-blue-500/60"
-                          : method.id === "redotpay"
-                          ? "bg-rose-950/40 border-rose-500/30 group-hover:border-rose-500/60"
-                          : "bg-purple-950/40 border-purple-500/30 group-hover:border-purple-500/60"
-                      )}>
-                        {getMethodIcon(method.id)}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                          <h3 className="font-bold text-white text-sm sm:text-base leading-tight group-hover:text-primary transition-colors truncate">
-                            {method.name}
-                          </h3>
-                          {getMethodBadge(method.id)}
-                          {method.id === "flexy" && amount > 0 && (
-                            <span className="text-[11px] font-bold font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                              {Math.round(amount * 1.2).toLocaleString()} DZD
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 leading-tight">
-                          {method.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Radio Checkmark */}
-                    <div className={cn(
-                      "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all",
-                      isSelected
-                        ? "bg-primary border-primary text-white shadow-[0_0_8px_rgba(168,85,247,0.5)]"
-                        : "border-white/20 bg-white/5 group-hover:border-white/40"
-                    )}>
-                      {isSelected && (
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Selected Method Details & Instructions */}
+            {/* Selected Method Details & Instructions (AU-DESSUS - Displays at top when clicked) */}
             <AnimatePresence mode="wait">
               {selectedPayment && (
                 <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
+                  key={selectedPayment.id}
+                  id="selected-payment-details-box"
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25 }}
-                  className="p-4 sm:p-5 rounded-xl bg-blue-500/10 border border-blue-500/25 overflow-hidden space-y-4"
+                  className="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-blue-500/15 via-blue-500/10 to-blue-500/5 border border-blue-500/30 overflow-hidden space-y-4 shadow-xl shadow-blue-500/5 scroll-mt-24"
                 >
+                  {/* Active Method Identification Banner */}
+                  <div className="flex items-center justify-between gap-3 pb-3 border-b border-blue-500/20">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center p-1 bg-black/50 border border-white/10 shrink-0 shadow-sm">
+                        {getMethodIcon(selectedPayment.id)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="font-bold text-white text-base leading-tight">
+                            {selectedPayment.name}
+                          </h4>
+                          {getMethodBadge(selectedPayment.id)}
+                        </div>
+                        <p className="text-[11px] text-blue-200/70 mt-0.5">
+                          {isAr ? "معلومات وطريقة الدفع المحددة" : "Instructions & coordonnées de cette méthode"}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      <span>{isAr ? "محدد" : "Sélectionné"}</span>
+                    </span>
+                  </div>
+
                   <div className="flex gap-3">
                     <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
                     <div>
@@ -416,7 +381,7 @@ export function PaymentSelector({
                       <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
                         {selectedPayment.id === 'flexy'
                           ? (isAr 
-                              ? `أرسل الفليكسي (+${paySettings.flexy.feePercent}% رسوم خدمة) إلى الرقم ${paySettings.flexy.phone}. انتظر رسالة SMS لتأكيد التحويل والتقط لقطة شاشة للوصل، أو اذكر فقط الرقم الذي أرسلت منه في خانة الملاحظات.`
+                              ? `أرسل الفليكسي (+${paySettings.flexy.feePercent}% رسom خدمة) إلى الرقم ${paySettings.flexy.phone}. انتظر رسالة SMS لتأكيد التحويل والتقط لقطة شاشة للوصل، أو اذكر فقط الرقم الذي أرسلت منه في خانة الملاحظات.`
                               : `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`)
                           : selectedPayment.instructions}
                       </p>
@@ -636,6 +601,79 @@ export function PaymentSelector({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Payment Methods Grid (Rendered below instructions) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold px-0.5">
+                <span>
+                  {selectedPayment
+                    ? (isAr ? "طرق الدفع المتاحة (انقر للتغيير) :" : "Méthodes de paiement (cliquez pour changer) :")
+                    : (isAr ? "اختر طريقة الدفع للمتابعة :" : "Choisissez un moyen de paiement :")}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {methods.map((method) => {
+                  const isSelected = selectedPayment?.id === method.id;
+                  return (
+                    <div
+                      key={method.id}
+                      onClick={() => handleMethodSelect(method)}
+                      className={cn(
+                        "relative cursor-pointer rounded-2xl border p-3.5 sm:p-4 transition-all duration-200 flex items-center justify-between gap-3 group select-none overflow-hidden",
+                        isSelected
+                          ? "border-primary bg-gradient-to-r from-primary/20 via-purple-900/15 to-black/40 shadow-[0_0_20px_rgba(139,92,246,0.35)] ring-1 ring-primary/60 scale-[1.01]"
+                          : "border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60 hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        {/* Icon Container */}
+                        <div className={cn(
+                          "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 p-1.5 border transition-all duration-200 shadow-md",
+                          method.id === "baridimob" 
+                            ? "bg-emerald-950/40 border-emerald-500/30 group-hover:border-emerald-500/60"
+                            : method.id === "ccp"
+                            ? "bg-blue-950/40 border-blue-500/30 group-hover:border-blue-500/60"
+                            : method.id === "redotpay"
+                            ? "bg-rose-950/40 border-rose-500/30 group-hover:border-rose-500/60"
+                            : "bg-purple-950/40 border-purple-500/30 group-hover:border-purple-500/60"
+                        )}>
+                          {getMethodIcon(method.id)}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                            <h3 className="font-bold text-white text-sm sm:text-base leading-tight group-hover:text-primary transition-colors truncate">
+                              {method.name}
+                            </h3>
+                            {getMethodBadge(method.id)}
+                            {method.id === "flexy" && amount > 0 && (
+                              <span className="text-[11px] font-bold font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                                {Math.round(amount * 1.2).toLocaleString()} DZD
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1 leading-tight">
+                            {method.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Radio Checkmark */}
+                      <div className={cn(
+                        "w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all",
+                        isSelected
+                          ? "bg-primary border-primary text-white shadow-[0_0_8px_rgba(168,85,247,0.5)]"
+                          : "border-white/20 bg-white/5 group-hover:border-white/40"
+                      )}>
+                        {isSelected && (
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Bottom Actions */}
             <div className="flex items-center justify-between pt-3 border-t border-white/5">

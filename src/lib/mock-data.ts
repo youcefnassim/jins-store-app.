@@ -113,8 +113,8 @@ export const paymentMethods: PaymentMethod[] = [
   {
     id: "redotpay",
     name: "RedotPay",
-    description: "Pay with RedotPay (USD / Crypto)",
-    instructions: "Send the exact amount in USD/USDT to RedotPay ID: 123456789. Save a screenshot of the completed transaction.",
+    description: "Pay with RedotPay",
+    instructions: "Send the exact amount to RedotPay ID. Save a screenshot of the completed transaction.",
     active: true,
   },
   {
