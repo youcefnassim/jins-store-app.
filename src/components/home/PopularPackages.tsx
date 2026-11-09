@@ -11,6 +11,7 @@ import { ChevronLeft, ChevronRight, ShoppingCart, Sparkles } from "lucide-react"
 import { useCartStore } from "@/store/useCartStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { toast } from "sonner";
+import { getDiamondTierImage } from "@/lib/diamond-tiers";
 
 export function PopularPackages() {
   const t = useTranslations("PopularPackages");
@@ -190,8 +191,14 @@ export function PopularPackages() {
                   )}
 
                   <CardHeader className="pb-3 pt-7 items-center text-center">
-                    <div className="text-4xl mb-2 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(34,211,238,0.8)] transition-all duration-500 select-none">
-                      💎
+                    <div className="relative w-full h-16 flex items-center justify-center mb-2 select-none">
+                      <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <img 
+                        src={getDiamondTierImage(pkg.amount, popularPackages.indexOf(pkg))}
+                        alt={String(pkg.amount)}
+                        className="max-h-14 max-w-[95px] object-contain drop-shadow-[0_4px_16px_rgba(59,130,246,0.6)] group-hover:scale-110 group-hover:drop-shadow-[0_6px_24px_rgba(59,130,246,0.9)] transition-all duration-500"
+                        loading="lazy"
+                      />
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white group-hover:text-cyan-500 transition-colors">
                       {pkg.amount}

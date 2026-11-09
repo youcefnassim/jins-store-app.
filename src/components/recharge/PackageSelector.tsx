@@ -10,6 +10,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useCurrencyStore } from "@/store/useCurrencyStore";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { getDiamondTierImage } from "@/lib/diamond-tiers";
 
 interface PackageSelectorProps {
   selectedPackage?: Package;
@@ -224,8 +225,15 @@ export function PackageSelector({
                       <ShoppingCart className="w-3.5 h-3.5" />
                     </button>
                     
-                    <div className="text-2xl sm:text-3xl my-0.5 group-hover:scale-110 transition-transform select-none">
-                      💎
+                    {/* 3D Glowing Diamond Tier Image */}
+                    <div className="relative w-full h-14 sm:h-16 flex items-center justify-center my-1 select-none">
+                      <div className="absolute inset-0 bg-blue-500/10 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                      <img 
+                        src={getDiamondTierImage(pkg.amount, packages.indexOf(pkg))}
+                        alt={String(pkg.amount)}
+                        className="max-h-12 sm:max-h-14 max-w-[85px] object-contain drop-shadow-[0_4px_16px_rgba(59,130,246,0.55)] group-hover:scale-110 group-hover:drop-shadow-[0_6px_22px_rgba(59,130,246,0.85)] transition-all duration-300"
+                        loading="lazy"
+                      />
                     </div>
                     
                     <h3 className="font-bold text-white text-sm sm:text-base leading-tight">{pkg.amount}</h3>
