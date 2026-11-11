@@ -37,7 +37,7 @@ export function writeLocalSetting(key: string, value: any): void {
   }
 }
 
-export async function getSiteSetting<T>(key: string, defaultValue: T): Promise<T> {
+export async function getSiteSettingWithStatus<T>(key: string, defaultValue: T): Promise<{ value: T; tableMissing?: boolean }> {
   try {
     const admin = getSupabaseAdmin();
     const { data, error } = await admin
@@ -46,25 +46,35 @@ export async function getSiteSetting<T>(key: string, defaultValue: T): Promise<T
       .eq('key', key)
       .maybeSingle();
 
-    if (!error && data?.value !== undefined && data?.value !== null) {
+    if (error) {
+      const isMissing = error.code === 'PGRST205' || error.message?.includes('does not exist');
+      return { value: readLocalSetting<T>(key, defaultValue), tableMissing: isMissing };
+    }
+
+    if (data?.value !== undefined && data?.value !== null) {
       if (typeof data.value === 'string') {
         try {
-          return JSON.parse(data.value) as T;
+          return { value: JSON.parse(data.value) as T };
         } catch {
-          return data.value as unknown as T;
+          return { value: data.value as unknown as T };
         }
       }
-      return data.value as T;
+      return { value: data.value as T };
     }
-  } catch {
-    // Supabase table missing or network error
+  } catch (err: any) {
+    const isMissing = err?.code === 'PGRST205';
+    return { value: readLocalSetting<T>(key, defaultValue), tableMissing: isMissing };
   }
 
-  // Fallback to local persistent file on server
-  return readLocalSetting<T>(key, defaultValue);
+  return { value: readLocalSetting<T>(key, defaultValue) };
 }
 
-export async function saveSiteSetting(key: string, value: any): Promise<{ success: boolean; error?: string }> {
+export async function getSiteSetting<T>(key: string, defaultValue: T): Promise<T> {
+  const res = await getSiteSettingWithStatus<T>(key, defaultValue);
+  return res.value;
+}
+
+export async function saveSiteSetting(key: string, value: any): Promise<{ success: boolean; error?: string; code?: string }> {
   // 1. Always save to local persistent file
   writeLocalSetting(key, value);
 
@@ -79,10 +89,11 @@ export async function saveSiteSetting(key: string, value: any): Promise<{ succes
 
     if (error) {
       console.warn(`[site_settings] Note: Supabase write for key "${key}" (${error.code}: ${error.message}). Local storage active.`);
+      return { success: false, error: error.message, code: error.code };
     }
     return { success: true };
   } catch (e: any) {
     console.warn(`[site_settings] Supabase write skipped, stored in local storage:`, e?.message || e);
-    return { success: true };
+    return { success: false, error: e?.message || String(e), code: e?.code };
   }
 }

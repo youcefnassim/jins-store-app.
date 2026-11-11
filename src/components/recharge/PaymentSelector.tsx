@@ -269,6 +269,42 @@ export function PaymentSelector({
     }
   };
 
+  const getDynamicInstructions = (id: string) => {
+    switch (id) {
+      case "baridimob":
+        return isAr
+          ? `قم بتحويل المبلغ المطلوب بالضبط إلى رقم الحساب الجاري RIP: ${paySettings.baridimob.rip} (${paySettings.baridimob.holder || "بريدي موب"}). احتفظ بصورة الوصل لرفعها في الخطوة التالية.`
+          : locale === "en"
+          ? `Transfer the exact amount to RIP: ${paySettings.baridimob.rip} (${paySettings.baridimob.holder || "BaridiMob"}). Keep the receipt screenshot to upload below.`
+          : `Transférez le montant exact au RIP : ${paySettings.baridimob.rip} (${paySettings.baridimob.holder || "BaridiMob"}). Conservez le reçu pour le téléverser ci-dessous.`;
+
+      case "ccp":
+        return isAr
+          ? `قم بالتحويل إلى رقم الحساب CCP: ${paySettings.ccp.account} المفتاح ${paySettings.ccp.cle} (${paySettings.ccp.holder || "بريد الجزائر"}). احتفظ بصورة الوصل لرفعها في الخطوة التالية.`
+          : locale === "en"
+          ? `Transfer the exact amount via CCP: ${paySettings.ccp.account} Key ${paySettings.ccp.cle} (${paySettings.ccp.holder || "Algérie Poste"}). Keep the receipt to upload below.`
+          : `Transférez le montant exact au CCP : ${paySettings.ccp.account} Clé ${paySettings.ccp.cle} (${paySettings.ccp.holder || "Algérie Poste"}). Conservez le reçu pour le téléverser ci-dessous.`;
+
+      case "redotpay":
+      case "binance":
+        return isAr
+          ? `أرسل المبلغ المطلوب إلى معرّف الحساب RedotPay ID: ${paySettings.redotpay.id}. احتفظ بلقطة شاشة للتحويل لرفعها في الخطوة التالية.`
+          : locale === "en"
+          ? `Send the exact amount to RedotPay ID: ${paySettings.redotpay.id}. Take a screenshot of the completed transfer to upload below.`
+          : `Transférez le montant exact sur l'ID RedotPay : ${paySettings.redotpay.id}. Conservez une capture d'écran de la transaction pour la téléverser ci-dessous.`;
+
+      case "flexy":
+        return isAr
+          ? `أرسل الفليكسي (+${paySettings.flexy.feePercent}% رسوم خدمة) إلى الرقم ${paySettings.flexy.phone}. انتظر رسالة SMS لتأكيد التحويل والتقط لقطة شاشة للوصل، أو اذكر فقط الرقم الذي أرسلت منه في خانة الملاحظات.`
+          : locale === "en"
+          ? `Send flexy (+${paySettings.flexy.feePercent}% fee) to ${paySettings.flexy.phone}. Wait for confirmation SMS and take a screenshot, or enter your sender phone number below.`
+          : `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`;
+
+      default:
+        return selectedPayment?.instructions || "";
+    }
+  };
+
   // Dynamic currency logic
   const isRedotPay = selectedPayment?.id === "redotpay" || selectedPayment?.id === "binance";
   const isFlexy = selectedPayment?.id === "flexy";
@@ -379,11 +415,7 @@ export function PaymentSelector({
                         {t("instructions")}
                       </h4>
                       <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
-                        {selectedPayment.id === 'flexy'
-                          ? (isAr 
-                              ? `أرسل الفليكسي (+${paySettings.flexy.feePercent}% رسom خدمة) إلى الرقم ${paySettings.flexy.phone}. انتظر رسالة SMS لتأكيد التحويل والتقط لقطة شاشة للوصل، أو اذكر فقط الرقم الذي أرسلت منه في خانة الملاحظات.`
-                              : `Envoyez le flexy (+${paySettings.flexy.feePercent}% de frais) au ${paySettings.flexy.phone}. Attendez le SMS de confirmation et prenez une capture d'écran, ou indiquez simplement le numéro depuis lequel vous avez envoyé.`)
-                          : selectedPayment.instructions}
+                        {getDynamicInstructions(selectedPayment.id)}
                       </p>
                     </div>
                   </div>

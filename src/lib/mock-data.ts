@@ -100,14 +100,14 @@ export const paymentMethods: PaymentMethod[] = [
     id: "baridimob",
     name: "BaridiMob",
     description: "Pay easily using BaridiMob application",
-    instructions: "Transfer the exact amount to RIP: 00799999000000000012. Keep the receipt to upload in the next step.",
+    instructions: "Transfer the exact amount to RIP. Keep the receipt to upload in the next step.",
     active: true,
   },
   {
     id: "ccp",
     name: "CCP Transfer",
     description: "Pay via Algérie Poste CCP",
-    instructions: "Transfer the exact amount to CCP: 12345678 Clé 99. Name: MOCK NAME. Take a photo of the receipt to upload.",
+    instructions: "Transfer the exact amount to CCP account. Take a photo of the receipt to upload.",
     active: true,
   },
   {

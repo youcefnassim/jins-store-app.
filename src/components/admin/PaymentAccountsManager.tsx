@@ -2,15 +2,33 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Landmark, CreditCard, Smartphone, Save, RefreshCw, CheckCircle2, ShieldCheck, DollarSign, Wallet } from "lucide-react";
+import { Landmark, CreditCard, Smartphone, Save, RefreshCw, CheckCircle2, ShieldCheck, DollarSign, Wallet, AlertTriangle, Copy, ExternalLink, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PaymentAccountsSettings, DEFAULT_PAYMENT_SETTINGS } from "@/lib/payment-settings";
+
+const SQL_SETUP_SCRIPT = `-- SCRIPT DE CRÉATION DE LA TABLE site_settings DANS SUPABASE
+CREATE TABLE IF NOT EXISTS public.site_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow read site_settings" ON public.site_settings;
+CREATE POLICY "Allow read site_settings" ON public.site_settings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow write site_settings" ON public.site_settings;
+CREATE POLICY "Allow write site_settings" ON public.site_settings FOR ALL USING (true);
+`;
 
 export function PaymentAccountsManager() {
   const [settings, setSettings] = useState<PaymentAccountsSettings>(DEFAULT_PAYMENT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [tableMissing, setTableMissing] = useState(false);
+  const [sqlCopied, setSqlCopied] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/settings/payments")
@@ -19,10 +37,20 @@ export function PaymentAccountsManager() {
         if (data.settings) {
           setSettings(data.settings);
         }
+        if (data.tableMissing) {
+          setTableMissing(true);
+        }
       })
       .catch((err) => console.error("Error loading payment settings:", err))
       .finally(() => setLoading(false));
   }, []);
+
+  const copySql = () => {
+    navigator.clipboard.writeText(SQL_SETUP_SCRIPT);
+    setSqlCopied(true);
+    toast.success("Script SQL copié dans le presse-papier !");
+    setTimeout(() => setSqlCopied(false), 3000);
+  };
 
   const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -36,8 +64,12 @@ export function PaymentAccountsManager() {
       const data = await res.json();
       if (res.ok) {
         toast.success("Coordonnées de paiement et paramètres de marge enregistrés avec succès !");
+        setTableMissing(false);
       } else {
-        toast.error(data.error || "Erreur lors de l'enregistrement");
+        if (data.tableMissing) {
+          setTableMissing(true);
+        }
+        toast.error(data.error || "Erreur lors de l'enregistrement", { duration: 6000 });
       }
     } catch {
       toast.error("Erreur de connexion au serveur");
@@ -87,6 +119,45 @@ export function PaymentAccountsManager() {
           <span>{saving ? "Sauvegarde..." : "Enregistrer les Coordonnées"}</span>
         </Button>
       </div>
+
+      {/* Warning banner if site_settings table is missing in Supabase */}
+      {tableMissing && (
+        <div className="mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 space-y-3">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h4 className="font-bold text-amber-300 text-sm">
+                Action requise : Table Supabase non détectée
+              </h4>
+              <p className="text-xs text-amber-200/90 leading-relaxed">
+                La table <code className="bg-black/40 px-1.5 py-0.5 rounded font-mono text-amber-300">site_settings</code> n&apos;est pas encore créée dans votre base de données Supabase.
+                Tant qu&apos;elle n&apos;est pas créée, les modifications de coordonnées ne persisteront pas sur Vercel.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-amber-500/20">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={copySql}
+              className="h-8 px-3 text-xs bg-amber-500/20 border-amber-500/40 text-amber-100 hover:bg-amber-500/30"
+            >
+              {sqlCopied ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
+              <span>{sqlCopied ? "Script copié !" : "Copier le script SQL"}</span>
+            </Button>
+            <a
+              href="https://supabase.com/dashboard/project/urpgragqoaodncenylmn/sql/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300 hover:text-white underline underline-offset-2 ml-2"
+            >
+              <span>Ouvrir Supabase SQL Editor</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
