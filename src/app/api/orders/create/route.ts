@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
     const phone = (formData.get('phone') as string) || null;
     const paymentMethod = (formData.get('paymentMethod') as string) || null;
     const promoCodeRaw = (formData.get('promoCode') as string) || null;
+    const transactionRef = (formData.get('transactionRef') as string) || null;
     const receiptFile = formData.get('receiptFile') as File | null;
     const rawQuantity = formData.get('quantity');
     const quantity = Math.max(1, Math.min(99, Number(rawQuantity) || 1));
@@ -200,7 +201,11 @@ export async function POST(request: NextRequest) {
     };
 
     if (zoneId) orderPayload.zone_id = zoneId.trim();
-    if (phone) orderPayload.phone = phone.trim();
+    let recordedPhone = phone ? phone.trim() : null;
+    if (transactionRef) {
+      recordedPhone = recordedPhone ? `${recordedPhone} (${transactionRef})` : transactionRef;
+    }
+    if (recordedPhone) orderPayload.phone = recordedPhone;
     if (paymentMethod) orderPayload.payment_method = paymentMethod;
     if (promoCode) orderPayload.promo_code = promoCode;
 
@@ -256,6 +261,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: paymentMethod || 'BaridiMob / CCP',
       receiptUrl: publicUrl || undefined,
       customerEmail: user.email || undefined,
+      notes: transactionRef || undefined,
     }).catch(console.error);
 
     return NextResponse.json({ success: true, orderId: orderData.id });

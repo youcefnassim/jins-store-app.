@@ -1,5 +1,5 @@
 {
-  "flexy_phone": "0776665110",
+  "flexy_phone": "06 52 42 69 86",
   "payment_accounts": {
     "baridimob": {
       "rip": "00799999000000000012",
@@ -14,7 +14,7 @@
       "id": "123456789"
     },
     "flexy": {
-      "phone": "0776665110",
+      "phone": "06 52 42 69 86",
       "feePercent": 20
     },
     "whatsapp": "+213550000000",

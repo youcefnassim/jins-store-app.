@@ -137,7 +137,8 @@ export function RechargeStepper() {
   const getFinalTotalPrice = () => {
     const discounted = getDiscountedPrice();
     if (isFlexySelected) {
-      return Math.round(discounted * 1.20);
+      const baseWithFee = Math.round(discounted * 1.20);
+      return baseWithFee % 500 === 0 && baseWithFee >= 500 ? baseWithFee + 10 : baseWithFee;
     }
     return discounted;
   };
@@ -168,6 +169,7 @@ export function RechargeStepper() {
       if (orderData.phone) formData.append('phone', orderData.phone);
       formData.append('paymentMethod', orderData.paymentMethod?.name ?? '');
       if (orderData.promoCode) formData.append('promoCode', orderData.promoCode);
+      if (transactionRef) formData.append('transactionRef', transactionRef);
       formData.append('receiptFile', file);
 
       const res = await fetch('/api/orders/create', {

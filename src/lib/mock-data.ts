@@ -119,9 +119,9 @@ export const paymentMethods: PaymentMethod[] = [
   },
   {
     id: "flexy",
-    name: "Flexy",
-    description: "Pay using mobile credit (Mobilis, Djezzy, Ooredoo +20%)",
-    instructions: "Send the flexy (+20% fees) to 0550000000. Wait for the confirmation SMS and take a screenshot, or just input the number you sent from.",
+    name: "Flexy Mobilis",
+    description: "Pay using mobile credit (Mobilis +20% - Crédit uniquement)",
+    instructions: "Envoyez le flexy (Crédit uniquement, pas de Maktivi) au 06 52 42 69 86. Mentionnez obligatoirement l'heure exacte d'envoi.",
     active: true,
   },
 ];

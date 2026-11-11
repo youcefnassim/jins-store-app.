@@ -33,7 +33,7 @@ export const DEFAULT_PAYMENT_SETTINGS: PaymentAccountsSettings = {
     id: "123456789",
   },
   flexy: {
-    phone: "0776665110",
+    phone: "06 52 42 69 86",
     feePercent: 20,
   },
   whatsapp: "+213550000000",

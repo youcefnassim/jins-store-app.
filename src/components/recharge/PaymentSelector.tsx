@@ -5,7 +5,11 @@ import { PaymentMethod } from "@/lib/mock-data";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, Copy, Check, Smartphone, UploadCloud, X, Image as ImageIcon } from "lucide-react";
+import { 
+  ArrowLeft, ArrowRight, Loader2, Wallet, Landmark, CreditCard, Info, 
+  Copy, Check, Smartphone, UploadCloud, X, Image as ImageIcon,
+  AlertTriangle, Clock, Phone, Ban, CheckCircle2
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { AnimatePresence, motion } from "framer-motion";
@@ -51,8 +55,18 @@ export function PaymentSelector({
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [transactionRef, setTransactionRef] = useState("");
+  const [flexyTime, setFlexyTime] = useState("");
+  const [flexySenderPhone, setFlexySenderPhone] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const setCurrentTimeToFlexy = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    setFlexyTime(`${hours}:${minutes}`);
+    toast.success(isAr ? `تم تعيين الوقت الحالي: ${hours}:${minutes}` : `Heure actuelle définie : ${hours}:${minutes}`);
+  };
 
   const processFile = (selected?: File) => {
     if (selected) {
@@ -76,6 +90,14 @@ export function PaymentSelector({
   const handleIHavePaid = () => {
     if (!selectedPayment) return;
     
+    // Strict requirement for Flexy: exact sending time must be specified!
+    if (selectedPayment.id === "flexy" && !flexyTime.trim()) {
+      toast.error(t("flexy_time_required_error"));
+      document.getElementById("flexy-time-input")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("flexy-time-input")?.focus();
+      return;
+    }
+
     // If an onSubmit prop is provided (merged flow)
     if (onSubmit) {
       if (!proofFile) {
@@ -89,7 +111,12 @@ export function PaymentSelector({
         document.getElementById("payment-proof-upload-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
-      onSubmit(proofFile, transactionRef);
+
+      const finalTransactionRef = selectedPayment.id === "flexy"
+        ? `[Heure Flexy: ${flexyTime.trim()}]${flexySenderPhone.trim() ? ` [Émetteur: ${flexySenderPhone.trim()}]` : ""}${transactionRef.trim() ? ` [Note: ${transactionRef.trim()}]` : ""}`
+        : transactionRef.trim();
+
+      onSubmit(proofFile, finalTransactionRef);
       return;
     }
 
@@ -308,10 +335,15 @@ export function PaymentSelector({
   // Dynamic currency logic
   const isRedotPay = selectedPayment?.id === "redotpay" || selectedPayment?.id === "binance";
   const isFlexy = selectedPayment?.id === "flexy";
+  const rawFlexyAmount = isFlexy ? Math.round(amount * (1 + paySettings.flexy.feePercent / 100)) : 0;
+  // Anti-Maktivi offset: avoid 500, 1000, 1500, 2000, 2510...
+  const antiMaktiviExtra = (isFlexy && rawFlexyAmount % 500 === 0 && rawFlexyAmount >= 500) ? 10 : 0;
+  const flexyAmount = rawFlexyAmount + antiMaktiviExtra;
+
   const displayAmount = isRedotPay 
     ? (amount / 240).toFixed(2) // Conversion rate: 1 USD = 240 DZD
     : isFlexy
-    ? Math.round(amount * (1 + paySettings.flexy.feePercent / 100))
+    ? flexyAmount
     : amount;
   const displayCurrency = isRedotPay ? "USD" : siteConfig.currency;
 
@@ -408,54 +440,165 @@ export function PaymentSelector({
                     </span>
                   </div>
 
-                  <div className="flex gap-3">
-                    <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-bold text-blue-100 text-sm sm:text-base mb-1">
-                        {t("instructions")}
-                      </h4>
-                      <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
-                        {getDynamicInstructions(selectedPayment.id)}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Copy Account Box (Full Width, No QR code) */}
-                  {getAccountDetails(selectedPayment.id) && (
-                    <div className="bg-black/50 rounded-xl p-3.5 sm:p-4 border border-white/10 space-y-1.5">
-                      <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
-                        {getAccountDetails(selectedPayment.id)?.label}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <code className="bg-black/60 text-white px-3 py-2.5 rounded-lg font-mono text-xs sm:text-sm border border-white/10 flex-1 min-w-0 truncate select-all">
-                          {getAccountDetails(selectedPayment.id)?.value}
-                        </code>
-                        <Button 
-                          type="button"
-                          variant="secondary" 
-                          size="sm"
-                          onClick={() => handleCopy(getAccountDetails(selectedPayment.id)?.value || "")}
-                          className={cn(
-                            "h-10 px-3.5 shrink-0 rounded-lg transition-all font-semibold text-xs flex items-center gap-1.5 shadow-sm",
-                            copiedText === getAccountDetails(selectedPayment.id)?.value 
-                              ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40" 
-                              : "bg-white/15 hover:bg-white/25 text-white border border-white/10"
-                          )}
-                        >
-                          {copiedText === getAccountDetails(selectedPayment.id)?.value ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-emerald-400" />
-                              <span>Copié !</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copier</span>
-                            </>
-                          )}
-                        </Button>
+                  {/* Dynamic Instructions & Account Details or Custom Flexy Card */}
+                  {isFlexy ? (
+                    <div className="space-y-3.5">
+                      {/* Flexy Phone & Info Card */}
+                      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-950/80 via-slate-900/90 to-blue-900/40 border-2 border-blue-500/50 p-4 sm:p-5 shadow-xl shadow-blue-950/60">
+                        {/* Header: Mobilis Flexy Number */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-blue-500/25">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-inner">
+                              <Smartphone className="w-6 h-6 text-blue-300" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-extrabold uppercase tracking-widest text-blue-300">
+                                  {t("flexy_number_title")}
+                                </span>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                  Mobilis 06
+                                </span>
+                              </div>
+                              <div className="text-2xl sm:text-3xl font-black font-mono tracking-widest text-white select-all mt-0.5">
+                                {paySettings.flexy.phone}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 self-start sm:self-auto">
+                            <Button 
+                              type="button"
+                              variant="secondary" 
+                              size="sm"
+                              onClick={() => handleCopy(paySettings.flexy.phone)}
+                              className={cn(
+                                "h-10 px-4 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-md",
+                                copiedText === paySettings.flexy.phone 
+                                  ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40" 
+                                  : "bg-blue-500/20 hover:bg-blue-500/30 text-blue-100 border border-blue-400/30"
+                              )}
+                            >
+                              {copiedText === paySettings.flexy.phone ? (
+                                <>
+                                  <Check className="w-4 h-4 text-emerald-400" />
+                                  <span className="text-emerald-300">{isAr ? "تم النسخ!" : "Copié !"}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4" />
+                                  <span>{isAr ? "نسخ الرقم" : "Copier"}</span>
+                                </>
+                              )}
+                            </Button>
+                            <a 
+                              href={`tel:${paySettings.flexy.phone.replace(/\s+/g, "")}`}
+                              className="h-10 px-3.5 rounded-xl font-bold text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 shadow-sm flex items-center gap-1.5 transition-all"
+                            >
+                              <Phone className="w-4 h-4" />
+                              <span className="hidden sm:inline">{isAr ? "اتصال" : "Appeler"}</span>
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* 3 Conditions on Accepted Credit Types */}
+                        <div className="pt-3.5 space-y-2">
+                          <div className="grid grid-cols-1 gap-2 text-xs font-semibold">
+                            <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200">
+                              <span className="w-5 h-5 rounded-full bg-red-500/30 flex items-center justify-center text-red-300 shrink-0 font-black text-xs">✕</span>
+                              <span className="font-bold">{t("flexy_rule_no_maktivi")}</span>
+                            </div>
+                            <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-200">
+                              <span className="w-5 h-5 rounded-full bg-red-500/30 flex items-center justify-center text-red-300 shrink-0 font-black text-xs">✕</span>
+                              <span className="font-bold">{t("flexy_rule_no_intl")}</span>
+                            </div>
+                            <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 shadow-sm">
+                              <span className="w-5 h-5 rounded-full bg-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 font-black text-xs">✓</span>
+                              <span className="font-extrabold text-sm">{t("flexy_rule_credit_only")}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Warning on Timing & Responsibility (Red/Amber Box) */}
+                        <div className="mt-3.5 p-3 sm:p-3.5 rounded-xl bg-gradient-to-r from-red-500/20 via-amber-500/15 to-transparent border-2 border-amber-500/40 text-amber-100 space-y-1.5 shadow-md">
+                          <div className="flex items-start gap-2.5">
+                            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+                            <div className="text-xs leading-relaxed space-y-0.5">
+                              <p className="font-bold text-amber-300">{t("flexy_warn_time_title")}</p>
+                              <p className="font-extrabold text-white text-xs sm:text-sm">{t("flexy_warn_time_desc")}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-200/90 pt-1.5 border-t border-amber-500/20">
+                            <span className="text-amber-400">📌</span>
+                            <span className="font-medium italic">{t("flexy_warn_responsibility")}</span>
+                          </div>
+                        </div>
+
+                        {/* Prohibited & Anti-Maktivi Amounts Advisory */}
+                        <div className="mt-3.5 p-3 rounded-xl bg-black/60 border border-white/10 space-y-2 text-xs">
+                          <div className="flex items-center gap-2 text-rose-300 font-bold">
+                            <Ban className="w-4 h-4 text-rose-400 shrink-0" />
+                            <span>{t("flexy_forbidden_amounts")}</span>
+                          </div>
+                          <div className="flex items-start gap-2 text-emerald-300 font-medium">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                            <span>{t("flexy_recommended_amounts")}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  ) : (
+                    <>
+                      <div className="flex gap-3">
+                        <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-bold text-blue-100 text-sm sm:text-base mb-1">
+                            {t("instructions")}
+                          </h4>
+                          <p className="text-blue-200/80 text-xs sm:text-sm leading-relaxed">
+                            {getDynamicInstructions(selectedPayment.id)}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Copy Account Box (Full Width, No QR code) */}
+                      {getAccountDetails(selectedPayment.id) && (
+                        <div className="bg-black/50 rounded-xl p-3.5 sm:p-4 border border-white/10 space-y-1.5">
+                          <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+                            {getAccountDetails(selectedPayment.id)?.label}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <code className="bg-black/60 text-white px-3 py-2.5 rounded-lg font-mono text-xs sm:text-sm border border-white/10 flex-1 min-w-0 truncate select-all">
+                              {getAccountDetails(selectedPayment.id)?.value}
+                            </code>
+                            <Button 
+                              type="button"
+                              variant="secondary" 
+                              size="sm"
+                              onClick={() => handleCopy(getAccountDetails(selectedPayment.id)?.value || "")}
+                              className={cn(
+                                "h-10 px-3.5 shrink-0 rounded-lg transition-all font-semibold text-xs flex items-center gap-1.5 shadow-sm",
+                                copiedText === getAccountDetails(selectedPayment.id)?.value 
+                                  ? "bg-emerald-500/25 text-emerald-400 border border-emerald-500/40" 
+                                  : "bg-white/15 hover:bg-white/25 text-white border border-white/10"
+                              )}
+                            >
+                              {copiedText === getAccountDetails(selectedPayment.id)?.value ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span>Copié !</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Copier</span>
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                   
                   {/* Promo Code Input */}
@@ -516,17 +659,29 @@ export function PaymentSelector({
                   {/* Amount To Send Preview */}
                   <div className="bg-gradient-to-r from-primary/25 via-purple-600/15 to-transparent rounded-xl p-4 border border-primary/35 shadow-lg space-y-2">
                     {isFlexy && (
-                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/10 flex-wrap gap-1">
-                        <span className="text-white/70">Prix normal : {amount.toLocaleString()} DZD</span>
-                        <span className="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                          +20% Frais Flexy (+{Math.round(amount * 0.2).toLocaleString()} DZD)
-                        </span>
+                      <div className="flex flex-col gap-1.5 text-xs pb-2 border-b border-white/10">
+                        <div className="flex items-center justify-between flex-wrap gap-1">
+                          <span className="text-white/70">Prix normal : {amount.toLocaleString()} DZD</span>
+                          <span className="font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                            +{paySettings.flexy.feePercent}% Frais Flexy (+{Math.round(amount * (paySettings.flexy.feePercent / 100)).toLocaleString()} DZD)
+                          </span>
+                        </div>
+                        {antiMaktiviExtra > 0 && (
+                          <div className="flex items-center gap-1.5 text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg font-medium text-[11px]">
+                            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                            <span>
+                              {isAr 
+                                ? `تمت إضافة +10 دج تلقائياً (${flexyAmount} دج) لتجنب تحويل الرصيد إلى ماكتيفي (Maktivi)` 
+                                : `+10 DA ajoutés automatiquement (${flexyAmount} DA au lieu de ${rawFlexyAmount} DA) pour éviter le forfait Maktivi`}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-[10px] sm:text-xs text-white/60 uppercase tracking-widest font-semibold mb-0.5">
-                          {isFlexy ? "Montant Flexy à envoyer (+20%) :" : t("amount_to_send")}
+                          {isFlexy ? "Montant Flexy à envoyer :" : t("amount_to_send")}
                         </p>
                         <span className="text-2xl sm:text-3xl font-black text-white tracking-tight font-mono">
                           {displayAmount} <span className="text-sm sm:text-base font-bold text-primary">{displayCurrency}</span>
@@ -539,20 +694,79 @@ export function PaymentSelector({
                   </div>
 
                   {/* Integrated Proof Upload Section (Merged) */}
-                  <div id="payment-proof-upload-box" className="rounded-xl border border-white/10 bg-black/30 p-3.5 sm:p-4 space-y-3">
+                  <div id="payment-proof-upload-box" className="rounded-xl border border-white/10 bg-black/30 p-3.5 sm:p-4 space-y-3.5">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
                         <UploadCloud className="w-4 h-4" />
                       </div>
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-white leading-tight">
-                          {tProof("title")}
+                          {isFlexy 
+                            ? (isAr ? "إثبات الدفع ومعلومات تحويل الفليكسي" : "Preuve & détails du transfert Flexy") 
+                            : tProof("title")}
                         </h4>
                         <p className="text-[11px] text-white/50">
-                          {tProof("description")}
+                          {isFlexy
+                            ? (isAr ? "يرجى ذكر وقت الإرسال بدقة ورفع لقطة شاشة للرسالة النصية SMS" : "Indiquez l'heure exacte d'envoi et téléversez la capture d'écran du SMS")
+                            : tProof("description")}
                         </p>
                       </div>
                     </div>
+
+                    {/* Flexy Specific Required Inputs */}
+                    {isFlexy && (
+                      <div className="p-3.5 sm:p-4 rounded-xl bg-gradient-to-b from-amber-500/15 via-amber-500/10 to-amber-500/5 border-2 border-amber-500/40 space-y-3 shadow-md">
+                        <div className="flex items-center justify-between gap-2">
+                          <label className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-amber-400" />
+                            <span>{t("flexy_time_label")}</span>
+                          </label>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={setCurrentTimeToFlexy}
+                            className="h-7 px-2.5 text-[11px] text-amber-200 bg-amber-500/25 hover:bg-amber-500/40 border border-amber-500/40 rounded-lg font-bold flex items-center gap-1 transition-all"
+                          >
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{t("flexy_current_time")}</span>
+                          </Button>
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            id="flexy-time-input"
+                            type="text"
+                            value={flexyTime}
+                            onChange={(e) => setFlexyTime(e.target.value)}
+                            placeholder={t("flexy_time_placeholder")}
+                            className="w-full h-10 bg-black/70 border border-amber-500/50 rounded-lg px-3 text-xs sm:text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-amber-400 font-mono tracking-wider"
+                          />
+                        </div>
+                        <p className="text-[10px] text-amber-200/90 leading-tight flex items-center gap-1 font-medium">
+                          <span>⚠️</span>
+                          <span>
+                            {isAr 
+                              ? "ضروري جداً: يرجى كتابة وقت إرسال الفليكسي بالساعة والدقيقة كما هو في رسالة SMS الخاصة بك."
+                              : "Strictement obligatoire : mentionnez l'heure exacte du transfert pour valider votre commande."}
+                          </span>
+                        </p>
+
+                        <div className="space-y-1.5 pt-2 border-t border-amber-500/20">
+                          <label className="text-[11px] font-semibold text-white/80 flex items-center gap-1.5">
+                            <Smartphone className="w-3.5 h-3.5 text-white/60" />
+                            <span>{t("flexy_sender_label")}</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={flexySenderPhone}
+                            onChange={(e) => setFlexySenderPhone(e.target.value)}
+                            placeholder={t("flexy_sender_placeholder")}
+                            className="w-full h-9 bg-black/60 border border-white/15 rounded-lg px-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primary font-mono"
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Drag and Drop / Select box */}
                     <div
@@ -591,7 +805,7 @@ export function PaymentSelector({
                             <div className="truncate">
                               <p className="text-xs font-semibold text-white truncate">{proofFile?.name}</p>
                               <p className="text-[10px] text-emerald-400 font-medium">
-                                ✓ Reçu prêt ({(proofFile?.size! / 1024 / 1024).toFixed(2)} Mo)
+                                ✓ {isFlexy ? "SMS prêt" : "Reçu prêt"} ({(proofFile?.size! / 1024 / 1024).toFixed(2)} Mo)
                               </p>
                             </div>
                           </div>
@@ -609,7 +823,11 @@ export function PaymentSelector({
                         <div className="flex flex-col items-center justify-center py-4 text-center">
                           <UploadCloud className="w-8 h-8 text-white/40 group-hover:text-primary transition-colors mb-2" />
                           <p className="text-xs font-semibold text-white/90">
-                            {isDragging ? tProof("drop_here") : tProof("click_or_drag")}
+                            {isDragging 
+                              ? tProof("drop_here") 
+                              : isFlexy 
+                              ? (isAr ? "ارفع لقطة شاشة لرسالة SMS التأكيد" : "Téléversez la capture du SMS de confirmation") 
+                              : tProof("click_or_drag")}
                           </p>
                           <p className="text-[10px] text-white/40 mt-0.5">{tProof("format_info")}</p>
                         </div>
@@ -619,13 +837,13 @@ export function PaymentSelector({
                     {/* Transaction Reference (Optional) */}
                     <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-white/70">
-                        {tProof("tx_ref")}
+                        {isFlexy ? (isAr ? "ملاحظة إضافية (اختياري)" : "Note additionnelle (optionnel)") : tProof("tx_ref")}
                       </label>
                       <input
                         type="text"
                         value={transactionRef}
                         onChange={(e) => setTransactionRef(e.target.value)}
-                        placeholder={tProof("tx_ref_placeholder")}
+                        placeholder={isFlexy ? (isAr ? "أي تفاصيل أخرى..." : "ex: envoyé depuis puce Mobilis...") : tProof("tx_ref_placeholder")}
                         className="w-full h-9 bg-black/60 border border-white/15 rounded-lg px-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-primary font-mono transition-colors"
                       />
                     </div>
@@ -680,7 +898,7 @@ export function PaymentSelector({
                             {getMethodBadge(method.id)}
                             {method.id === "flexy" && amount > 0 && (
                               <span className="text-[11px] font-bold font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                                {Math.round(amount * 1.2).toLocaleString()} DZD
+                                {flexyAmount.toLocaleString()} DZD
                               </span>
                             )}
                           </div>

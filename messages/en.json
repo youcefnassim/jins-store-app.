@@ -390,7 +390,22 @@
     "promo_placeholder": "Promo code",
     "promo_apply": "Apply",
     "promo_success": "Promo code applied successfully!",
-    "promo_error": "Invalid or expired code."
+    "promo_error": "Invalid or expired code.",
+    "flexy_number_title": "Flexy Phone Number (Mobilis)",
+    "flexy_rule_no_maktivi": "No MAKTIVI accepted (ماكتيفي)",
+    "flexy_rule_no_intl": "No international credit CRÉDIT (INTERNATIONAL)",
+    "flexy_rule_credit_only": "Accepted ONLY: Standard CRÉDIT balance (كريدي)",
+    "flexy_warn_time_title": "Any transfer without specifying the exact transfer time is not our responsibility.",
+    "flexy_warn_time_desc": "Stating the exact time is strictly required to process the order.",
+    "flexy_warn_responsibility": "Failure to comply with these conditions is your own responsibility in case of error",
+    "flexy_forbidden_amounts": "Prohibited amounts: 500 / 1000 / 1500 / 2000 DZD",
+    "flexy_recommended_amounts": "To avoid automatic Maktivi package activation, add 10 DZD and send: 510 / 1010 / 1510 / 2010 / 2510 DZD",
+    "flexy_time_label": "Exact Flexy sending time (Required ⚠️)",
+    "flexy_time_placeholder": "e.g. 14:35",
+    "flexy_sender_label": "Flexy sender phone number",
+    "flexy_sender_placeholder": "e.g. 0652426986",
+    "flexy_current_time": "Current time",
+    "flexy_time_required_error": "Specifying the exact Flexy sending time (e.g. 14:35) is required to proceed."
   },
   "ProofUpload": {
     "title": "Upload Payment Proof",

@@ -22,7 +22,7 @@ export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState<"payment" | "proof">("payment");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [flexyPhone, setFlexyPhone] = useState<string>("0550000000");
+  const [flexyPhone, setFlexyPhone] = useState<string>("06 52 42 69 86");
   const [flexyFeePercent, setFlexyFeePercent] = useState<number>(20);
 
   useEffect(() => {
@@ -38,8 +38,12 @@ export default function CheckoutPage() {
 
   const totalPrice = getTotalPrice();
   const isFlexy = paymentMethod?.id === "flexy" || (paymentMethod?.name || "").toLowerCase().includes("flexy");
-  const flexyFee = isFlexy ? Math.round(totalPrice * (flexyFeePercent / 100)) : 0;
-  const finalPayPrice = totalPrice + flexyFee;
+  const flexyBaseFee = isFlexy ? Math.round(totalPrice * (flexyFeePercent / 100)) : 0;
+  let finalPayPrice = totalPrice + flexyBaseFee;
+  // Anti-Maktivi offset: avoid 500, 1000, 1500, 2000...
+  const antiMaktiviExtra = (isFlexy && finalPayPrice % 500 === 0 && finalPayPrice >= 500) ? 10 : 0;
+  finalPayPrice += antiMaktiviExtra;
+  const flexyFee = flexyBaseFee + antiMaktiviExtra;
 
   if (items.length === 0) {
     return (

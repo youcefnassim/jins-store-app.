@@ -390,7 +390,22 @@
     "promo_placeholder": "Code promo",
     "promo_apply": "Appliquer",
     "promo_success": "Code promo appliqué avec succès !",
-    "promo_error": "Code invalide ou expiré."
+    "promo_error": "Code invalide ou expiré.",
+    "flexy_number_title": "Numéro Flexy (Mobilis)",
+    "flexy_rule_no_maktivi": "Ne pas envoyer de MAKTIVI (ماكتيفي)",
+    "flexy_rule_no_intl": "Pas de crédit international CRÉDIT (INTERNATIONAL)",
+    "flexy_rule_credit_only": "Accepté UNIQUEMENT : Solde CRÉDIT normal (كريدي)",
+    "flexy_warn_time_title": "Tout transfert sans mention de l'heure d'envoi ne sera pas pris en charge.",
+    "flexy_warn_time_desc": "La mention de l'heure exacte est strictement obligatoire.",
+    "flexy_warn_responsibility": "Le non-respect de ces conditions relève de votre entière responsabilité en cas d'erreur",
+    "flexy_forbidden_amounts": "Interdit en flexy : 500 / 1000 / 1500 / 2000 DA",
+    "flexy_recommended_amounts": "Pour éviter le forfait Maktivi automatique, ajoutez 10 DA et envoyez : 510 / 1010 / 1510 / 2010 / 2510 DA",
+    "flexy_time_label": "Heure exacte d'envoi du Flexy (Obligatoire ⚠️)",
+    "flexy_time_placeholder": "ex: 14:35",
+    "flexy_sender_label": "Numéro de téléphone émetteur du Flexy",
+    "flexy_sender_placeholder": "ex: 0652426986",
+    "flexy_current_time": "Heure actuelle",
+    "flexy_time_required_error": "L'heure exacte d'envoi du Flexy est requise (ex: 14:35) pour valider votre commande."
   },
   "ProofUpload": {
     "title": "Téléverser le Reçu de Paiement",

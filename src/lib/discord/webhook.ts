@@ -12,6 +12,7 @@ interface DiscordOrderNotification {
   paymentMethod?: string;
   receiptUrl?: string;
   customerEmail?: string;
+  notes?: string;
 }
 
 interface DiscordTopupNotification {
@@ -39,6 +40,7 @@ export async function sendDiscordOrderNotification(order: DiscordOrderNotificati
         { name: '🆔 ID Joueur', value: `\`${order.playerId}\``, inline: true },
         { name: '💳 Paiement', value: order.paymentMethod || 'BaridiMob / Reçu', inline: true },
         { name: '📄 ID Commande', value: `\`${order.orderId.slice(0, 8)}\``, inline: true },
+        ...(order.notes ? [{ name: '📝 Infos / Heure Flexy', value: `\`${order.notes}\``, inline: false }] : []),
       ],
       timestamp: new Date().toISOString(),
       footer: { text: 'Jin Store Notification Bot' },
