@@ -2,6 +2,7 @@ import { ITopupProvider } from './types';
 import { SimulatorTopupProvider } from './providers/simulator';
 import { SeagmTopupProvider } from './providers/seagm';
 import { Item4GamerTopupProvider } from './providers/item4gamer';
+import { MooGoldTopupProvider } from './providers/moogold';
 
 export * from './types';
 
@@ -11,6 +12,11 @@ export * from './types';
  */
 export function getActiveTopupProvider(): ITopupProvider {
   const providerType = (process.env.TOPUP_PROVIDER || '').toLowerCase();
+
+  if (providerType === 'moogold' || (!providerType && process.env.MOOGOLD_PARTNER_ID)) {
+    const moogold = new MooGoldTopupProvider();
+    if (moogold.isConfigured()) return moogold;
+  }
 
   if (providerType === 'seagm' || (!providerType && process.env.SEAGM_API_KEY)) {
     const seagm = new SeagmTopupProvider();
