@@ -102,20 +102,20 @@ export function QuickPreferencesHub() {
           {locale === "ar" ? (
             <>
               <span className="font-black underline decoration-primary underline-offset-2">AR</span>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500">FR</span>
+              <span className="text-slate-400 hidden sm:inline">/</span>
+              <span className="text-slate-500 hidden sm:inline">FR</span>
             </>
           ) : locale === "en" ? (
             <>
               <span className="font-black underline decoration-primary underline-offset-2">EN</span>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500">FR</span>
+              <span className="text-slate-400 hidden sm:inline">/</span>
+              <span className="text-slate-500 hidden sm:inline">FR</span>
             </>
           ) : (
             <>
               <span className="font-black underline decoration-primary underline-offset-2">FR</span>
-              <span className="text-slate-400">/</span>
-              <span className="text-slate-500">AR</span>
+              <span className="text-slate-400 hidden sm:inline">/</span>
+              <span className="text-slate-500 hidden sm:inline">AR</span>
             </>
           )}
         </span>

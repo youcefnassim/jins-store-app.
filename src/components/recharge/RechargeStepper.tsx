@@ -243,13 +243,13 @@ export function RechargeStepper() {
       <div className="w-full lg:w-2/3 flex flex-col gap-4 sm:gap-6">
         
         {/* Progress Indicator (2 Steps) */}
-        <div className="glass-card rounded-xl p-3 sm:p-4 border border-slate-200/60 dark:border-white/10 shadow-sm">
-          <div className="grid grid-cols-2 gap-3 relative">
+        <div className="glass-card rounded-xl p-2.5 sm:p-4 border border-slate-200/60 dark:border-white/10 shadow-sm">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 relative">
             {STEPS.map((step) => (
               <div 
                 key={step.id} 
                 className={cn(
-                  "flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer",
+                  "flex items-center gap-2 sm:gap-2.5 p-2 sm:p-3 rounded-xl border transition-all cursor-pointer select-none",
                   currentStep === step.id 
                     ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
                     : currentStep > step.id
@@ -263,7 +263,7 @@ export function RechargeStepper() {
               >
                 <div 
                   className={cn(
-                    "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                    "w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
                     currentStep > step.id
                       ? "bg-emerald-500 text-white"
                       : currentStep === step.id
@@ -271,11 +271,18 @@ export function RechargeStepper() {
                       : "bg-slate-200 dark:bg-white/10 text-slate-500"
                   )}
                 >
-                  {currentStep > step.id ? <Check className="w-4 h-4" /> : step.id}
+                  {currentStep > step.id ? <Check className="w-3.5 h-3.5" /> : step.id}
                 </div>
-                <span className="text-xs sm:text-sm font-semibold truncate">
-                  {t(step.key as any)}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <span className="hidden sm:inline text-xs sm:text-sm font-semibold truncate block">
+                    {t(step.key as any)}
+                  </span>
+                  <span className="sm:hidden text-[11px] font-bold leading-tight block truncate">
+                    {step.id === 1
+                      ? (locale === "ar" ? "اللاعب والباقة" : locale === "en" ? "Player & Pack" : "Joueur & Pack")
+                      : (locale === "ar" ? "الدفع والإثبات" : locale === "en" ? "Payment & Proof" : "Paiement & Reçu")}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -380,27 +387,31 @@ export function RechargeStepper() {
         {currentStep === 2 && (
           <div id="payment-selector-section" className="space-y-4 sm:space-y-6 scroll-mt-20">
             {/* ── Chargily Pay Card (Automatic Payment) ───────── */}
-            <div className="relative rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent p-5 sm:p-6 overflow-hidden">
-              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl" />
+            <div className="relative rounded-2xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent p-4 sm:p-6 overflow-hidden shadow-lg">
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
               
               <div className="flex items-start gap-3 sm:gap-4">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
-                  <span className="text-xl sm:text-2xl">⚡</span>
+                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0 shadow-inner">
+                  <span className="text-lg sm:text-2xl">⚡</span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <h3 className="font-bold text-white text-base sm:text-lg">Chargily Pay</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Automatique</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">Mode Test</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                    <h3 className="font-bold text-white text-sm sm:text-lg">Chargily Pay</h3>
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      Automatique
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                      Mode Test
+                    </span>
                   </div>
-                  <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
-                    Paiement sécurisé par carte <strong className="text-white/80">CIB</strong> ou <strong className="text-white/80">EDAHABIA</strong>. Confirmation instantanée — aucun reçu requis.
+                  <p className="text-xs sm:text-sm text-white/70 mb-3 sm:mb-4 leading-relaxed break-words">
+                    Paiement sécurisé par carte <strong className="text-white">CIB</strong> ou <strong className="text-white">EDAHABIA</strong>. Confirmation instantanée — aucun reçu requis.
                   </p>
                   
                   <Button
                     onClick={handleChargilyCheckout}
                     disabled={isSubmitting || !orderData.playerId.trim() || !orderData.package}
-                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-bold h-11 sm:h-12 px-6 sm:px-8 rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50 text-sm"
+                    className="w-full sm:w-auto bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white font-bold h-11 sm:h-12 px-4 sm:px-8 rounded-xl shadow-lg shadow-primary/25 disabled:opacity-50 text-xs sm:text-sm flex items-center justify-center gap-1.5"
                   >
                     {isSubmitting ? (
                       <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />Redirection...</>

@@ -33,7 +33,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
       <TopMarquee />
       <Navbar />
       <BottomTabBar />
-      <main className="flex-1 flex flex-col pb-20 md:pb-0">
+      <main className="flex-1 flex flex-col pb-28 sm:pb-32 md:pb-0">
         <PageTransition>
           {children}
         </PageTransition>

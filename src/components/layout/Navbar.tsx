@@ -82,11 +82,11 @@ export function Navbar() {
               <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 flex items-center justify-center overflow-hidden rounded-full border border-slate-200 dark:border-white/10 shadow-sm group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition-all duration-300 shrink-0">
                 <img src="/logo.jpg" alt="Jin's Store Logo" className="w-full h-full object-cover" />
               </div>
-              <div className="flex flex-col">
-                <span className="font-black text-xs sm:text-sm md:text-base tracking-wider uppercase text-slate-900 dark:text-white leading-tight font-sans">
+              <div className="flex flex-col min-w-0">
+                <span className="font-black text-xs sm:text-sm md:text-base tracking-wider uppercase text-slate-900 dark:text-white leading-tight font-sans truncate">
                   {siteConfig.name}
                 </span>
-                <span className="text-[7.5px] sm:text-[8.5px] font-extrabold tracking-widest text-primary dark:text-purple-400 uppercase leading-none mt-0.5">
+                <span className="text-[7.5px] sm:text-[8.5px] font-extrabold tracking-widest text-primary dark:text-purple-400 uppercase leading-none mt-0.5 hidden xs:block">
                   RECHARGE & GAMING
                 </span>
               </div>
