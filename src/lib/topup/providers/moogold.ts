@@ -3,12 +3,13 @@ import { ITopupProvider, PlayerValidationResult, TopupExecutionResult, TopupOrde
 
 /**
  * MooGold B2B Game Top-up API Provider
- * Official Documentation: https://moogold.com/moogold-api/
+ * Official Documentation: https://doc.moogold.com/
  * Base Endpoint: https://moogold.com/wp-json/v1/api/
  */
 export class MooGoldTopupProvider implements ITopupProvider {
   name = 'MooGold B2B API';
 
+  private userId = process.env.MOOGOLD_USER_ID || '';
   private partnerId = process.env.MOOGOLD_PARTNER_ID || '';
   private secretKey = process.env.MOOGOLD_SECRET_KEY || '';
   private baseUrl = process.env.MOOGOLD_BASE_URL || 'https://moogold.com/wp-json/v1/api';
@@ -19,6 +20,7 @@ export class MooGoldTopupProvider implements ITopupProvider {
 
   /**
    * Generates MooGold HMAC SHA-256 signature and request headers
+   * Signature formula: hash_hmac('SHA256', Payload + Timestamp + Path, secretKey)
    */
   private generateHeaders(path: string, payload: Record<string, unknown>) {
     const timestamp = Math.floor(Date.now() / 1000);
@@ -29,6 +31,8 @@ export class MooGoldTopupProvider implements ITopupProvider {
 
     return {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       'timestamp': String(timestamp),
       'auth': auth,
       'Authorization': `Basic ${basicAuth}`,
@@ -46,7 +50,6 @@ export class MooGoldTopupProvider implements ITopupProvider {
       };
     }
 
-    // Default to success if provider validation is not directly exposed for this game
     return {
       valid: true,
       playerName: `Player_${playerId.slice(0, 4)}`,
@@ -55,6 +58,7 @@ export class MooGoldTopupProvider implements ITopupProvider {
 
   /**
    * Execute an automated direct top-up via MooGold API
+   * Specification: https://doc.moogold.com/#tag/Order/paths/~1order~1create_order/post
    */
   async executeTopup(payload: TopupOrderPayload): Promise<TopupExecutionResult> {
     if (!this.isConfigured()) {
@@ -69,16 +73,18 @@ export class MooGoldTopupProvider implements ITopupProvider {
 
     try {
       const path = 'order/create_order';
+      const productId = payload.packageCode || payload.package;
+      const serverOrZone = payload.zoneId || payload.server;
+
       const requestBody: Record<string, unknown> = {
         path,
         partnerOrderId: payload.orderId,
         data: {
-          category: payload.gameSlug === 'free-fire' ? '2' : payload.gameSlug === 'pubg-mobile' ? '3' : '1',
-          product_id: payload.packageCode || payload.package,
+          category: 1,
+          'product-id': /^\d+$/.test(productId) ? parseInt(productId, 10) : productId,
           quantity: 1,
           'User ID': payload.playerId,
-          ...(payload.zoneId ? { 'Zone ID': payload.zoneId } : {}),
-          ...(payload.server ? { Server: payload.server } : {}),
+          ...(serverOrZone ? { Server: serverOrZone } : {}),
         },
       };
 
@@ -89,16 +95,28 @@ export class MooGoldTopupProvider implements ITopupProvider {
         body: JSON.stringify(requestBody),
       });
 
+      // Handle IP Whitelist or Cloudflare blocking (Error 403 or 433)
+      if (response.status === 403 || response.status === 433) {
+        return {
+          success: false,
+          provider: this.name,
+          transactionId: '',
+          status: 'failed',
+          message: 'Erreur 433/403 MooGold : Votre IP de serveur doit être autorisée (whitelistée) par votre Account Manager MooGold.',
+        };
+      }
+
       const data = await response.json().catch(() => ({}));
 
       // Check MooGold response status
-      if (!response.ok || data.status === false || data.status === 'failed' || data.error) {
+      if (!response.ok || data.status === false || data.status === 'failed' || data.err_code || data.error) {
+        const errorMsg = data.message || data.err_message || data.error || 'Échec de la recharge automatique chez MooGold.';
         return {
           success: false,
           provider: this.name,
           transactionId: String(data.order_id || ''),
           status: 'failed',
-          message: data.message || data.error || 'Échec de la recharge automatique chez MooGold.',
+          message: errorMsg,
           rawResponse: data,
         };
       }
@@ -126,6 +144,7 @@ export class MooGoldTopupProvider implements ITopupProvider {
 
   /**
    * Check Partner Wallet Balance
+   * Specification: https://doc.moogold.com/#tag/User/paths/~1user~1balance/post
    */
   async getBalance(): Promise<ProviderBalance> {
     if (!this.isConfigured()) {
@@ -176,3 +195,4 @@ export class MooGoldTopupProvider implements ITopupProvider {
     }
   }
 }
+
