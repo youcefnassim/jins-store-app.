@@ -1,26 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+const STATIC_PARTICLES = [
+  { id: 1, x: 15, y: 20, size: 2.5, duration: 18, delay: 0 },
+  { id: 2, x: 75, y: 15, size: 2, duration: 22, delay: 1 },
+  { id: 3, x: 40, y: 60, size: 3, duration: 20, delay: 2 },
+  { id: 4, x: 85, y: 70, size: 2, duration: 25, delay: 0.5 },
+  { id: 5, x: 25, y: 80, size: 2.5, duration: 19, delay: 3 },
+  { id: 6, x: 60, y: 35, size: 2, duration: 24, delay: 1.5 },
+];
 
 export function ParticlesBackground() {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; size: number; duration: number; delay: number }>>([]);
-
-  useEffect(() => {
-    // Generate lightweight hardware-accelerated particles
-    const newParticles = Array.from({ length: 12 }).map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 1.5,
-      duration: Math.random() * 15 + 15,
-      delay: Math.random() * 5,
-    }));
-    setParticles(newParticles);
-  }, []);
-
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-15] overflow-hidden opacity-30">
-      {particles.map((p) => (
+    <div className="hidden sm:block fixed inset-0 pointer-events-none z-[-15] overflow-hidden opacity-25">
+      {STATIC_PARTICLES.map((p) => (
         <div
           key={p.id}
           className="absolute rounded-full bg-purple-500/80 animate-pulse will-change-transform"
@@ -31,7 +23,7 @@ export function ParticlesBackground() {
             height: `${p.size}px`,
             animationDuration: `${p.duration}s`,
             animationDelay: `${p.delay}s`,
-            transform: 'translateZ(0)',
+            transform: "translateZ(0)",
           }}
         />
       ))}

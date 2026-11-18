@@ -36,6 +36,8 @@ interface CurrencyState {
   syncRatesWithDb: () => Promise<void>;
 }
 
+let lastSyncTimestamp = 0;
+
 export const useCurrencyStore = create<CurrencyState>()(
   persist(
     (set, get) => ({
@@ -47,6 +49,11 @@ export const useCurrencyStore = create<CurrencyState>()(
       },
 
       syncRatesWithDb: async () => {
+        const now = Date.now();
+        // Throttle currency sync to at most once every 5 minutes
+        if (now - lastSyncTimestamp < 300000) return;
+        lastSyncTimestamp = now;
+
         try {
           const res = await fetch('/api/settings/currency');
           const data = await res.json();

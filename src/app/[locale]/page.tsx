@@ -14,14 +14,15 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 export default function Home() {
   return (
     <div className="flex flex-col relative">
-      {/* Video Background — Home Page Only */}
-      <div className="fixed inset-0 -z-20 w-full h-full overflow-hidden">
+      {/* Video Background — Desktop only, hardware-accelerated */}
+      <div className="fixed inset-0 -z-20 w-full h-full overflow-hidden pointer-events-none">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-40"
+          preload="none"
+          className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-20 dark:opacity-40"
         >
           <source src="/mlb.mp4" type="video/mp4" />
         </video>

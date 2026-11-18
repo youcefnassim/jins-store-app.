@@ -109,6 +109,16 @@ html {
   max-width: 100vw;
 }
 
+/* Performance optimizations: GPU acceleration & content-visibility */
+img, video {
+  content-visibility: auto;
+}
+
+header, nav {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 @layer base {
   * {
     @apply border-border;

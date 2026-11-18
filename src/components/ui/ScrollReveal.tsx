@@ -12,7 +12,7 @@ interface ScrollRevealProps {
 
 export function ScrollReveal({ children, width = "100%", delay = 0, direction = "up" }: ScrollRevealProps) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const isInView = useInView(ref, { once: true, amount: 0.05 });
   const controls = useAnimation();
 
   useEffect(() => {
@@ -23,11 +23,11 @@ export function ScrollReveal({ children, width = "100%", delay = 0, direction = 
 
   const getHiddenState = () => {
     switch (direction) {
-      case "up": return { opacity: 0, y: 50 };
-      case "down": return { opacity: 0, y: -50 };
-      case "left": return { opacity: 0, x: 50 };
-      case "right": return { opacity: 0, x: -50 };
-      default: return { opacity: 0, y: 50 };
+      case "up": return { opacity: 0, y: 15 };
+      case "down": return { opacity: 0, y: -15 };
+      case "left": return { opacity: 0, x: 15 };
+      case "right": return { opacity: 0, x: -15 };
+      default: return { opacity: 0, y: 15 };
     }
   };
 
@@ -44,7 +44,8 @@ export function ScrollReveal({ children, width = "100%", delay = 0, direction = 
         }}
         initial="hidden"
         animate={controls}
-        transition={{ duration: 0.6, delay: delay, ease: "easeOut" }}
+        transition={{ duration: 0.25, delay: Math.min(delay, 0.1), ease: "easeOut" }}
+        style={{ willChange: "transform, opacity" }}
       >
         {children}
       </motion.div>

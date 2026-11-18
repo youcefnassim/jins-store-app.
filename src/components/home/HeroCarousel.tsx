@@ -5,25 +5,41 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 
+const DEFAULT_BANNERS = [
+  {
+    id: "default-mlbb",
+    title: "Mobile Legends: Bang Bang",
+    image_url: "/images/games/mlbb.jpg",
+    link_url: "/recharge?game=mobile-legends",
+  },
+  {
+    id: "default-ff",
+    title: "Free Fire",
+    image_url: "/images/games/free-fire.png",
+    link_url: "/games/free-fire",
+  },
+  {
+    id: "default-pubg",
+    title: "PUBG Mobile",
+    image_url: "/images/games/pubg-mobile.png",
+    link_url: "/games/pubg-mobile",
+  },
+];
+
 export function HeroCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeBanners, setActiveBanners] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [activeBanners, setActiveBanners] = useState<any[]>(DEFAULT_BANNERS);
 
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await fetch(`/api/banners?t=${Date.now()}`, { cache: 'no-store' });
+        const res = await fetch('/api/banners');
         const data = await res.json();
         if (data.banners && data.banners.length > 0) {
           setActiveBanners(data.banners);
-        } else {
-          setActiveBanners([]);
         }
       } catch (e) {
-        setActiveBanners([]);
-      } finally {
-        setLoading(false);
+        // Fallback already in place
       }
     };
     fetchBanners();
@@ -32,12 +48,12 @@ export function HeroCarousel() {
   const currentBanners = activeBanners;
 
   useEffect(() => {
-    if (loading) return;
+    if (currentBanners.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === currentBanners.length - 1 ? 0 : prev + 1));
     }, 5000);
     return () => clearInterval(timer);
-  }, [currentBanners.length, loading]);
+  }, [currentBanners.length]);
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === currentBanners.length - 1 ? 0 : prev + 1));
@@ -47,7 +63,7 @@ export function HeroCarousel() {
     setCurrentIndex((prev) => (prev === 0 ? currentBanners.length - 1 : prev - 1));
   };
 
-  if (loading || currentBanners.length === 0) {
+  if (currentBanners.length === 0) {
     return null;
   }
 

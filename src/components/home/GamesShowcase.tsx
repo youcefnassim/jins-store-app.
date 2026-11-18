@@ -106,6 +106,11 @@ export function GamesShowcase() {
   const locale = useLocale();
   const isAr = locale === "ar";
   const { formatPrice } = useCurrencyStore();
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window);
+  }, []);
 
   const [games, setGames] = useState<GameCardData[]>([
     {
@@ -224,7 +229,7 @@ export function GamesShowcase() {
   return (
     <section className="py-10 sm:py-16 md:py-20 relative overflow-hidden">
       {/* Dynamic Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-primary/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-primary/10 rounded-full blur-[80px] pointer-events-none -z-10" />
 
       <div className="container mx-auto px-3 sm:px-6 relative z-10">
         {/* Section Header */}
@@ -257,19 +262,20 @@ export function GamesShowcase() {
             return (
               <motion.div
                 key={game.slug}
-                initial={{ opacity: 0, y: 25 }}
+                initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
                 className="h-full"
               >
                 <Tilt
-                  tiltMaxAngleX={8}
-                  tiltMaxAngleY={8}
-                  scale={1.02}
+                  tiltEnable={!isTouchDevice}
+                  glareEnable={!isTouchDevice}
+                  tiltMaxAngleX={6}
+                  tiltMaxAngleY={6}
+                  scale={isTouchDevice ? 1 : 1.02}
                   transitionSpeed={2000}
-                  glareEnable={true}
-                  glareMaxOpacity={0.15}
+                  glareMaxOpacity={0.12}
                   glareColor="#ffffff"
                   glarePosition="all"
                   glareBorderRadius="20px"
@@ -277,18 +283,18 @@ export function GamesShowcase() {
                 >
                   <Link href={game.link} className="block h-full group">
                     <div
-                      className={`relative h-full min-h-[340px] sm:min-h-[420px] rounded-2xl sm:rounded-3xl p-[2px] overflow-hidden transition-all duration-500 ${game.theme.accentGlow}`}
+                      className={`relative h-full min-h-[340px] sm:min-h-[420px] rounded-2xl sm:rounded-3xl p-[2px] overflow-hidden transition-all duration-300 ${game.theme.accentGlow}`}
                     >
                       {/* Animated Neon Gradient Border on Hover */}
                       <div
-                        className={`absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10 ${game.theme.borderGradient} transition-all duration-500 opacity-60 group-hover:opacity-100`}
+                        className={`absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10 ${game.theme.borderGradient} transition-all duration-300 opacity-60 group-hover:opacity-100`}
                       />
 
                       {/* Inner Card Container */}
-                      <div className="relative h-full w-full bg-slate-900/90 dark:bg-[#0b0e1b]/95 backdrop-blur-2xl rounded-[18px] sm:rounded-[22px] overflow-hidden flex flex-col justify-between p-3 sm:p-5 border border-white/10">
+                      <div className="relative h-full w-full bg-slate-900/90 dark:bg-[#0b0e1b]/95 backdrop-blur-md rounded-[18px] sm:rounded-[22px] overflow-hidden flex flex-col justify-between p-3 sm:p-5 border border-white/10">
                         {/* Ambient Image Backdrop with Blur */}
                         <div
-                          className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-35 scale-125 blur-lg transition-transform duration-700 ease-out pointer-events-none"
+                          className="absolute inset-0 bg-cover bg-center opacity-25 group-hover:opacity-35 scale-110 blur-sm transition-transform duration-500 ease-out pointer-events-none"
                           style={{ backgroundImage: `url(${game.image})` }}
                         />
 
